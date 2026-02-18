@@ -1,0 +1,25 @@
+[
+  {
+    "nrTicket": 1,
+    "stato": "Segnalato",
+    "tipo": "Bug",
+    "bloccante": "Bloccante",
+    "priorita": "Alta",
+    "dataInserimento": "2026-02-18",
+    "ambito": "FASE1",
+    "menu": "Pianificazione cantieri",
+    "titolo": "234324234",
+    "descrizione": "ew3er2er",
+    "inseritoDa": "32r2",
+    "inCaricoA": "23r23",
+    "dataInizioPrevista": "",
+    "dataFinePrevista": "",
+    "dataRilascio": "",
+    "descrizioneAttivitaSoluzione": "",
+    "dataSegnalato": "",
+    "dataPresoInCarico": "",
+    "dataRilasciato": "",
+    "dataInTest": "",
+    "dataCompletato": ""
+  }
+]
