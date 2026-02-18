@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "stato": "Segnalato",
+    "tipo": "Bug",
+    "bloccante": "Bloccante",
+    "priorita": "Alta",
+    "dataInserimento": "2026-02-18",
+    "ambito": "FASE1",
+    "menu": "Pianificazione cantieri",
+    "titolo": "eeeee",
+    "descrizione": "dddddd",
+    "inseritoDa": "fffff",
+    "inCaricoA": "ggggg",
+    "dataInizioPrev": "",
+    "dataFinePrev": "",
+    "dataRilascio": "",
+    "descrizioneSoluzione": "",
+    "nrTicket": 1771410773569
+  }
+]
