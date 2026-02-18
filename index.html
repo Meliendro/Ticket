@@ -3,30 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Manager</title>
+<title>Ticket Table</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f3f4f6;
-  }
-  .modal-bg {
-    background: rgba(0,0,0,0.5);
-  }
-</style>
 </head>
-<body class="p-4">
+<body class="p-4 bg-gray-100">
 
-<!-- Header -->
 <div class="flex justify-between items-center mb-4">
-  <h1 class="text-2xl font-bold">Ticket Manager</h1>
-  <button onclick="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 flex items-center gap-2">
+  <h1 class="text-2xl font-bold">Ticket Table</h1>
+  <button onclick="window.location.href='inserimento.html'" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 flex items-center gap-2">
     <i class="fas fa-plus"></i> Nuovo Ticket
   </button>
 </div>
 
-<!-- Ticket Table -->
 <div class="overflow-x-auto shadow-lg rounded-lg bg-white">
   <table class="min-w-full divide-y divide-gray-200" id="ticketTable">
     <thead class="bg-gray-50">
@@ -45,157 +34,38 @@
       </tr>
     </thead>
     <tbody id="ticketBody" class="divide-y divide-gray-100">
-      <!-- Ticket rows will appear here -->
+      <!-- Ticket rows loaded from JSON -->
     </tbody>
   </table>
 </div>
 
-<!-- Modal -->
-<div id="ticketModal" class="hidden fixed inset-0 z-50 flex justify-center items-start pt-20 modal-bg">
-  <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl p-6 relative">
-    <h2 class="text-xl font-bold mb-4">Nuovo Ticket</h2>
-    <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800"><i class="fas fa-times"></i></button>
-    <form id="ticketForm" class="space-y-4">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-semibold">Stato</label>
-          <select id="stato" class="w-full p-2 border rounded">
-            <option>Segnalato</option>
-            <option>Preso in carico</option>
-            <option>Rilasciato</option>
-            <option>In Test</option>
-            <option>Completato</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-semibold">Tipo</label>
-          <select id="tipo" class="w-full p-2 border rounded">
-            <option>Bug</option>
-            <option>Miglioria</option>
-            <option>Nuova richiesta</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-semibold">Bloccante</label>
-          <select id="bloccante" class="w-full p-2 border rounded">
-            <option>Bloccante</option>
-            <option>Non Bloccante</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-semibold">Priorità</label>
-          <select id="priorita" class="w-full p-2 border rounded">
-            <option>Alta</option>
-            <option>Media</option>
-            <option>Bassa</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-semibold">Data Inserimento</label>
-          <input type="date" id="dataInserimento" class="w-full p-2 border rounded" value="">
-        </div>
-        <div>
-          <label class="block text-sm font-semibold">Ambito</label>
-          <select id="ambito" class="w-full p-2 border rounded">
-            <option>FASE1</option>
-            <option>FASE2</option>
-            <option>FASE3</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-semibold">Menu</label>
-          <select id="menu" class="w-full p-2 border rounded">
-            <option>Pianificazione cantieri</option>
-            <option>Pianificazione Squadre</option>
-            <option>Da segnalare</option>
-          </select>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-semibold">Titolo</label>
-          <input type="text" id="titolo" class="w-full p-2 border rounded">
-        </div>
-        <div>
-          <label class="block text-sm font-semibold">Descrizione</label>
-          <textarea id="descrizione" class="w-full p-2 border rounded" rows="3"></textarea>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-semibold">Inserito da</label>
-          <input type="text" id="inseritoDa" class="w-full p-2 border rounded">
-        </div>
-        <div>
-          <label class="block text-sm font-semibold">In carico a</label>
-          <input type="text" id="inCaricoA" class="w-full p-2 border rounded">
-        </div>
-      </div>
-      <div class="flex justify-end gap-4 mt-4">
-        <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded">Annulla</button>
-        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Salva Ticket</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <script>
-let ticketCount = 0;
-const tickets = [];
+let tickets = JSON.parse(localStorage.getItem('tickets') || '[]');
 
-function openModal() {
-  document.getElementById('ticketModal').classList.remove('hidden');
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('dataInserimento').value = today;
-}
-
-function closeModal() {
-  document.getElementById('ticketModal').classList.add('hidden');
-}
-
-document.getElementById('ticketForm').onsubmit = function(e) {
-  e.preventDefault();
-  ticketCount++;
-  const ticket = {
-    nr: ticketCount,
-    stato: document.getElementById('stato').value,
-    tipo: document.getElementById('tipo').value,
-    bloccante: document.getElementById('bloccante').value,
-    priorita: document.getElementById('priorita').value,
-    dataInserimento: document.getElementById('dataInserimento').value,
-    ambito: document.getElementById('ambito').value,
-    menu: document.getElementById('menu').value,
-    titolo: document.getElementById('titolo').value,
-    descrizione: document.getElementById('descrizione').value,
-    inseritoDa: document.getElementById('inseritoDa').value,
-    inCaricoA: document.getElementById('inCaricoA').value
-  };
-  tickets.push(ticket);
-  addTicketRow(ticket);
-  alert('Ticket salvato con successo!');
-  closeModal();
-  this.reset();
-}
-
-function addTicketRow(ticket) {
+function renderTickets() {
   const tbody = document.getElementById('ticketBody');
-  const row = document.createElement('tr');
-  row.className = "bg-white hover:bg-gray-50";
-  row.innerHTML = `
-    <td class="px-4 py-2">${ticket.nr}</td>
-    <td class="px-4 py-2">${ticket.stato}</td>
-    <td class="px-4 py-2">${ticket.tipo}</td>
-    <td class="px-4 py-2">${ticket.priorita}</td>
-    <td class="px-4 py-2">${ticket.dataInserimento}</td>
-    <td class="px-4 py-2">${ticket.ambito}</td>
-    <td class="px-4 py-2">${ticket.menu}</td>
-    <td class="px-4 py-2">${ticket.titolo}</td>
-    <td class="px-4 py-2">${ticket.descrizione}</td>
-    <td class="px-4 py-2">${ticket.inseritoDa}</td>
-    <td class="px-4 py-2">${ticket.inCaricoA}</td>
-  `;
-  tbody.appendChild(row);
+  tbody.innerHTML = '';
+  tickets.forEach(ticket => {
+    const row = document.createElement('tr');
+    row.className = "bg-white hover:bg-gray-50";
+    row.innerHTML = `
+      <td class="px-4 py-2">${ticket.nr}</td>
+      <td class="px-4 py-2">${ticket.stato}</td>
+      <td class="px-4 py-2">${ticket.tipo}</td>
+      <td class="px-4 py-2">${ticket.priorita}</td>
+      <td class="px-4 py-2">${ticket.dataInserimento}</td>
+      <td class="px-4 py-2">${ticket.ambito}</td>
+      <td class="px-4 py-2">${ticket.menu}</td>
+      <td class="px-4 py-2">${ticket.titolo}</td>
+      <td class="px-4 py-2">${ticket.descrizione}</td>
+      <td class="px-4 py-2">${ticket.inseritoDa}</td>
+      <td class="px-4 py-2">${ticket.inCaricoA}</td>
+    `;
+    tbody.appendChild(row);
+  });
 }
+
+renderTickets();
 </script>
 
 </body>
