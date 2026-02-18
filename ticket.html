@@ -131,7 +131,6 @@ const form = document.getElementById('ticketForm');
 const stato = document.getElementById('stato');
 const dataInserimento = document.getElementById('dataInserimento');
 
-// Inizializza date di inserimento
 const today = new Date().toISOString().split('T')[0];
 dataInserimento.value = today;
 
@@ -155,15 +154,18 @@ if(editIndex !== null){
     document.getElementById('descrizioneSoluzione').value = t.descrizioneSoluzione;
 }
 
-// Aggiorna data in base a stato
+// Aggiorna le date dei vari stati solo se non sono già impostate
 stato.addEventListener('change', () => {
     const val = stato.value;
-    const t = tickets[editIndex] || {};
-    if(val==='Segnalato') t.dataSegnalato = new Date().toLocaleDateString();
-    if(val==='Preso in carico') t.dataPresoInCarico = new Date().toLocaleDateString();
-    if(val==='Rilasciato') t.dataRilasciato = new Date().toLocaleDateString();
-    if(val==='in Test') t.dataInTest = new Date().toLocaleDateString();
-    if(val==='Completato') t.dataCompletato = new Date().toLocaleDateString();
+    const t = editIndex !== null ? tickets[editIndex] : {};
+    const todayDate = new Date().toLocaleDateString();
+
+    if(val==='Segnalato' && !t.dataSegnalato) t.dataSegnalato = todayDate;
+    if(val==='Preso in carico' && !t.dataPresoInCarico) t.dataPresoInCarico = todayDate;
+    if(val==='Rilasciato' && !t.dataRilasciato) t.dataRilasciato = todayDate;
+    if(val==='in Test' && !t.dataInTest) t.dataInTest = todayDate;
+    if(val==='Completato' && !t.dataCompletato) t.dataCompletato = todayDate;
+
     if(editIndex !== null) tickets[editIndex] = t;
     localStorage.setItem('tickets', JSON.stringify(tickets));
 });
