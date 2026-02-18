@@ -10,7 +10,8 @@ body { font-family: 'Segoe UI', sans-serif; background-color: #f3f4f6; }
 .glass-panel { background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-radius: 1rem; padding: 1rem; margin: 1rem; max-width: 800px; }
 label { font-size:0.8rem; font-weight:bold; display:block; margin-top:0.5rem; }
 input, select, textarea { width:100%; padding:0.4rem; border-radius:0.3rem; border:1px solid #ddd; margin-top:0.2rem; font-size:0.85rem; }
-button { margin-top:1rem; background-color: #3b82f6; color:white; padding:0.5rem 1rem; border-radius:0.3rem; }
+button { margin-top:1rem; background-color: #3b82f6; color:white; padding:0.5rem 1rem; border-radius:0.3rem; cursor:pointer; }
+button:hover { background-color:#2563eb; }
 </style>
 </head>
 <body class="p-4">
@@ -150,7 +151,8 @@ form.addEventListener('submit', function(e){
         data_preso_in_carico: ticketData?.data_preso_in_carico || null,
         data_in_test: ticketData?.data_in_test || null,
         data_rilasciato: ticketData?.data_rilasciato || null,
-        data_completato: ticketData?.data_completato || null
+        data_completato: ticketData?.data_completato || null,
+        nr_ticket: ticketData?.nr_ticket || null
     };
 
     if(window.opener && !window.opener.closed){
