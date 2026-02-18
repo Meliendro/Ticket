@@ -8,19 +8,21 @@
 <style>
 body { font-family: 'Segoe UI', sans-serif; background-color: #f3f4f6; }
 table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-th, td { border: 1px solid #ddd; padding: 0.5rem; font-size: 0.85rem; }
+th, td { border: 1px solid #ddd; padding: 0.5rem; font-size: 0.85rem; text-align: center; }
 th { background-color: #3b82f6; color: white; }
-button { background-color: #3b82f6; color:white; padding:0.3rem 0.5rem; border-radius:0.25rem; font-size:0.8rem; }
+button { background-color: #3b82f6; color:white; padding:0.2rem 0.4rem; border-radius:0.25rem; font-size:0.8rem; cursor:pointer; }
+button:hover { background-color:#2563eb; }
 </style>
 </head>
 <body class="p-4">
 
 <h1 class="text-xl font-bold">Elenco Ticket</h1>
-<button onclick="apriInserimento()" class="mb-2">Nuovo Ticket</button>
+<button onclick="apriInserimento()" class="mb-2 px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600">Nuovo Ticket</button>
 
 <table id="ticketTable">
 <thead>
 <tr>
+<th>Azioni</th>
 <th>Nr.</th>
 <th>Stato</th>
 <th>Tipo</th>
@@ -41,7 +43,6 @@ button { background-color: #3b82f6; color:white; padding:0.3rem 0.5rem; border-r
 <th>Rilasciato</th>
 <th>Completato</th>
 <th>Descrizione soluzione</th>
-<th>Azioni</th>
 </tr>
 </thead>
 <tbody>
@@ -64,6 +65,7 @@ function aggiornaTabella() {
     tickets.forEach((t,i)=>{
         const tr = document.createElement('tr');
         tr.innerHTML = `
+        <td><button onclick="apriInserimento(${i})">✏️</button></td>
         <td>${t.nr_ticket}</td>
         <td>${t.stato}</td>
         <td>${t.tipo}</td>
@@ -84,7 +86,6 @@ function aggiornaTabella() {
         <td>${t.data_rilasciato||''}</td>
         <td>${t.data_completato||''}</td>
         <td>${t.descrizione_soluzione}</td>
-        <td><button onclick="apriInserimento(${i})">Modifica</button></td>
         `;
         tbody.appendChild(tr);
     });
