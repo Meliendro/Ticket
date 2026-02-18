@@ -19,43 +19,49 @@ button { background-color: #3b82f6; color:white; padding:0.3rem 0.5rem; border-r
 <button onclick="apriInserimento()" class="mb-2">Nuovo Ticket</button>
 
 <table id="ticketTable">
-    <thead>
-        <tr>
-            <th>Nr.</th>
-            <th>Stato</th>
-            <th>Tipo</th>
-            <th>Priorità</th>
-            <th>Data Inserimento</th>
-            <th>Ambito</th>
-            <th>Menu</th>
-            <th>Titolo</th>
-            <th>Descrizione</th>
-            <th>Inserito da</th>
-            <th>In carico a</th>
-            <th>Data inizio prevista</th>
-            <th>Data fine prevista</th>
-            <th>Data rilascio</th>
-            <th>Descrizione soluzione</th>
-            <th>Azioni</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- I ticket verranno inseriti qui -->
-    </tbody>
+<thead>
+<tr>
+<th>Nr.</th>
+<th>Stato</th>
+<th>Tipo</th>
+<th>Priorità</th>
+<th>Data Inserimento</th>
+<th>Ambito</th>
+<th>Menu</th>
+<th>Titolo</th>
+<th>Descrizione</th>
+<th>Inserito da</th>
+<th>In carico a</th>
+<th>Data inizio prevista</th>
+<th>Data fine prevista</th>
+<th>Data rilascio</th>
+<th>Segnalato</th>
+<th>Preso in carico</th>
+<th>In Test</th>
+<th>Rilasciato</th>
+<th>Completato</th>
+<th>Descrizione soluzione</th>
+<th>Azioni</th>
+</tr>
+</thead>
+<tbody>
+<!-- I ticket verranno inseriti qui -->
+</tbody>
 </table>
 
 <script>
-let tickets = []; // array locale
+let tickets = [];
 
-function apriInserimento() {
-    window.open('inserimento.html', 'popup', 'width=900,height=700');
+function apriInserimento(ticketIndex=null){
+    let url = 'inserimento.html';
+    if(ticketIndex !== null) url += '?edit=' + ticketIndex;
+    window.open(url, 'popup', 'width=900,height=700');
 }
 
-// funzione per aggiornare la tabella
 function aggiornaTabella() {
     const tbody = document.querySelector('#ticketTable tbody');
     tbody.innerHTML = '';
-    tickets.forEach((t, i)=>{
+    tickets.forEach((t,i)=>{
         const tr = document.createElement('tr');
         tr.innerHTML = `
         <td>${i+1}</td>
@@ -72,16 +78,25 @@ function aggiornaTabella() {
         <td>${t.data_inizio_prevista}</td>
         <td>${t.data_fine_prevista}</td>
         <td>${t.data_rilascio}</td>
+        <td>${t.data_segnalato||''}</td>
+        <td>${t.data_preso_in_carico||''}</td>
+        <td>${t.data_in_test||''}</td>
+        <td>${t.data_rilasciato||''}</td>
+        <td>${t.data_completato||''}</td>
         <td>${t.descrizione_soluzione}</td>
-        <td><button onclick="modificaTicket(${i})">Modifica</button></td>
+        <td><button onclick="apriInserimento(${i})">Modifica</button></td>
         `;
         tbody.appendChild(tr);
     });
 }
 
 // funzione per ricevere ticket dal popup
-function riceviTicket(ticket) {
-    tickets.unshift(ticket);
+function riceviTicket(ticket, index=null) {
+    if(index !== null){
+        tickets[index] = ticket;
+    } else {
+        tickets.unshift(ticket);
+    }
     aggiornaTabella();
 }
 </script>
