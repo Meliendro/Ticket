@@ -1,253 +1,203 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Gestione Ticket 2026</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket Table</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-body{
-    font-family: 'Segoe UI', sans-serif;
-    background:#f4f6f9;
-    margin:0;
-    padding:20px;
-}
-
-h1{
-    margin:0 0 20px 0;
-    color:#1f2937;
-}
-
-.top-bar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-}
-
-.btn{
-    background:#2563eb;
-    color:white;
-    border:none;
-    padding:10px 18px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:600;
-}
-
-.btn:hover{ background:#1e40af; }
-
-.filters{
-    display:flex;
-    gap:15px;
-    margin-bottom:20px;
-    flex-wrap:wrap;
-}
-
-.filters select{
-    padding:8px 12px;
+body { font-family: 'Segoe UI', sans-serif; background: #f4f4f5; }
+h1 { font-weight: 700; }
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 0.5rem; text-align: left; white-space: nowrap; }
+th { background: #1f2937; color: #fff; position: sticky; top: 0; }
+tr:nth-child(even) { background: #f9fafb; }
+.priority-alta { background: #dc2626; color: #fff; font-weight: bold; text-align: center; }
+.priority-media { background: #f59e0b; color: #fff; font-weight: bold; text-align: center; }
+.priority-bassa { background: #10b981; color: #fff; font-weight: bold; text-align: center; }
+.status-Segnalato { color: #ef4444; font-weight: bold; }
+.status-Preso { color: #f59e0b; font-weight: bold; }
+.status-Rilasciato { color: #3b82f6; font-weight: bold; }
+.status-InTest { color: #6366f1; font-weight: bold; }
+.status-Completato { color: #10b981; font-weight: bold; }
+button { cursor: pointer; }
+.filter-select {
+    padding:6px 10px;
     border-radius:6px;
     border:1px solid #d1d5db;
-}
-
-.table-container{
     background:white;
-    border-radius:12px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.05);
-    overflow:hidden;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-thead{
-    background:#111827;
-    color:white;
-}
-
-th, td{
-    padding:12px 10px;
-    font-size:14px;
-    text-align:left;
-    white-space:nowrap;
-}
-
-tbody tr{
-    border-bottom:1px solid #e5e7eb;
-}
-
-tbody tr:hover{
-    background:#f9fafb;
-}
-
-.badge{
-    padding:4px 8px;
-    border-radius:6px;
-    font-size:12px;
-    font-weight:600;
-    color:white;
-}
-
-.alta{ background:#dc2626; }
-.media{ background:#f59e0b; }
-.bassa{ background:#16a34a; }
-
-.stato{
-    background:#6b7280;
-}
-
-.bloccante-si{
-    background:#b91c1c;
-}
-.bloccante-no{
-    background:#10b981;
-}
-
-.edit-btn{
-    cursor:pointer;
-    font-size:16px;
 }
 </style>
 </head>
+<body class="p-6">
 
-<body>
+<header class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl">Gestione Ticket</h1>
+    <div class="flex gap-3">
+        <button onclick="newTicket()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"><i class="fas fa-plus"></i> Nuovo Ticket</button>
+        <button onclick="configureGitHub()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700"><i class="fas fa-cog"></i> Config GitHub</button>
+    </div>
+</header>
 
-<h1>📋 Ticket 2026</h1>
-
-<div class="top-bar">
-    <button class="btn" onclick="nuovoTicket()">+ Nuovo Ticket</button>
-</div>
-
-<div class="filters">
-    <select id="filtroStato" onchange="applicaFiltri()">
-        <option value="">Tutti gli stati</option>
+<!-- FILTRI -->
+<div class="flex gap-4 mb-4 flex-wrap">
+    <select id="filterStato" class="filter-select" onchange="applyFilters()">
+        <option value="">Tutti gli Stati</option>
     </select>
 
-    <select id="filtroPriorita" onchange="applicaFiltri()">
-        <option value="">Tutte le priorità</option>
+    <select id="filterPriorita" class="filter-select" onchange="applyFilters()">
+        <option value="">Tutte le Priorità</option>
         <option value="Alta">Alta</option>
         <option value="Media">Media</option>
         <option value="Bassa">Bassa</option>
     </select>
 
-    <select id="filtroBloccante" onchange="applicaFiltri()">
-        <option value="">Bloccante: Tutti</option>
+    <select id="filterBloccante" class="filter-select" onchange="applyFilters()">
+        <option value="">Bloccante (Tutti)</option>
         <option value="SI">SI</option>
         <option value="NO">NO</option>
     </select>
 </div>
 
-<div class="table-container">
-<table>
-<thead>
-<tr>
-    <th>✏</th>
-    <th>Ticket</th>
-    <th>Oggetto</th>
-    <th>Stato</th>
-    <th>Priorità</th>
-    <th>Bloccante</th>
-    <th>Data Segnalato</th>
-    <th>Data Preso</th>
-    <th>Data Rilascio</th>
-    <th>Data Test</th>
-    <th>Data Completato</th>
-</tr>
-</thead>
-<tbody id="ticketBody"></tbody>
-</table>
+<div class="table-container border rounded shadow">
+    <table id="ticketTable">
+        <thead>
+            <tr>
+                <th>Modifica</th>
+                <th>Nr Ticket</th>
+                <th>Stato</th>
+                <th>Tipo</th>
+                <th>Bloccante</th>
+                <th>Priorità</th>
+                <th>Data Inserimento</th>
+                <th>Ambito</th>
+                <th>Menu</th>
+                <th>Titolo</th>
+                <th>Descrizione</th>
+                <th>Inserito da</th>
+                <th>In carico a</th>
+                <th>Data Inizio Prevista</th>
+                <th>Data Fine Prevista</th>
+                <th>Data Rilascio</th>
+                <th>Descrizione Attività</th>
+                <th>Data Segnalato</th>
+                <th>Data Preso In Carico</th>
+                <th>Data Rilasciato</th>
+                <th>Data In Test</th>
+                <th>Data Completato</th>
+            </tr>
+        </thead>
+        <tbody id="ticketBody"></tbody>
+    </table>
 </div>
 
 <script>
-
+let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let tickets = [];
+let fileSha = "";
 
-async function caricaTicket(){
-    try{
-        const response = await fetch('ticket/2026/ticket2026.json');
-        tickets = await response.json();
-
-        // ORDINAMENTO DECRESCENTE PER NUMERO TICKET
-        tickets.sort((a,b) => b.numero - a.numero);
-
-        popolaFiltri();
-        applicaFiltri();
-
-    }catch(e){
-        alert("Errore caricamento ticket");
-    }
+function configureGitHub() {
+    const pin = prompt("Inserisci PIN per configurazione:");
+    if(pin === "1234"){
+        const repo = prompt("Repo GitHub (es: user/repo)");
+        const token = prompt("Token GitHub");
+        localStorage.setItem('gh_ticket_config', JSON.stringify({repo, token}));
+        config = {repo, token};
+        alert("Configurazione salvata!");
+    } else alert("PIN errato");
 }
 
-function popolaFiltri(){
-    const stati = [...new Set(tickets.map(t=>t.stato).filter(s=>s))];
-    const select = document.getElementById("filtroStato");
-    stati.forEach(stato=>{
-        let opt=document.createElement("option");
-        opt.value=stato;
-        opt.textContent=stato;
+async function loadTickets() {
+    if(!config) { alert("⚠️ Configurare GitHub per visualizzare i ticket"); return; }
+    try {
+        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
+            headers: {Authorization:`token ${config.token}`}
+        });
+        if(!res.ok) throw new Error("Errore caricamento ticket");
+        const data = await res.json();
+        fileSha = data.sha;
+        tickets = JSON.parse(atob(data.content));
+
+        // ✅ ORDINAMENTO DECRESCENTE
+        tickets.sort((a,b)=> Number(b.nrTicket) - Number(a.nrTicket));
+
+        populateFilters();
+        applyFilters();
+
+    } catch(e) { alert("Errore caricamento ticket: "+e.message); }
+}
+
+function populateFilters(){
+    const stati = [...new Set(tickets.map(t=>t.stato).filter(Boolean))];
+    const select = document.getElementById("filterStato");
+    stati.forEach(s=>{
+        const opt=document.createElement("option");
+        opt.value=s;
+        opt.textContent=s;
         select.appendChild(opt);
     });
 }
 
-function applicaFiltri(){
-    const stato = document.getElementById("filtroStato").value;
-    const priorita = document.getElementById("filtroPriorita").value;
-    const bloccante = document.getElementById("filtroBloccante").value;
+function applyFilters(){
+    const stato = document.getElementById("filterStato").value;
+    const priorita = document.getElementById("filterPriorita").value;
+    const bloccante = document.getElementById("filterBloccante").value;
 
-    let filtrati = tickets.filter(t =>
+    let filtered = tickets.filter(t =>
         (stato==="" || t.stato===stato) &&
         (priorita==="" || t.priorita===priorita) &&
         (bloccante==="" || t.bloccante===bloccante)
     );
 
-    render(filtrati);
+    renderTable(filtered);
 }
 
-function render(lista){
-    const body = document.getElementById("ticketBody");
-    body.innerHTML="";
-
-    lista.forEach(t=>{
-        let tr=document.createElement("tr");
-
-        tr.innerHTML=`
-        <td class="edit-btn" onclick="modificaTicket(${t.numero})">✏</td>
-        <td><strong>${t.numero}</strong></td>
-        <td>${t.oggetto || ""}</td>
-        <td><span class="badge stato">${t.stato || ""}</span></td>
-        <td><span class="badge ${classePriorita(t.priorita)}">${t.priorita || ""}</span></td>
-        <td><span class="badge ${t.bloccante==='SI'?'bloccante-si':'bloccante-no'}">${t.bloccante || ""}</span></td>
-        <td>${t.dataSegnalato || ""}</td>
-        <td>${t.dataPreso || ""}</td>
-        <td>${t.dataRilascio || ""}</td>
-        <td>${t.dataTest || ""}</td>
-        <td>${t.dataCompletato || ""}</td>
+function renderTable(data) {
+    const tbody = document.getElementById('ticketBody');
+    tbody.innerHTML = "";
+    data.forEach((t,i)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+        <td><button onclick="editTicket(${tickets.indexOf(t)})" class="bg-yellow-400 p-1 rounded hover:bg-yellow-500"><i class="fas fa-edit"></i></button></td>
+        <td>${t.nrTicket}</td>
+        <td class="status-${t.stato.replace(/\s/g,'')}">${t.stato}</td>
+        <td>${t.tipo}</td>
+        <td>${t.bloccante}</td>
+        <td class="priority-${t.priorita.toLowerCase()}">${t.priorita}</td>
+        <td>${t.dataInserimento}</td>
+        <td>${t.ambito}</td>
+        <td>${t.menu}</td>
+        <td>${t.titolo}</td>
+        <td>${t.descrizione}</td>
+        <td>${t.inseritoDa}</td>
+        <td>${t.inCaricoA}</td>
+        <td>${t.dataInizioPrevista}</td>
+        <td>${t.dataFinePrevista}</td>
+        <td>${t.dataRilascio}</td>
+        <td>${t.descrAttivita}</td>
+        <td>${t.dataSegnalato||""}</td>
+        <td>${t.dataPresoInCarico||""}</td>
+        <td>${t.dataRilasciato||""}</td>
+        <td>${t.dataInTest||""}</td>
+        <td>${t.dataCompletato||""}</td>
         `;
-
-        body.appendChild(tr);
+        tbody.appendChild(tr);
     });
 }
 
-function classePriorita(p){
-    if(p==="Alta") return "alta";
-    if(p==="Media") return "media";
-    if(p==="Bassa") return "bassa";
-    return "";
+function newTicket() {
+    localStorage.removeItem('edit_ticket');
+    window.open("ticket_form.html","_blank","width=800,height=900");
 }
 
-function nuovoTicket(){
-    window.location.href="ticket_form.html";
+function editTicket(index){
+    localStorage.setItem('edit_ticket', JSON.stringify(tickets[index]));
+    window.open("ticket_form.html","_blank","width=800,height=900");
 }
 
-function modificaTicket(numero){
-    window.location.href="ticket_form.html?edit="+numero;
-}
-
-caricaTicket();
-
+loadTickets();
 </script>
-
 </body>
 </html>
