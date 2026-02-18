@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket Table</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    .status-dot { height:8px; width:8px; border-radius:50%; display:inline-block; margin-right:4px; }
+    .status-Segnalato { background-color:orange; }
+    .status-Preso { background-color:blue; }
+    .status-Rilasciato { background-color:purple; }
+    .status-inTest { background-color:yellow; }
+    .status-Completato { background-color:green; }
+    .priority-Alta { color:red; font-weight:bold; }
+    .priority-Media { color:orange; }
+    .priority-Bassa { color:green; }
+</style>
+</head>
+<body class="bg-gray-100 p-4">
+
+<div class="flex justify-between items-center mb-4">
+    <h1 class="text-xl font-bold">Gestione Ticket</h1>
+    <button onclick="openForm()" class="bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2">
+        <i class="fas fa-plus"></i> Nuovo Ticket
+    </button>
+</div>
+
+<table class="min-w-full bg-white shadow rounded">
+    <thead class="bg-gray-200">
+        <tr>
+            <th class="p-2">Modifica</th>
+            <th class="p-2">Nr Ticket</th>
+            <th class="p-2">Stato</th>
+            <th class="p-2">Tipo</th>
+            <th class="p-2">Priorità</th>
+            <th class="p-2">Menu</th>
+            <th class="p-2">Titolo</th>
+            <th class="p-2">Descrizione</th>
+            <th class="p-2">Data Inserimento</th>
+            <th class="p-2">Inserito Da</th>
+            <th class="p-2">In Carico A</th>
+            <th class="p-2">Data Inizio Prevista</th>
+            <th class="p-2">Data Fine Prevista</th>
+            <th class="p-2">Data Rilascio</th>
+            <th class="p-2">Descrizione Soluzione</th>
+            <th class="p-2">Data Segnalato</th>
+            <th class="p-2">Data Preso In Carico</th>
+            <th class="p-2">Data In Test</th>
+            <th class="p-2">Data Completato</th>
+        </tr>
+    </thead>
+    <tbody id="ticketBody">
+    </tbody>
+</table>
+
+<script>
+let tickets = JSON.parse(localStorage.getItem("tickets") || "[]");
+
+function renderTable(){
+    const tbody = document.getElementById("ticketBody");
+    tbody.innerHTML = "";
+    tickets.forEach((t,i)=>{
+        const tr = document.createElement("tr");
+        tr.className="border-b";
+        tr.innerHTML=`
+            <td class="p-2 text-center">
+                <button onclick="editTicket(${i})" class="text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-edit"></i>
+                </button>
+            </td>
+            <td class="p-2">${t.nrTicket}</td>
+            <td class="p-2">${t.stato}</td>
+            <td class="p-2">${t.tipo}</td>
+            <td class="p-2 ${'priority-'+t.priorita}">${t.priorita}</td>
+            <td class="p-2">${t.menu}</td>
+            <td class="p-2">${t.titolo}</td>
+            <td class="p-2">${t.descrizione}</td>
+            <td class="p-2">${t.dataInserimento}</td>
+            <td class="p-2">${t.inseritoDa}</td>
+            <td class="p-2">${t.inCaricoA}</td>
+            <td class="p-2">${t.dataInizioPrevista}</td>
+            <td class="p-2">${t.dataFinePrevista}</td>
+            <td class="p-2">${t.dataRilascio}</td>
+            <td class="p-2">${t.descrizioneSoluzione}</td>
+            <td class="p-2">${t.dataSegnalato || ""}</td>
+            <td class="p-2">${t.dataPresoInCarico || ""}</td>
+            <td class="p-2">${t.dataInTest || ""}</td>
+            <td class="p-2">${t.dataCompletato || ""}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function openForm(index=null){
+    const win = window.open("ticket_form.html","ticketForm","width=900,height=800");
+    if(index!==null){
+        win.ticketDataIndex=index;
+        win.ticketData=tickets[index];
+    }
+}
+
+renderTable();
+</script>
+
+</body>
+</html>
