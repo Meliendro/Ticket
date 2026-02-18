@@ -7,7 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 body { font-family: 'Segoe UI', sans-serif; background-color: #f3f4f6; }
-.glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-radius: 1rem; padding: 1rem; margin: 1rem 0; max-width: 800px; }
+.glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-radius: 1rem; padding: 1rem; margin: 1rem auto; max-width: 800px; }
 label { font-size: 0.8rem; font-weight: bold; display:block; margin-top: 0.5rem; }
 input, select, textarea { width: 100%; padding: 0.4rem; border-radius: 0.3rem; border: 1px solid #ddd; margin-top: 0.2rem; font-size: 0.85rem; }
 button { margin-top: 1rem; background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.3rem; }
@@ -18,8 +18,10 @@ button { margin-top: 1rem; background-color: #3b82f6; color: white; padding: 0.5
 <div class="glass-panel">
     <h1 class="text-xl font-bold mb-4">Nuovo Ticket</h1>
     <form id="ticketForm">
+
         <label>Stato</label>
         <select id="stato">
+            <option value="" selected disabled>Seleziona Stato</option>
             <option value="Segnalato">Segnalato</option>
             <option value="Preso in carico">Preso in carico</option>
             <option value="Rilasciato">Rilasciato</option>
@@ -82,6 +84,13 @@ button { margin-top: 1rem; background-color: #3b82f6; color: white; padding: 0.5
         <label>Descrizione attività di soluzione</label>
         <textarea id="descrizione_soluzione" rows="3"></textarea>
 
+        <!-- Campi data Stato -->
+        <input type="hidden" id="data_segnalato">
+        <input type="hidden" id="data_preso_in_carico">
+        <input type="hidden" id="data_rilasciato">
+        <input type="hidden" id="data_in_test">
+        <input type="hidden" id="data_completato">
+
         <button type="submit">Salva Ticket</button>
     </form>
 </div>
@@ -94,7 +103,20 @@ const config = {
 
 let editIndex = localStorage.getItem("edit_ticket_index");
 
+// Data inserimento di default
 document.getElementById("data_inserimento").valueAsDate = new Date();
+
+// Funzione per valorizzare la data relativa allo stato selezionato
+document.getElementById("stato").addEventListener("change", function() {
+    const today = new Date().toISOString().split("T")[0];
+    switch(this.value){
+        case "Segnalato": if(!document.getElementById("data_segnalato").value) document.getElementById("data_segnalato").value = today; break;
+        case "Preso in carico": if(!document.getElementById("data_preso_in_carico").value) document.getElementById("data_preso_in_carico").value = today; break;
+        case "Rilasciato": if(!document.getElementById("data_rilasciato").value) document.getElementById("data_rilasciato").value = today; break;
+        case "In Test": if(!document.getElementById("data_in_test").value) document.getElementById("data_in_test").value = today; break;
+        case "Completato": if(!document.getElementById("data_completato").value) document.getElementById("data_completato").value = today; break;
+    }
+});
 
 async function loadTicket() {
     if(editIndex === null) return;
@@ -129,7 +151,12 @@ document.getElementById("ticketForm").onsubmit = async function(e){
         data_inizio_prevista: document.getElementById("data_inizio_prevista").value,
         data_fine_prevista: document.getElementById("data_fine_prevista").value,
         data_rilascio: document.getElementById("data_rilascio").value,
-        descrizione_soluzione: document.getElementById("descrizione_soluzione").value
+        descrizione_soluzione: document.getElementById("descrizione_soluzione").value,
+        data_segnalato: document.getElementById("data_segnalato").value,
+        data_preso_in_carico: document.getElementById("data_preso_in_carico").value,
+        data_rilasciato: document.getElementById("data_rilasciato").value,
+        data_in_test: document.getElementById("data_in_test").value,
+        data_completato: document.getElementById("data_completato").value
     };
 
     if(editIndex !== null){
