@@ -7,7 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-    .status-dot { height:8px; width:8px; border-radius:50%; display:inline-block; margin-right:4px; }
+    .status-dot { height:10px; width:10px; border-radius:50%; display:inline-block; margin-right:4px; }
     .status-Segnalato { background-color:orange; }
     .status-Preso { background-color:blue; }
     .status-Rilasciato { background-color:purple; }
@@ -16,6 +16,7 @@
     .priority-Alta { color:red; font-weight:bold; }
     .priority-Media { color:orange; }
     .priority-Bassa { color:green; }
+    .ticket-number { font-weight:bold; }
 </style>
 </head>
 <body class="bg-gray-100 p-4">
@@ -70,10 +71,12 @@ function renderTable(){
                     <i class="fas fa-edit"></i>
                 </button>
             </td>
-            <td class="p-2">${t.nrTicket}</td>
-            <td class="p-2">${t.stato}</td>
+            <td class="p-2 ticket-number">${t.nrTicket}</td>
+            <td class="p-2">
+                <span class="status-dot status-${t.stato.replace(/\s/g,'')}"></span> ${t.stato}
+            </td>
             <td class="p-2">${t.tipo}</td>
-            <td class="p-2 ${'priority-'+t.priorita}">${t.priorita}</td>
+            <td class="p-2 priority-${t.priorita}">${t.priorita}</td>
             <td class="p-2">${t.menu}</td>
             <td class="p-2">${t.titolo}</td>
             <td class="p-2">${t.descrizione}</td>
@@ -99,6 +102,10 @@ function openForm(index=null){
         win.ticketDataIndex=index;
         win.ticketData=tickets[index];
     }
+}
+
+function editTicket(index){
+    openForm(index);
 }
 
 renderTable();
