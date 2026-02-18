@@ -12,7 +12,7 @@ h1 { font-weight: 700; }
 .table-container { overflow-x: auto; margin-top: 1rem; }
 table { width: 100%; border-collapse: collapse; table-layout: auto; }
 th, td { padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; }
-th { background: #1f2937; color: #fff; position: sticky; top: 0; }
+th { background: #1f2937; color: #fff; position: sticky; top: 0; z-index:1; }
 tr:nth-child(even) { background: #f9fafb; }
 .priority-alta { background: #dc2626; color: #fff; font-weight: bold; text-align: center; }
 .priority-media { background: #f59e0b; color: #fff; font-weight: bold; text-align: center; }
@@ -26,16 +26,21 @@ button, select { cursor: pointer; }
 .filter-bar { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem; }
 .filter-bar select { padding:0.25rem 0.5rem; border-radius:0.5rem; border:1px solid #d1d5db; background:#fff; color:#111827; font-size:0.9rem; transition:all 0.2s; }
 
-/* Colonne descrizione larghe e leggibili */
+/* Colonne descrizione larghe con scroll se troppo lungo */
 td.wrap-text {
+    max-width: 800px;          /* larghezza maggiore */
     white-space: normal;
     word-break: break-word;
-    max-width: 2500px; /* colonna Descrizione molto larga */
+    overflow-y: auto;          /* scroll verticale se troppo lungo */
+    max-height: 200px;         /* altezza massima della cella */
+    padding-right: 0.5rem;     /* spazio interno per scroll */
 }
 td.wrap-text-act {
+    max-width: 600px;
     white-space: normal;
     word-break: break-word;
-    max-width: 1000px; /* colonna Descrizione Attività più larga */
+    overflow-y: auto;
+    max-height: 200px;
 }
 
 /* Line-height e font per compattezza */
