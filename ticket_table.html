@@ -37,7 +37,6 @@ button, select { cursor: pointer; }
     </div>
 </header>
 
-<!-- Filter Bar as Selects -->
 <div class="filter-bar" id="filterBar">
     <select id="filterStato">
         <option value="">Tutti gli Stati</option>
@@ -145,7 +144,9 @@ function renderTable() {
     const tbody = document.getElementById('ticketBody');
     tbody.innerHTML = "";
 
-    tickets.forEach((t,i)=>{
+    tickets
+    .sort((a,b)=>b.nrTicket - a.nrTicket) // Ordine decrescente
+    .forEach((t,i)=>{
         if(filters.stato && t.stato!==filters.stato) return;
         if(filters.tipo && t.tipo!==filters.tipo) return;
         if(filters.bloccante && t.bloccante!==filters.bloccante) return;
