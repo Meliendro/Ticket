@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nuovo Ticket</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="p-4 bg-gray-100">
+
+<h1 class="text-2xl font-bold mb-4">Nuovo Ticket</h1>
+
+<form id="ticketForm" class="bg-white p-6 rounded shadow-lg space-y-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-semibold">Stato</label>
+      <select id="stato" class="w-full p-2 border rounded">
+        <option>Segnalato</option>
+        <option>Preso in carico</option>
+        <option>Rilasciato</option>
+        <option>In Test</option>
+        <option>Completato</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-semibold">Tipo</label>
+      <select id="tipo" class="w-full p-2 border rounded">
+        <option>Bug</option>
+        <option>Miglioria</option>
+        <option>Nuova richiesta</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-semibold">Bloccante</label>
+      <select id="bloccante" class="w-full p-2 border rounded">
+        <option>Bloccante</option>
+        <option>Non Bloccante</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-semibold">Priorità</label>
+      <select id="priorita" class="w-full p-2 border rounded">
+        <option>Alta</option>
+        <option>Media</option>
+        <option>Bassa</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-semibold">Data Inserimento</label>
+      <input type="date" id="dataInserimento" class="w-full p-2 border rounded">
+    </div>
+    <div>
+      <label class="block text-sm font-semibold">Ambito</label>
+      <select id="ambito" class="w-full p-2 border rounded">
+        <option>FASE1</option>
+        <option>FASE2</option>
+        <option>FASE3</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-semibold">Menu</label>
+      <select id="menu" class="w-full p-2 border rounded">
+        <option>Pianificazione cantieri</option>
+        <option>Pianificazione Squadre</option>
+        <option>Da segnalare</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-semibold">Titolo</label>
+      <input type="text" id="titolo" class="w-full p-2 border rounded">
+    </div>
+    <div>
+      <label class="block text-sm font-semibold">Descrizione</label>
+      <textarea id="descrizione" class="w-full p-2 border rounded" rows="3"></textarea>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div>
+      <label class="block text-sm font-semibold">Inserito da</label>
+      <input type="text" id="inseritoDa" class="w-full p-2 border rounded">
+    </div>
+    <div>
+      <label class="block text-sm font-semibold">In carico a</label>
+      <input type="text" id="inCaricoA" class="w-full p-2 border rounded">
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-4 mt-4">
+    <button type="button" onclick="window.location.href='tabella.html'" class="px-4 py-2 border rounded">Annulla</button>
+    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Salva Ticket</button>
+  </div>
+</form>
+
+<script>
+let ticketCount = JSON.parse(localStorage.getItem('tickets') || '[]').length;
+
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('dataInserimento').value = today;
+
+document.getElementById('ticketForm').onsubmit = function(e){
+  e.preventDefault();
+  ticketCount++;
+  const ticket = {
+    nr: ticketCount,
+    stato: document.getElementById('stato').value,
+    tipo: document.getElementById('tipo').value,
+    bloccante: document.getElementById('bloccante').value,
+    priorita: document.getElementById('priorita').value,
+    dataInserimento: document.getElementById('dataInserimento').value,
+    ambito: document.getElementById('ambito').value,
+    menu: document.getElementById('menu').value,
+    titolo: document.getElementById('titolo').value,
+    descrizione: document.getElementById('descrizione').value,
+    inseritoDa: document.getElementById('inseritoDa').value,
+    inCaricoA: document.getElementById('inCaricoA').value
+  };
+
+  let tickets = JSON.parse(localStorage.getItem('tickets') || '[]');
+  tickets.push(ticket);
+  localStorage.setItem('tickets', JSON.stringify(tickets));
+  alert('Ticket salvato con successo!');
+  window.location.href = 'tabella.html';
+}
+</script>
+
+</body>
+</html>
