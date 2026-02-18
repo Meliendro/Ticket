@@ -101,7 +101,8 @@ function openTicketForm() {
 
 function editTicket(idx) {
     localStorage.setItem('editIndex', idx);
-    window.open('ticket_form.html', '_blank', 'width=900,height=800');
+    // Apriamo il form **dopo aver salvato l'indice**
+    setTimeout(()=>{ window.open('ticket_form.html', '_blank', 'width=900,height=800'); }, 50);
 }
 
 window.addEventListener('focus', renderTable);
