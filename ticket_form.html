@@ -118,12 +118,13 @@
 
 <script>
 let tickets = JSON.parse(localStorage.getItem('tickets')) || [];
-let editIndex = null;
+let editIndex = localStorage.getItem('editIndex');
+if(editIndex !== null) editIndex = parseInt(editIndex);
 
-// Controlla se siamo in modifica
-const urlParams = new URLSearchParams(window.location.search);
-if(urlParams.has('edit')){
-    editIndex = parseInt(urlParams.get('edit'));
+const now = new Date().toISOString().split('T')[0];
+document.getElementById('dataInserimento').value = now;
+
+if(editIndex !== null) {
     const t = tickets[editIndex];
     document.getElementById('ticketNumberDisplay').innerText = "Ticket #" + t.ticketNumber;
     document.getElementById('stato').value = t.stato;
@@ -143,14 +144,9 @@ if(urlParams.has('edit')){
     document.getElementById('descrizioneAttivita').value = t.descrizioneAttivita;
 }
 
-document.getElementById('dataInserimento').valueAsDate = new Date();
-
 document.getElementById('ticketForm').addEventListener('submit', function(e){
     e.preventDefault();
-
-    // Aggiorna le date STATO solo se il campo è cambiato e non era già valorizzato
     const stato = document.getElementById('stato').value;
-    const now = new Date().toISOString().split('T')[0];
 
     const t = {
         ticketNumber: editIndex !== null ? tickets[editIndex].ticketNumber : (tickets.length + 1),
@@ -169,10 +165,10 @@ document.getElementById('ticketForm').addEventListener('submit', function(e){
         dataFinePrevista: document.getElementById('dataFinePrevista').value,
         dataRilascio: document.getElementById('dataRilascio').value,
         descrizioneAttivita: document.getElementById('descrizioneAttivita').value,
-        dataSegnalato: (editIndex !== null && tickets[editIndex].dataSegnalato) || (stato === 'Segnalato' ? now : ''),
-        dataPresoInCarico: (editIndex !== null && tickets[editIndex].dataPresoInCarico) || (stato === 'Preso in carico' ? now : ''),
-        dataInTest: (editIndex !== null && tickets[editIndex].dataInTest) || (stato === 'In Test' ? now : ''),
-        dataCompletato: (editIndex !== null && tickets[editIndex].dataCompletato) || (stato === 'Completato' ? now : '')
+        dataSegnalato: (editIndex !== null && tickets[editIndex].dataSegnalato) || (stato==='Segnalato'?now:''),
+        dataPresoInCarico: (editIndex !== null && tickets[editIndex].dataPresoInCarico) || (stato==='Preso in carico'?now:''),
+        dataInTest: (editIndex !== null && tickets[editIndex].dataInTest) || (stato==='In Test'?now:''),
+        dataCompletato: (editIndex !== null && tickets[editIndex].dataCompletato) || (stato==='Completato'?now:'')
     };
 
     if(editIndex !== null) tickets[editIndex] = t;
