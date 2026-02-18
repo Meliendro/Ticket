@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket Dashboard KPI</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+body { font-family: 'Segoe UI', sans-serif; background: #f4f4f5; }
+h1 { font-weight: 700; }
+.kpi-card { background: #fff; border-radius: 0.75rem; padding: 1rem; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; }
+.kpi-card:hover { transform: translateY(-3px); }
+.kpi-value { font-size: 1.5rem; font-weight: bold; margin-top: 0.25rem; }
+.chart-container { background:#fff; border-radius:0.75rem; padding:1rem; box-shadow:0 4px 6px rgba(0,0,0,0.1); margin-top:1rem; }
+</style>
+</head>
+<body class="p-6">
+
+<header class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl">Dashboard KPI Ticket</h1>
+    <button onclick="configureGitHub()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700"><i class="fas fa-cog"></i> Config GitHub</button>
+</header>
+
+<div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4" id="kpiCards">
+    <!-- KPI cards will be inserted here -->
+</div>
+
+<div class="chart-container">
+    <canvas id="stateBarChart"></canvas>
+</div>
+
+<div class="chart-container">
+    <canvas id="timeFlowChart"></canvas>
+</div>
+
+<script>
+let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
+let tickets = [];
+let fileSha = "";
+
+function configureGitHub() {
+    const pin = prompt("Inserisci PIN per configurazione:");
+    if(pin === "1234"){
+        const repo = prompt("Repo GitHub (es: user/repo)");
+        const token = prompt("Token GitHub");
+        localStorage.setItem('gh_ticket_config', JSON.stringify({repo, token}));
+        config = {repo, token};
+        alert("Configurazione salvata!");
+        loadTickets();
+    } else alert("PIN errato");
+}
+
+async function loadTickets() {
+    if(!config){ alert("⚠️ Configurare GitHub prima di visualizzare i ticket"); return; }
+    try {
+        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
+            headers: {Authorization:`token ${config.token}`}
+        });
+        if(!res.ok) throw new Error("Errore caricamento ticket");
+        const data = await res.json();
+        fileSha = data.sha;
+        tickets = JSON.parse(atob(data.content));
+        renderKPIs();
+        renderCharts();
+    } catch(e){ alert("Errore caricamento ticket: "+e.message); }
+}
+
+// Funzione KPI cards
+function renderKPIs(){
+    const container = document.getElementById('kpiCards');
+    container.innerHTML = "";
+
+    const stati = ["Segnalato","Preso in Carico","Rilasciato","In Test","Completato"];
+    stati.forEach(st=>{
+        const count = tickets.filter(t=>t.stato===st).length;
+        const div = document.createElement('div');
+        div.className = "kpi-card";
+        div.innerHTML = `<div>${st}</div><div class="kpi-value">${count}</div>`;
+        container.appendChild(div);
+    });
+}
+
+// Grafico a barre: numero ticket per stato
+function renderCharts(){
+    const ctx1 = document.getElementById('stateBarChart').getContext('2d');
+    const stati = ["Segnalato","Preso in Carico","Rilasciato","In Test","Completato"];
+    const counts = stati.map(st => tickets.filter(t=>t.stato===st).length);
+
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: stati,
+            datasets: [{
+                label: 'Numero Ticket',
+                data: counts,
+                backgroundColor: ['#ef4444','#f59e0b','#3b82f6','#6366f1','#10b981']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins:{ legend:{ display:false } },
+            scales:{ y:{ beginAtZero:true } }
+        }
+    });
+
+    // Grafico flusso tempo medio tra stati
+    const ctx2 = document.getElementById('timeFlowChart').getContext('2d');
+    const avgDays = stati.map(st=>{
+        // calcolo giorni medi dal primo stato
+        const times = tickets.filter(t=>t[st.toLowerCase().replace(/ /g,'')] ).map(t=>{
+            const date = new Date(t[st.toLowerCase().replace(/ /g,'')]);
+            return date;
+        });
+        if(times.length<1) return 0;
+        // Media giorni dal primo stato "Segnalato"
+        const segDate = tickets.map(t=>t.dataSegnalato? new Date(t.dataSegnalato):null).filter(d=>d);
+        if(segDate.length<1) return 0;
+        const diffs = times.map((d,i)=> (d - segDate[i])/(1000*60*60*24));
+        const avg = diffs.reduce((a,b)=>a+b,0)/diffs.length;
+        return Math.round(avg*100)/100;
+    });
+
+    new Chart(ctx2,{
+        type:'line',
+        data:{
+            labels:stati,
+            datasets:[{
+                label:'Tempo medio giorni da Segnalato',
+                data:avgDays,
+                fill:false,
+                borderColor:'#3b82f6',
+                tension:0.3,
+                pointBackgroundColor:'#3b82f6'
+            }]
+        },
+        options:{ responsive:true, plugins:{ legend:{ position:'top' } } }
+    });
+}
+
+loadTickets();
+</script>
+</body>
+</html>
