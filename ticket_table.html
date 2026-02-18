@@ -129,21 +129,23 @@ td { white-space:nowrap; }
 
 <script>
 
-const GITHUB_RAW_URL = "https://raw.githubusercontent.com/TUO_USER/TUO_REPO/main/ticket/2026/ticket2026.json";
+const GITHUB_RAW_URL = "https://raw.githubusercontent.com/meliendro/ticket/main/ticket/2026/ticket2026.json";
 
 let tickets = [];
 
 async function loadTickets(){
     try{
         const res = await fetch(GITHUB_RAW_URL);
+        if(!res.ok) throw new Error("Errore caricamento");
         tickets = await res.json();
 
         tickets.sort((a,b)=> b.nrTicket - a.nrTicket);
 
-        applyFilters();
         populateStatoFilter();
+        applyFilters();
     }catch(e){
-        alert("Errore connessione GitHub");
+        alert("Errore connessione o file non trovato su GitHub");
+        console.error(e);
     }
 }
 
@@ -213,9 +215,9 @@ function renderTable(data){
 <td></td>
 <td>${t.nrTicket}</td>
 <td>${t.stato}</td>
-<td>${t.tipo}</td>
-<td>${t.bloccante}</td>
-<td class="priority-${t.priorita}">${t.priorita}</td>
+<td>${t.tipo||""}</td>
+<td>${t.bloccante||""}</td>
+<td class="priority-${t.priorita}">${t.priorita||""}</td>
 <td>${t.dataInserimento||""}</td>
 <td>${t.ambito||""}</td>
 <td>${t.menu||""}</td>
