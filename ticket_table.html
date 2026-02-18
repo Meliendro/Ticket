@@ -3,276 +3,144 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Form</title>
+<title>Ticket Table</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg,#1e293b,#0f172a);
-}
-.form-card{
-    background: rgba(255,255,255,0.95);
-    backdrop-filter: blur(10px);
-}
-input, select, textarea {
-    width: 100%;
-    padding: 0.6rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.6rem;
-    transition: all 0.2s ease;
-}
-input:focus, select:focus, textarea:focus{
-    border-color:#2563eb;
-    box-shadow:0 0 0 2px rgba(37,99,235,0.2);
-    outline:none;
-}
-input:disabled, select:disabled, textarea:disabled {
-    background: #e5e7eb;
-}
-label {
-    font-size: 0.70rem;
-    font-weight: 700;
-    margin-top: 0.25rem;
-    display:block;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color:#374151;
-}
+body { font-family: 'Segoe UI', sans-serif; background: #f4f4f5; }
+h1 { font-weight: 700; }
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 0.5rem; text-align: left; white-space: nowrap; }
+th { background: #1f2937; color: #fff; position: sticky; top: 0; }
+tr:nth-child(even) { background: #f9fafb; }
+.priority-alta { background: #dc2626; color: #fff; font-weight: bold; text-align: center; }
+.priority-media { background: #f59e0b; color: #fff; font-weight: bold; text-align: center; }
+.priority-bassa { background: #10b981; color: #fff; font-weight: bold; text-align: center; }
+.status-Segnalato { color: #ef4444; font-weight: bold; }
+.status-Preso { color: #f59e0b; font-weight: bold; }
+.status-Rilasciato { color: #3b82f6; font-weight: bold; }
+.status-InTest { color: #6366f1; font-weight: bold; }
+.status-Completato { color: #10b981; font-weight: bold; }
 button { cursor: pointer; }
-.ticket-number-badge{
-    background:#2563eb;
-    color:white;
-    padding:6px 14px;
-    border-radius:999px;
-    font-weight:700;
-    font-size:0.9rem;
-}
-.section-title{
-    font-size:0.8rem;
-    font-weight:800;
-    letter-spacing:1px;
-    color:#1f2937;
-    border-bottom:2px solid #e5e7eb;
-    padding-bottom:4px;
-    margin-bottom:10px;
-}
 </style>
 </head>
-<body class="p-6 flex justify-center">
+<body class="p-6">
 
-<div class="form-card w-full max-w-6xl rounded-2xl shadow-2xl p-8">
+<header class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl">Gestione Ticket</h1>
+    <div class="flex gap-3">
+        <button onclick="newTicket()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"><i class="fas fa-plus"></i> Nuovo Ticket</button>
+        <button onclick="configureGitHub()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700"><i class="fas fa-cog"></i> Config GitHub</button>
+    </div>
+</header>
 
-<div class="flex justify-between items-center mb-6">
-    <h1 id="ticketTitle" class="text-2xl font-extrabold text-gray-800">Nuovo Ticket</h1>
-    <div class="ticket-number-badge">
-        # <span id="ticketNumberPreview">--</span>
-    </div>
-</div>
-
-<form id="ticketForm" class="space-y-6">
-
-<div>
-<div class="section-title">INFORMAZIONI GENERALI</div>
-
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div>
-        <label>Nr Ticket</label>
-        <input type="text" id="nrTicket" disabled>
-    </div>
-    <div>
-        <label>Stato</label>
-        <select id="stato">
-            <option value="">-- Seleziona Stato --</option>
-            <option>Segnalato</option>
-            <option>Preso in carico</option>
-            <option>Rilasciato</option>
-            <option>In Test</option>
-            <option>Completato</option>
-        </select>
-    </div>
-    <div>
-        <label>Tipo</label>
-        <select id="tipo">
-            <option>Bug</option>
-            <option>Miglioria</option>
-            <option>Nuova richiesta</option>
-        </select>
-    </div>
-    <div>
-        <label>Bloccante</label>
-        <select id="bloccante">
-            <option>Bloccante</option>
-            <option>Non Bloccante</option>
-        </select>
-    </div>
-    <div>
-        <label>Priorità</label>
-        <select id="priorita">
-            <option>Alta</option>
-            <option>Media</option>
-            <option>Bassa</option>
-        </select>
-    </div>
-    <div>
-        <label>Data Inserimento</label>
-        <input type="date" id="dataInserimento" disabled>
-    </div>
-</div>
-</div>
-
-<div>
-<div class="section-title">DETTAGLIO TICKET</div>
-
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-        <label>Ambito</label>
-        <select id="ambito">
-            <option>FASE1</option>
-            <option>FASE2</option>
-            <option>FASE3</option>
-        </select>
-    </div>
-    <div>
-        <label>Menu</label>
-        <select id="menu">
-            <option>Pianificazione cantieri</option>
-            <option>Pianificazione Squadre</option>
-            <option>Da segnalare</option>
-        </select>
-    </div>
-    <div>
-        <label>Titolo</label>
-        <input type="text" id="titolo">
-    </div>
-    <div>
-        <label>Descrizione</label>
-        <textarea id="descrizione" rows="3"></textarea>
-    </div>
-    <div>
-        <label>Inserito da</label>
-        <input type="text" id="inseritoDa">
-    </div>
-    <div>
-        <label>In carico a</label>
-        <input type="text" id="inCaricoA">
-    </div>
-    <div>
-        <label>Data Inizio Prevista</label>
-        <input type="date" id="dataInizioPrevista">
-    </div>
-    <div>
-        <label>Data Fine Prevista</label>
-        <input type="date" id="dataFinePrevista">
-    </div>
-    <div>
-        <label>Data Rilascio</label>
-        <input type="date" id="dataRilascio">
-    </div>
-    <div>
-        <label>Descrizione Attività</label>
-        <textarea id="descrAttivita" rows="2"></textarea>
-    </div>
-</div>
-</div>
-
-<div class="flex justify-center mt-6">
-    <button type="button" onclick="saveTicket()"
-        class="bg-gradient-to-r from-green-600 to-emerald-500 
-        text-white px-10 py-3 rounded-xl shadow-lg 
-        hover:scale-105 transition transform duration-200 font-bold">
-        <i class="fas fa-save"></i> Salva Ticket
-    </button>
-</div>
-
-</form>
+<div class="table-container border rounded shadow">
+    <table id="ticketTable">
+        <thead>
+            <tr>
+                <th>Modifica</th>
+                <th>Nr Ticket</th>
+                <th>Stato</th>
+                <th>Tipo</th>
+                <th>Bloccante</th>
+                <th>Priorità</th>
+                <th>Data Inserimento</th>
+                <th>Ambito</th>
+                <th>Menu</th>
+                <th>Titolo</th>
+                <th>Descrizione</th>
+                <th>Inserito da</th>
+                <th>In carico a</th>
+                <th>Data Inizio Prevista</th>
+                <th>Data Fine Prevista</th>
+                <th>Data Rilascio</th>
+                <th>Descrizione Attività</th>
+                <th>Data Segnalato</th>
+                <th>Data Preso In Carico</th>
+                <th>Data Rilasciato</th>
+                <th>Data In Test</th>
+                <th>Data Completato</th>
+            </tr>
+        </thead>
+        <tbody id="ticketBody"></tbody>
+    </table>
 </div>
 
 <script>
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let tickets = [];
 let fileSha = "";
-let editTicketData = JSON.parse(localStorage.getItem('edit_ticket')) || {};
-const ticketForm = document.getElementById('ticketForm');
 
-function initializeForm() {
-    const today = new Date().toISOString().substr(0,10);
-    document.getElementById('dataInserimento').value = today;
-
-    if(editTicketData && editTicketData.nrTicket){
-        document.getElementById('ticketTitle').innerText = "Modifica Ticket";
-        document.getElementById('ticketNumberPreview').innerText = editTicketData.nrTicket;
-        for(const key in editTicketData){
-            if(document.getElementById(key)) document.getElementById(key).value = editTicketData[key];
-        }
-    }
+function configureGitHub() {
+    const pin = prompt("Inserisci PIN per configurazione:");
+    if(pin === "1234"){
+        const repo = prompt("Repo GitHub (es: user/repo)");
+        const token = prompt("Token GitHub");
+        localStorage.setItem('gh_ticket_config', JSON.stringify({repo, token}));
+        config = {repo, token};
+        alert("Configurazione salvata!");
+    } else alert("PIN errato");
 }
 
-document.getElementById('stato').addEventListener('change', function(){
-    const stato = this.value;
-    const now = new Date().toLocaleDateString();
-    if(stato==="Segnalato" && !editTicketData.dataSegnalato) editTicketData.dataSegnalato = now;
-    if(stato==="Preso in carico" && !editTicketData.dataPresoInCarico) editTicketData.dataPresoInCarico = now;
-    if(stato==="Rilasciato" && !editTicketData.dataRilasciato) editTicketData.dataRilasciato = now;
-    if(stato==="In Test" && !editTicketData.dataInTest) editTicketData.dataInTest = now;
-    if(stato==="Completato" && !editTicketData.dataCompletato) editTicketData.dataCompletato = now;
-});
-
-async function saveTicket(){
-    if(!config){ alert("⚠️ Configura GitHub prima di salvare"); return; }
+async function loadTickets() {
+    if(!config) { alert("⚠️ Configurare GitHub per visualizzare i ticket"); return; }
     try {
         const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
             headers: {Authorization:`token ${config.token}`}
         });
+        if(!res.ok) throw new Error("Errore caricamento ticket");
         const data = await res.json();
-        tickets = JSON.parse(atob(data.content));
         fileSha = data.sha;
-
-        let nrTicket = editTicketData.nrTicket || (tickets.length ? tickets[tickets.length-1].nrTicket+1 : 1);
-
-        const t = {
-            nrTicket,
-            stato: document.getElementById('stato').value,
-            tipo: document.getElementById('tipo').value,
-            bloccante: document.getElementById('bloccante').value,
-            priorita: document.getElementById('priorita').value,
-            dataInserimento: document.getElementById('dataInserimento').value,
-            ambito: document.getElementById('ambito').value,
-            menu: document.getElementById('menu').value,
-            titolo: document.getElementById('titolo').value,
-            descrizione: document.getElementById('descrizione').value,
-            inseritoDa: document.getElementById('inseritoDa').value,
-            inCaricoA: document.getElementById('inCaricoA').value,
-            dataInizioPrevista: document.getElementById('dataInizioPrevista').value,
-            dataFinePrevista: document.getElementById('dataFinePrevista').value,
-            dataRilascio: document.getElementById('dataRilascio').value,
-            descrAttivita: document.getElementById('descrAttivita').value,
-            dataSegnalato: editTicketData.dataSegnalato || "",
-            dataPresoInCarico: editTicketData.dataPresoInCarico || "",
-            dataRilasciato: editTicketData.dataRilasciato || "",
-            dataInTest: editTicketData.dataInTest || "",
-            dataCompletato: editTicketData.dataCompletato || ""
-        };
-
-        if(editTicketData.nrTicket){
-            const index = tickets.findIndex(tt=>tt.nrTicket===editTicketData.nrTicket);
-            tickets[index] = t;
-        } else tickets.push(t);
-
-        const content = btoa(unescape(encodeURIComponent(JSON.stringify(tickets,null,2))));
-        const body = {message:`Ticket #${t.nrTicket}`, content, sha:fileSha};
-        const putRes = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
-            method:"PUT",
-            headers: {"Authorization":`token ${config.token}`, "Content-Type":"application/json"},
-            body: JSON.stringify(body)
-        });
-        if(!putRes.ok) throw new Error("Errore salvataggio");
-        alert("Ticket salvato con successo!");
-        window.close();
-    } catch(e){ alert("Errore: "+e.message); }
+        tickets = JSON.parse(atob(data.content));
+        renderTable();
+    } catch(e) { alert("Errore caricamento ticket: "+e.message); }
 }
 
-initializeForm();
+function renderTable() {
+    const tbody = document.getElementById('ticketBody');
+    tbody.innerHTML = "";
+    tickets.forEach((t,i)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+        <td><button onclick="editTicket(${i})" class="bg-yellow-400 p-1 rounded hover:bg-yellow-500"><i class="fas fa-edit"></i></button></td>
+        <td>${t.nrTicket}</td>
+        <td class="status-${t.stato.replace(/\s/g,'')}">${t.stato}</td>
+        <td>${t.tipo}</td>
+        <td>${t.bloccante}</td>
+        <td class="priority-${t.priorita.toLowerCase()}">${t.priorita}</td>
+        <td>${t.dataInserimento}</td>
+        <td>${t.ambito}</td>
+        <td>${t.menu}</td>
+        <td>${t.titolo}</td>
+        <td>${t.descrizione}</td>
+        <td>${t.inseritoDa}</td>
+        <td>${t.inCaricoA}</td>
+        <td>${t.dataInizioPrevista}</td>
+        <td>${t.dataFinePrevista}</td>
+        <td>${t.dataRilascio}</td>
+        <td>${t.descrAttivita}</td>
+        <td>${t.dataSegnalato||""}</td>
+        <td>${t.dataPresoInCarico||""}</td>
+        <td>${t.dataRilasciato||""}</td>
+        <td>${t.dataInTest||""}</td>
+        <td>${t.dataCompletato||""}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function newTicket() {
+    localStorage.removeItem('edit_ticket');
+    window.open("ticket_form.html","_blank","width=800,height=900");
+}
+
+function editTicket(index){
+    localStorage.setItem('edit_ticket', JSON.stringify(tickets[index]));
+    window.open("ticket_form.html","_blank","width=800,height=900");
+}
+
+loadTickets();
 </script>
 </body>
 </html>
