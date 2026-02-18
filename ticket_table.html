@@ -22,10 +22,9 @@ tr:nth-child(even) { background: #f9fafb; }
 .status-Rilasciato { color: #3b82f6; font-weight: bold; }
 .status-InTest { color: #6366f1; font-weight: bold; }
 .status-Completato { color: #10b981; font-weight: bold; }
-button { cursor: pointer; }
+button, select { cursor: pointer; }
 .filter-bar { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem; }
-.filter-bar button { background:#e5e7eb; color:#111827; padding:0.25rem 0.75rem; border-radius:0.5rem; font-size:0.85rem; transition:all 0.2s; }
-.filter-bar button.active, .filter-bar button:hover { background:#3b82f6; color:#fff; }
+.filter-bar select { padding:0.25rem 0.5rem; border-radius:0.5rem; border:1px solid #d1d5db; background:#fff; color:#111827; font-size:0.9rem; transition:all 0.2s; }
 </style>
 </head>
 <body class="p-6">
@@ -38,8 +37,21 @@ button { cursor: pointer; }
     </div>
 </header>
 
-<!-- Filter Bar -->
-<div class="filter-bar" id="filterBar"></div>
+<!-- Filter Bar as Selects -->
+<div class="filter-bar" id="filterBar">
+    <select id="filterStato">
+        <option value="">Tutti gli Stati</option>
+    </select>
+    <select id="filterTipo">
+        <option value="">Tutti i Tipi</option>
+    </select>
+    <select id="filterBloccante">
+        <option value="">Bloccante / Non Bloccante</option>
+    </select>
+    <select id="filterAmbito">
+        <option value="">Tutti gli Ambiti</option>
+    </select>
+</div>
 
 <div class="table-container border rounded shadow">
     <table id="ticketTable">
@@ -100,37 +112,33 @@ async function loadTickets() {
         const data = await res.json();
         fileSha = data.sha;
         tickets = JSON.parse(atob(data.content));
-        renderFilterBar();
+        populateFilters();
         renderTable();
     } catch(e) { alert("Errore caricamento ticket: "+e.message); }
 }
 
-function renderFilterBar() {
-    const filterBar = document.getElementById("filterBar");
-    filterBar.innerHTML = "";
+function populateFilters() {
+    const selectStato = document.getElementById("filterStato");
+    const selectTipo = document.getElementById("filterTipo");
+    const selectBloccante = document.getElementById("filterBloccante");
+    const selectAmbito = document.getElementById("filterAmbito");
 
-    const options = {
-        stato: [...new Set(tickets.map(t=>t.stato))],
-        tipo: [...new Set(tickets.map(t=>t.tipo))],
-        bloccante: [...new Set(tickets.map(t=>t.bloccante))],
-        ambito: [...new Set(tickets.map(t=>t.ambito))]
-    };
+    const stati = [...new Set(tickets.map(t=>t.stato))];
+    stati.forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectStato.appendChild(opt); });
 
-    Object.keys(options).forEach(key=>{
-        options[key].forEach(opt=>{
-            const btn = document.createElement("button");
-            btn.innerText = `${key.toUpperCase()}: ${opt}`;
-            btn.onclick = function(){
-                filters[key] = (filters[key]===opt)?"":opt;
-                document.querySelectorAll(".filter-bar button").forEach(b=>{
-                    if(b.innerText.startsWith(key.toUpperCase())) b.classList.remove("active");
-                });
-                if(filters[key]) btn.classList.add("active");
-                renderTable();
-            };
-            filterBar.appendChild(btn);
-        });
-    });
+    const tipi = [...new Set(tickets.map(t=>t.tipo))];
+    tipi.forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectTipo.appendChild(opt); });
+
+    const bloccanti = [...new Set(tickets.map(t=>t.bloccante))];
+    bloccanti.forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectBloccante.appendChild(opt); });
+
+    const ambiti = [...new Set(tickets.map(t=>t.ambito))];
+    ambiti.forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectAmbito.appendChild(opt); });
+
+    selectStato.onchange = ()=>{ filters.stato = selectStato.value; renderTable(); };
+    selectTipo.onchange = ()=>{ filters.tipo = selectTipo.value; renderTable(); };
+    selectBloccante.onchange = ()=>{ filters.bloccante = selectBloccante.value; renderTable(); };
+    selectAmbito.onchange = ()=>{ filters.ambito = selectAmbito.value; renderTable(); };
 }
 
 function renderTable() {
@@ -138,7 +146,6 @@ function renderTable() {
     tbody.innerHTML = "";
 
     tickets.forEach((t,i)=>{
-        // applica filtri
         if(filters.stato && t.stato!==filters.stato) return;
         if(filters.tipo && t.tipo!==filters.tipo) return;
         if(filters.bloccante && t.bloccante!==filters.bloccante) return;
