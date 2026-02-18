@@ -3,151 +3,138 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Management - RIVIT</title>
+<title>Ticket Table Project</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
-    .table-header { background-color: #1f2937; color: white; }
-    .status-btn { padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: bold; cursor: pointer; }
-    .status-Segnalato { background-color: #facc15; color: #1f2937; }
-    .status-Preso { background-color: #3b82f6; color: white; }
-    .status-Rilasciato { background-color: #10b981; color: white; }
-    .status-inTest { background-color: #f97316; color: white; }
-    .status-Completato { background-color: #6b7280; color: white; }
-    .card { background: white; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 1rem; padding: 1rem; }
-    .scroll-container { overflow-x: auto; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f4f5; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 6px 8px; border: 1px solid #ccc; font-size: 12px; }
+    th { background: #f87171; color: white; font-weight: bold; text-align: center; }
+    td { vertical-align: top; }
+    select, input[type=text], input[type=date], textarea { width: 100%; font-size: 12px; padding: 4px; border-radius: 4px; border: 1px solid #ccc; }
+    textarea { resize: vertical; }
+    button { padding: 6px 12px; border-radius: 6px; font-weight: bold; }
+    .btn-add { background: #34d399; color: white; margin-bottom: 10px; }
+    .btn-save { background: #3b82f6; color: white; }
 </style>
 </head>
-<body class="p-4">
+<body>
 
-<h1 class="text-2xl font-bold mb-4 text-gray-800">Ticket Management</h1>
+<h1 class="text-2xl font-bold mb-4">Ticket Table</h1>
+<button class="btn-add" onclick="addTicket()">➕ Aggiungi Ticket</button>
 
-<div class="scroll-container">
-<table class="min-w-full border border-gray-200">
-    <thead class="table-header">
+<table id="ticketTable">
+    <thead>
         <tr>
-            <th class="px-2 py-1 text-xs">#</th>
-            <th class="px-2 py-1 text-xs">Stato</th>
-            <th class="px-2 py-1 text-xs">Tipo</th>
-            <th class="px-2 py-1 text-xs">Bloccante</th>
-            <th class="px-2 py-1 text-xs">Priorità</th>
-            <th class="px-2 py-1 text-xs">Data Inserimento</th>
-            <th class="px-2 py-1 text-xs">Ambito</th>
-            <th class="px-2 py-1 text-xs">Colonna</th>
-            <th class="px-2 py-1 text-xs">Titolo</th>
-            <th class="px-2 py-1 text-xs">Descrizione</th>
-            <th class="px-2 py-1 text-xs">Inserito da</th>
-            <th class="px-2 py-1 text-xs">In carico a</th>
-            <th class="px-2 py-1 text-xs">Data Inizio Prevista</th>
-            <th class="px-2 py-1 text-xs">Data Fine Prevista</th>
-            <th class="px-2 py-1 text-xs">Data Rilascio</th>
-            <th class="px-2 py-1 text-xs">Descrizione Soluzione</th>
-            <th class="px-2 py-1 text-xs">Data Segnalato</th>
-            <th class="px-2 py-1 text-xs">Data Preso in carico</th>
-            <th class="px-2 py-1 text-xs">Data Rilasciato</th>
-            <th class="px-2 py-1 text-xs">Data in Test</th>
-            <th class="px-2 py-1 text-xs">Data Completato</th>
+            <th>Nr.</th>
+            <th>Stato</th>
+            <th>Tipo</th>
+            <th>Bloccante</th>
+            <th>Priorità</th>
+            <th>Data Inserimento</th>
+            <th>Ambito</th>
+            <th>Menu</th>
+            <th>Titolo</th>
+            <th>Descrizione</th>
+            <th>Inserito da</th>
+            <th>In carico a</th>
+            <th>Data inizio prevista</th>
+            <th>Data fine prevista</th>
+            <th>Data rilascio</th>
+            <th>Descrizione attività di soluzione</th>
+            <th>Data Stato</th>
         </tr>
     </thead>
-    <tbody id="ticketBody">
-        <!-- Le righe vengono aggiunte dinamicamente -->
+    <tbody>
     </tbody>
 </table>
-</div>
 
-<button onclick="addRow()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">Aggiungi Ticket</button>
+<button class="btn-save mt-4" onclick="saveTickets()">💾 Salva Ticket</button>
 
 <script>
-const ticketBody = document.getElementById('ticketBody');
 let ticketCount = 0;
 
-function addRow() {
+function addTicket() {
     ticketCount++;
-    const tr = document.createElement('tr');
-    tr.className = "border-b border-gray-200";
+    const tbody = document.getElementById('ticketTable').querySelector('tbody');
+    const row1 = document.createElement('tr');
+    const row2 = document.createElement('tr'); // seconda riga per descrizione lunga
 
-    tr.innerHTML = `
-        <td class="px-2 py-1 text-xs">${ticketCount}</td>
-        <td class="px-2 py-1 text-xs">
-            <select onchange="updateStateDate(this)" class="status-select text-xs rounded border px-1">
-                <option value="">Seleziona</option>
-                <option value="Segnalato">Segnalato</option>
-                <option value="Preso in carico">Preso in carico</option>
-                <option value="Rilasciato">Rilasciato</option>
-                <option value="in Test">in Test</option>
-                <option value="Completato">Completato</option>
+    const today = new Date().toISOString().split('T')[0];
+
+    row1.innerHTML = `
+        <td rowspan="2">${ticketCount}</td>
+        <td><select onchange="updateStateDate(this)"><option>Segnalato</option><option>Preso in carico</option><option>Rilasciato</option><option>In Test</option><option>Completato</option></select></td>
+        <td><select><option>Bug</option><option>Miglioria</option><option>Nuova richiesta</option></select></td>
+        <td>
+            <select>
+                <option>Bloccante</option>
+                <option>Non Bloccante</option>
             </select>
         </td>
-        <td class="px-2 py-1 text-xs">
-            <select class="text-xs rounded border px-1">
-                <option value="">Seleziona</option>
-                <option value="Bug">Bug</option>
-                <option value="Miglioria">Miglioria</option>
-                <option value="Nuova richiesta">Nuova richiesta</option>
-            </select>
-        </td>
-        <td class="px-2 py-1 text-xs">
-            <select class="text-xs rounded border px-1">
-                <option value="Bloccante">Bloccante</option>
-                <option value="Non Bloccante">Non Bloccante</option>
-            </select>
-        </td>
-        <td class="px-2 py-1 text-xs">
-            <select class="text-xs rounded border px-1">
-                <option value="">Seleziona</option>
-                <option value="Alta">Alta</option>
-                <option value="Media">Media</option>
-                <option value="Bassa">Bassa</option>
-            </select>
-        </td>
-        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
-        <td class="px-2 py-1 text-xs">
-            <select class="text-xs border rounded px-1">
-                <option value="">Seleziona</option>
-                <option value="FASE1">FASE1</option>
-                <option value="FASE2">FASE2</option>
-                <option value="FASE3">FASE3</option>
-            </select>
-        </td>
-        <td class="px-2 py-1 text-xs">
-            <select class="text-xs border rounded px-1">
-                <option value="">Seleziona</option>
-                <option value="Pianificazione cantieri">Pianificazione cantieri</option>
-                <option value="Pianificazione Squadre">Pianificazione Squadre</option>
-                <option value="da segnalare">da segnalare</option>
-            </select>
-        </td>
-        <td class="px-2 py-1 text-xs"><input type="text" class="text-xs border rounded px-1"></td>
-        <td class="px-2 py-1 text-xs"><textarea class="text-xs border rounded px-1" rows="2"></textarea></td>
-        <td class="px-2 py-1 text-xs"><input type="text" class="text-xs border rounded px-1"></td>
-        <td class="px-2 py-1 text-xs"><input type="text" class="text-xs border rounded px-1"></td>
-        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
-        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
-        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
-        <td class="px-2 py-1 text-xs"><textarea class="text-xs border rounded px-1" rows="2"></textarea></td>
-        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
-        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
-        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
-        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
-        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
+        <td><select><option>Alta</option><option>Media</option><option>Bassa</option></select></td>
+        <td><input type="date" value="${today}" readonly></td>
+        <td><select><option>FASE1</option><option>FASE2</option><option>FASE3</option></select></td>
+        <td><select><option>Pianificazione cantieri</option><option>Pianificazione squadre</option><option>Da segnalare</option></select></td>
+        <td><input type="text"></td>
+        <td></td> <!-- descrizione lunga sulla seconda riga -->
+        <td><input type="text"></td>
+        <td><input type="text"></td>
+        <td><input type="date"></td>
+        <td><input type="date"></td>
+        <td><input type="date"></td>
+        <td></td>
+        <td></td> <!-- Data stato riempita automaticamente -->
     `;
-    ticketBody.appendChild(tr);
+
+    row2.innerHTML = `
+        <td colspan="2"><textarea rows="2" placeholder="Descrizione ticket..."></textarea></td>
+        <td colspan="3"><textarea rows="2" placeholder="Descrizione attività di soluzione..."></textarea></td>
+        <td colspan="4"></td>
+    `;
+
+    tbody.appendChild(row1);
+    tbody.appendChild(row2);
 }
 
+// Aggiorna la data corrispondente allo stato selezionato
 function updateStateDate(select) {
-    const row = select.parentElement.parentElement;
-    const today = new Date().toISOString().split('T')[0];
-    const state = select.value;
-    const dateCells = {
-        "Segnalato": 16,
-        "Preso in carico": 17,
-        "Rilasciato": 18,
-        "in Test": 19,
-        "Completato": 20
-    };
-    if(state && dateCells[state]) {
-        row.cells[dateCells[state]].querySelector('input').value = today;
+    const row = select.closest('tr');
+    const stateDateCell = row.cells[row.cells.length-1];
+    stateDateCell.innerText = new Date().toLocaleDateString();
+}
+
+// Salvataggio in JSON
+function saveTickets() {
+    const tbody = document.getElementById('ticketTable').querySelector('tbody');
+    const tickets = [];
+    for (let i = 0; i < tbody.rows.length; i += 2) {
+        const r1 = tbody.rows[i];
+        const r2 = tbody.rows[i+1];
+        const ticket = {
+            nr: r1.cells[0].innerText,
+            stato: r1.cells[1].querySelector('select').value,
+            tipo: r1.cells[2].querySelector('select').value,
+            bloccante: r1.cells[3].querySelector('select').value,
+            priorita: r1.cells[4].querySelector('select').value,
+            dataInserimento: r1.cells[5].querySelector('input').value,
+            ambito: r1.cells[6].querySelector('select').value,
+            menu: r1.cells[7].querySelector('select').value,
+            titolo: r1.cells[8].querySelector('input').value,
+            descrizione: r2.cells[0].querySelector('textarea').value,
+            inseritoDa: r1.cells[10].querySelector('input').value,
+            inCaricoA: r1.cells[11].querySelector('input').value,
+            dataInizio: r1.cells[12].querySelector('input').value,
+            dataFine: r1.cells[13].querySelector('input').value,
+            dataRilascio: r1.cells[14].querySelector('input').value,
+            descrizioneSoluzione: r2.cells[1].querySelector('textarea').value,
+            dataStato: r1.cells[16].innerText
+        };
+        tickets.push(ticket);
     }
+    console.log(JSON.stringify(tickets, null, 2));
+    alert('Ticket salvati correttamente! Controlla console per JSON.');
 }
 </script>
 
