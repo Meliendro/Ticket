@@ -3,70 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Table</title>
+<title>Gestione Ticket</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
+.container { max-width: 1400px; margin: 2rem auto; padding: 1rem; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 0.5rem; border: 1px solid #ccc; text-align: center; font-size: 0.85rem; }
+thead { background: #1e3a8a; color: #fff; }
+button { cursor: pointer; }
+</style>
 </head>
-<body class="p-4 bg-gray-100">
+<body>
 
-<div class="flex justify-between items-center mb-4">
-  <h1 class="text-2xl font-bold">Ticket Table</h1>
-  <button onclick="window.location.href='inserimento.html'" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 flex items-center gap-2">
-    <i class="fas fa-plus"></i> Nuovo Ticket
-  </button>
-</div>
+<div class="container">
+    <h1 class="text-2xl font-bold mb-4">Gestione Ticket</h1>
+    <div class="mb-4">
+        <button onclick="window.location.href='ticket.html'" class="bg-blue-600 text-white px-4 py-2 rounded shadow">Nuovo Ticket</button>
+    </div>
 
-<div class="overflow-x-auto shadow-lg rounded-lg bg-white">
-  <table class="min-w-full divide-y divide-gray-200" id="ticketTable">
-    <thead class="bg-gray-50">
-      <tr>
-        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Nr</th>
-        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Stato</th>
-        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Tipo</th>
-        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Priorità</th>
-        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Data Inserimento</th>
-        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Ambito</th>
-        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Menu</th>
-        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Titolo</th>
-        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Descrizione</th>
-        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Inserito da</th>
-        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">In carico a</th>
-      </tr>
-    </thead>
-    <tbody id="ticketBody" class="divide-y divide-gray-100">
-      <!-- Ticket rows loaded from JSON -->
-    </tbody>
-  </table>
+    <table id="ticketTable">
+        <thead>
+            <tr>
+                <th>Nr Ticket</th>
+                <th>Stato</th>
+                <th>Tipo</th>
+                <th>Bloccante</th>
+                <th>Priorità</th>
+                <th>Data Inserimento</th>
+                <th>Ambito</th>
+                <th>Menu</th>
+                <th>Titolo</th>
+                <th>Descrizione</th>
+                <th>Inserito da</th>
+                <th>In carico a</th>
+                <th>Data Inizio Prevista</th>
+                <th>Data Fine Prevista</th>
+                <th>Data Rilascio</th>
+                <th>Descrizione Soluzione</th>
+                <th>Data Segnalato</th>
+                <th>Data Preso in carico</th>
+                <th>Data Rilasciato</th>
+                <th>Data in Test</th>
+                <th>Data Completato</th>
+                <th>Azioni</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Qui saranno inserite le righe dei ticket -->
+        </tbody>
+    </table>
 </div>
 
 <script>
 let tickets = JSON.parse(localStorage.getItem('tickets') || '[]');
 
-function renderTickets() {
-  const tbody = document.getElementById('ticketBody');
-  tbody.innerHTML = '';
-  tickets.forEach(ticket => {
-    const row = document.createElement('tr');
-    row.className = "bg-white hover:bg-gray-50";
-    row.innerHTML = `
-      <td class="px-4 py-2">${ticket.nr}</td>
-      <td class="px-4 py-2">${ticket.stato}</td>
-      <td class="px-4 py-2">${ticket.tipo}</td>
-      <td class="px-4 py-2">${ticket.priorita}</td>
-      <td class="px-4 py-2">${ticket.dataInserimento}</td>
-      <td class="px-4 py-2">${ticket.ambito}</td>
-      <td class="px-4 py-2">${ticket.menu}</td>
-      <td class="px-4 py-2">${ticket.titolo}</td>
-      <td class="px-4 py-2">${ticket.descrizione}</td>
-      <td class="px-4 py-2">${ticket.inseritoDa}</td>
-      <td class="px-4 py-2">${ticket.inCaricoA}</td>
-    `;
-    tbody.appendChild(row);
-  });
+function renderTable() {
+    const tbody = document.querySelector('#ticketTable tbody');
+    tbody.innerHTML = '';
+    tickets.forEach((t, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${i+1}</td>
+            <td>${t.stato || ''}</td>
+            <td>${t.tipo || ''}</td>
+            <td>${t.bloccante || ''}</td>
+            <td>${t.priorita || ''}</td>
+            <td>${t.dataInserimento || ''}</td>
+            <td>${t.ambito || ''}</td>
+            <td>${t.menu || ''}</td>
+            <td>${t.titolo || ''}</td>
+            <td>${t.descrizione || ''}</td>
+            <td>${t.inseritoDa || ''}</td>
+            <td>${t.inCaricoA || ''}</td>
+            <td>${t.dataInizioPrevista || ''}</td>
+            <td>${t.dataFinePrevista || ''}</td>
+            <td>${t.dataRilascio || ''}</td>
+            <td>${t.descrizioneSoluzione || ''}</td>
+            <td>${t.dataSegnalato || ''}</td>
+            <td>${t.dataPresoInCarico || ''}</td>
+            <td>${t.dataRilasciato || ''}</td>
+            <td>${t.dataInTest || ''}</td>
+            <td>${t.dataCompletato || ''}</td>
+            <td><button onclick="editTicket(${i})" class="bg-yellow-500 text-white px-2 py-1 rounded">Modifica</button></td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
 
-renderTickets();
-</script>
+function editTicket(index) {
+    localStorage.setItem('editTicketIndex', index);
+    window.location.href = 'ticket.html';
+}
 
+renderTable();
+</script>
 </body>
 </html>
