@@ -1,0 +1,28 @@
+{
+  "Bloccante": [
+    "Bloccante",
+    "Non Bloccante"
+  ],
+  "Stato": [
+    "Segnalato",
+    "Preso in carico",
+    "Rilasciato",
+    "In Test",
+    "Completato"
+  ],
+  "Priorita": [
+    "Alta",
+    "Bassa",
+    "Media"
+  ],
+  "Tipo": [
+    "Bug",
+    "Nuova Richiesta",
+    "Miglioria"
+  ],
+  "Menu": [
+    "Pianificazione Squadre",
+    "Pianificazione Cantieri",
+    "Pianificazione Materiali"
+  ]
+}
