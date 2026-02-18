@@ -7,141 +7,113 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-    .priority-Alta { background-color: #f87171; color: white; }
-    .priority-Media { background-color: #fbbf24; color: white; }
-    .priority-Bassa { background-color: #34d399; color: white; }
-    .status-Segnalato { background-color: #93c5fd; color: white; }
-    .status-PresoInCarico { background-color: #facc15; color: black; }
-    .status-InTest { background-color: #f472b6; color: white; }
-    .status-Rilasciato { background-color: #a78bfa; color: white; }
-    .status-Completato { background-color: #34d399; color: white; }
-    .icon-button { cursor:pointer; padding:4px; border-radius:4px; transition:0.2s; }
-    .icon-button:hover { background-color:#eee; }
+  body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; padding:2rem;}
+  table { width:100%; border-collapse:collapse;}
+  th, td { border:1px solid #ddd; padding:0.5rem; text-align:center; }
+  th { background:#333; color:white; }
+  .priority-alta { background:#f87171; color:white; }
+  .priority-media { background:#fbbf24; color:white; }
+  .priority-bassa { background:#34d399; color:white; }
+  button { cursor:pointer; }
 </style>
 </head>
-<body class="bg-gray-50 p-6">
+<body>
 
-<h1 class="text-3xl font-bold mb-6">Elenco Ticket</h1>
-<button onclick="openTicketForm()" class="mb-4 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700">
-    <i class="fas fa-plus"></i> Nuovo Ticket
-</button>
-
-<table class="table-auto bg-white shadow rounded-lg overflow-hidden">
-    <thead class="bg-gray-200">
-        <tr>
-            <th>Modifica</th>
-            <th>Nr Ticket</th>
-            <th>STATO</th>
-            <th>Tipo</th>
-            <th>Bloccante</th>
-            <th>Priorità</th>
-            <th>Data Inserimento</th>
-            <th>Ambito</th>
-            <th>Menu</th>
-            <th>Titolo</th>
-            <th>Descrizione</th>
-            <th>Inserito da</th>
-            <th>In carico a</th>
-            <th>Data Inizio Prevista</th>
-            <th>Data Fine Prevista</th>
-            <th>Data Rilascio</th>
-            <th>Descrizione Attività</th>
-            <th>Data Segnalato</th>
-            <th>Data Preso in Carico</th>
-            <th>Data In Test</th>
-            <th>Data Completato</th>
-        </tr>
-    </thead>
-    <tbody id="ticketTableBody"></tbody>
+<h1 class="text-3xl font-bold mb-4">Ticket Dashboard</h1>
+<table>
+<thead>
+<tr>
+<th>Modifica</th>
+<th>Nr Ticket</th>
+<th>Stato</th>
+<th>Tipo</th>
+<th>Bloccante</th>
+<th>Priorità</th>
+<th>Data Inserimento</th>
+<th>Ambito</th>
+<th>Menu</th>
+<th>Titolo</th>
+<th>Descrizione</th>
+<th>Inserito da</th>
+<th>In carico a</th>
+<th>Data Inizio Prevista</th>
+<th>Data Fine Prevista</th>
+<th>Data Rilascio</th>
+<th>Descrizione Soluzione</th>
+<th>Data Segnalato</th>
+<th>Data Preso in Carico</th>
+<th>Data In Test</th>
+<th>Data Completato</th>
+</tr>
+</thead>
+<tbody id="ticketBody"></tbody>
 </table>
 
 <script>
-let tickets = [];
-let fileSha = "";
+// Configurazione GitHub
+let repoPath = 'ticket/2026/ticket2026.json';
+let token = prompt("Inserisci il token GitHub per leggere/scrivere il file JSON");
 
-async function getConfig() {
-    const config = JSON.parse(localStorage.getItem('gh_crm_config'));
-    return config;
-}
+let tickets = [];
 
 async function fetchTickets() {
-    const config = await getConfig();
-    if(!config) {
-        alert("⚠️ Configurare GitHub per visualizzare i ticket");
-        return;
-    }
-    const url = `https://api.github.com/repos/${config.repo}/contents/2026/ticket2026.json`;
     try {
-        const res = await fetch(url, {
-            headers: { "Authorization": `token ${config.token}` }
+        const res = await fetch(`https://api.github.com/repos/YOUR_USER/YOUR_REPO/contents/${repoPath}`,{
+            headers: { "Authorization": `token ${token}` }
         });
-        const data = await res.json();
-        if(res.ok) {
-            fileSha = data.sha;
-            const decoded = atob(data.content);
-            tickets = JSON.parse(decoded || "[]");
+        if(res.ok){
+            const data = await res.json();
+            tickets = JSON.parse(decodeURIComponent(escape(atob(data.content))));
             renderTable();
-        } else {
-            if(data.message.includes("Not Found")) {
-                tickets = [];
-                renderTable();
-            }
-        }
-    } catch(e) {
-        console.error("Errore fetch:", e);
-    }
+        } else { alert("Errore caricamento tickets"); }
+    } catch(e) { console.error(e); }
 }
 
 function renderTable() {
-    const tbody = document.getElementById('ticketTableBody');
+    const tbody = document.getElementById('ticketBody');
     tbody.innerHTML = '';
-    tickets.forEach((t, idx) => {
+    tickets.forEach((t,index)=>{
         const tr = document.createElement('tr');
-        tr.className = "border-b";
-        tr.innerHTML = `
-            <td>
-                <span class="icon-button text-blue-600" onclick="editTicket(${idx})">
-                    <i class="fas fa-edit"></i>
-                </span>
-            </td>
-            <td>${t.ticketNumber}</td>
-            <td class="status-${t.stato.replace(/ /g,'')}">${t.stato}</td>
-            <td>${t.tipo}</td>
-            <td>${t.bloccante}</td>
-            <td class="priority-${t.priorita} font-bold">${t.priorita}</td>
-            <td>${t.dataInserimento}</td>
-            <td>${t.ambito}</td>
-            <td>${t.menu}</td>
-            <td>${t.titolo}</td>
-            <td>${t.descrizione}</td>
-            <td>${t.inseritoDa}</td>
-            <td>${t.inCaricoA}</td>
-            <td>${t.dataInizioPrevista}</td>
-            <td>${t.dataFinePrevista}</td>
-            <td>${t.dataRilascio}</td>
-            <td>${t.descrizioneAttivita}</td>
-            <td>${t.dataSegnalato || ''}</td>
-            <td>${t.dataPresoInCarico || ''}</td>
-            <td>${t.dataInTest || ''}</td>
-            <td>${t.dataCompletato || ''}</td>
+
+        const editBtn = document.createElement('button');
+        editBtn.innerHTML='<i class="fas fa-edit"></i>';
+        editBtn.onclick = ()=>openTicketForm(index);
+
+        tr.innerHTML=`
+        <td>${editBtn.outerHTML}</td>
+        <td>${t.nrTicket}</td>
+        <td>${t.stato}</td>
+        <td>${t.tipo}</td>
+        <td>${t.bloccante}</td>
+        <td class="${t.priorita=='Alta'?'priority-alta':t.priorita=='Media'?'priority-media':'priority-bassa'}">${t.priorita}</td>
+        <td>${t.dataInserimento}</td>
+        <td>${t.ambito}</td>
+        <td>${t.menu}</td>
+        <td>${t.titolo}</td>
+        <td>${t.descrizione}</td>
+        <td>${t.inseritoDa}</td>
+        <td>${t.inCaricoA}</td>
+        <td>${t.dataInizioPrevista}</td>
+        <td>${t.dataFinePrevista}</td>
+        <td>${t.dataRilascio}</td>
+        <td>${t.descrizioneSoluzione}</td>
+        <td>${t.dataSegnalato||''}</td>
+        <td>${t.dataPresoInCarico||''}</td>
+        <td>${t.dataInTest||''}</td>
+        <td>${t.dataCompletato||''}</td>
         `;
         tbody.appendChild(tr);
     });
 }
 
-function openTicketForm() {
-    localStorage.removeItem('editIndex');
-    window.open('ticket_form.html', '_blank', 'width=900,height=800');
+function openTicketForm(index){
+    const ticket = tickets[index];
+    localStorage.setItem('editTicketIndex',index);
+    localStorage.setItem('editTicketData',JSON.stringify(ticket));
+    window.open('ticket_form.html','_blank','width=800,height=900');
 }
 
-function editTicket(idx) {
-    localStorage.setItem('editIndex', idx);
-    window.open('ticket_form.html', '_blank', 'width=900,height=800');
-}
-
-window.addEventListener('focus', fetchTickets);
 fetchTickets();
 </script>
-
 </body>
 </html>
