@@ -90,5 +90,28 @@
     "dataRilasciato": "18/02/2026",
     "dataInTest": "",
     "dataCompletato": ""
+  },
+  {
+    "nrTicket": 5,
+    "stato": "Segnalato",
+    "tipo": "Bug",
+    "bloccante": "Bloccante",
+    "priorita": "Alta",
+    "dataInserimento": "2026-02-18",
+    "ambito": "FASE1",
+    "menu": "Pianificazione cantieri",
+    "titolo": "verifica data segnalato ",
+    "descrizione": "data segnalato ",
+    "inseritoDa": "qweqwe",
+    "inCaricoA": "ewrwerew",
+    "dataInizioPrevista": "",
+    "dataFinePrevista": "",
+    "dataRilascio": "",
+    "descrAttivita": "",
+    "dataSegnalato": "18/02/2026",
+    "dataPresoInCarico": "",
+    "dataRilasciato": "",
+    "dataInTest": "",
+    "dataCompletato": ""
   }
 ]
