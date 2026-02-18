@@ -72,9 +72,7 @@ function renderTable(){
                 </button>
             </td>
             <td class="p-2 ticket-number">${t.nrTicket}</td>
-            <td class="p-2">
-                <span class="status-dot status-${t.stato.replace(/\s/g,'')}"></span> ${t.stato}
-            </td>
+            <td class="p-2"><span class="status-dot status-${t.stato.replace(/\s/g,'')}"></span> ${t.stato}</td>
             <td class="p-2">${t.tipo}</td>
             <td class="p-2 priority-${t.priorita}">${t.priorita}</td>
             <td class="p-2">${t.menu}</td>
@@ -97,11 +95,19 @@ function renderTable(){
 }
 
 function openForm(index=null){
-    const win = window.open("ticket_form.html","ticketForm","width=900,height=800");
     if(index!==null){
-        win.ticketDataIndex=index;
-        win.ticketData=tickets[index];
+        localStorage.setItem("editingTicket", JSON.stringify({ticketIndex:index,ticketData:tickets[index]}));
+    } else {
+        localStorage.removeItem("editingTicket");
     }
+    const win = window.open("ticket_form.html","ticketForm","width=900,height=800");
+    const timer = setInterval(()=>{
+        if(win.closed){
+            clearInterval(timer);
+            tickets = JSON.parse(localStorage.getItem("tickets") || "[]");
+            renderTable();
+        }
+    },500);
 }
 
 function editTicket(index){
