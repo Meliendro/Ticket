@@ -70,7 +70,7 @@
   },
   {
     "nrTicket": 4,
-    "stato": "Rilasciato",
+    "stato": "In Test",
     "tipo": "Bug",
     "bloccante": "Bloccante",
     "priorita": "Bassa",
@@ -88,7 +88,7 @@
     "dataSegnalato": "",
     "dataPresoInCarico": "18/02/2026",
     "dataRilasciato": "18/02/2026",
-    "dataInTest": "",
+    "dataInTest": "18/02/2026",
     "dataCompletato": ""
   },
   {
