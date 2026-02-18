@@ -3,130 +3,198 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Table Project</title>
+<title>Ticket Manager</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f4f5; padding: 20px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 6px 8px; border: 1px solid #ccc; font-size: 12px; vertical-align: top; }
-    th { background: #f87171; color: white; font-weight: bold; text-align: center; }
-    select, input[type=text], input[type=date], textarea { width: 100%; font-size: 12px; padding: 4px; border-radius: 4px; border: 1px solid #ccc; }
-    textarea { resize: vertical; }
-    button { padding: 6px 12px; border-radius: 6px; font-weight: bold; }
-    .btn-add { background: #34d399; color: white; margin-bottom: 10px; }
-    .btn-save { background: #3b82f6; color: white; margin-bottom: 10px; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f3f4f6;
+  }
+  .modal-bg {
+    background: rgba(0,0,0,0.5);
+  }
 </style>
 </head>
-<body>
+<body class="p-4">
 
-<h1 class="text-2xl font-bold mb-4">Ticket Table</h1>
-<button class="btn-save" onclick="saveTickets()">💾 Salva Ticket</button>
-<button class="btn-add" onclick="addTicket()">➕ Aggiungi Ticket</button>
+<!-- Header -->
+<div class="flex justify-between items-center mb-4">
+  <h1 class="text-2xl font-bold">Ticket Manager</h1>
+  <button onclick="openModal()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 flex items-center gap-2">
+    <i class="fas fa-plus"></i> Nuovo Ticket
+  </button>
+</div>
 
-<table id="ticketTable">
-    <thead>
-        <tr>
-            <th>Nr.</th>
-            <th>Stato</th>
-            <th>Tipo</th>
-            <th>Bloccante</th>
-            <th>Priorità</th>
-            <th>Data Inserimento</th>
-            <th>Ambito</th>
-            <th>Menu</th>
-            <th>Titolo</th>
-            <th>Descrizione</th>
-        </tr>
-        <tr>
-            <th>Inserito da</th>
-            <th>In carico a</th>
-            <th>Data inizio prevista</th>
-            <th>Data fine prevista</th>
-            <th>Data rilascio</th>
-            <th colspan="2">Descrizione attività di soluzione</th>
-            <th colspan="3">Data Stato</th>
-        </tr>
+<!-- Ticket Table -->
+<div class="overflow-x-auto shadow-lg rounded-lg bg-white">
+  <table class="min-w-full divide-y divide-gray-200" id="ticketTable">
+    <thead class="bg-gray-50">
+      <tr>
+        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Nr</th>
+        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Stato</th>
+        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Tipo</th>
+        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Priorità</th>
+        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Data Inserimento</th>
+        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Ambito</th>
+        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Menu</th>
+        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Titolo</th>
+        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Descrizione</th>
+        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">Inserito da</th>
+        <th class="px-4 py-2 text-left text-xs font-bold text-gray-600">In carico a</th>
+      </tr>
     </thead>
-    <tbody>
+    <tbody id="ticketBody" class="divide-y divide-gray-100">
+      <!-- Ticket rows will appear here -->
     </tbody>
-</table>
+  </table>
+</div>
+
+<!-- Modal -->
+<div id="ticketModal" class="hidden fixed inset-0 z-50 flex justify-center items-start pt-20 modal-bg">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl p-6 relative">
+    <h2 class="text-xl font-bold mb-4">Nuovo Ticket</h2>
+    <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800"><i class="fas fa-times"></i></button>
+    <form id="ticketForm" class="space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold">Stato</label>
+          <select id="stato" class="w-full p-2 border rounded">
+            <option>Segnalato</option>
+            <option>Preso in carico</option>
+            <option>Rilasciato</option>
+            <option>In Test</option>
+            <option>Completato</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold">Tipo</label>
+          <select id="tipo" class="w-full p-2 border rounded">
+            <option>Bug</option>
+            <option>Miglioria</option>
+            <option>Nuova richiesta</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold">Bloccante</label>
+          <select id="bloccante" class="w-full p-2 border rounded">
+            <option>Bloccante</option>
+            <option>Non Bloccante</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold">Priorità</label>
+          <select id="priorita" class="w-full p-2 border rounded">
+            <option>Alta</option>
+            <option>Media</option>
+            <option>Bassa</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold">Data Inserimento</label>
+          <input type="date" id="dataInserimento" class="w-full p-2 border rounded" value="">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold">Ambito</label>
+          <select id="ambito" class="w-full p-2 border rounded">
+            <option>FASE1</option>
+            <option>FASE2</option>
+            <option>FASE3</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold">Menu</label>
+          <select id="menu" class="w-full p-2 border rounded">
+            <option>Pianificazione cantieri</option>
+            <option>Pianificazione Squadre</option>
+            <option>Da segnalare</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold">Titolo</label>
+          <input type="text" id="titolo" class="w-full p-2 border rounded">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold">Descrizione</label>
+          <textarea id="descrizione" class="w-full p-2 border rounded" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold">Inserito da</label>
+          <input type="text" id="inseritoDa" class="w-full p-2 border rounded">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold">In carico a</label>
+          <input type="text" id="inCaricoA" class="w-full p-2 border rounded">
+        </div>
+      </div>
+      <div class="flex justify-end gap-4 mt-4">
+        <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded">Annulla</button>
+        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Salva Ticket</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <script>
 let ticketCount = 0;
+const tickets = [];
 
-function addTicket() {
-    ticketCount++;
-    const tbody = document.getElementById('ticketTable').querySelector('tbody');
-    const row1 = document.createElement('tr');
-    const row2 = document.createElement('tr');
-
-    const today = new Date().toISOString().split('T')[0];
-
-    // Riga principale: Nr. fino a Descrizione
-    row1.innerHTML = `
-        <td>${ticketCount}</td>
-        <td><select onchange="updateStateDate(this)"><option>Segnalato</option><option>Preso in carico</option><option>Rilasciato</option><option>In Test</option><option>Completato</option></select></td>
-        <td><select><option>Bug</option><option>Miglioria</option><option>Nuova richiesta</option></select></td>
-        <td><select><option>Bloccante</option><option>Non Bloccante</option></select></td>
-        <td><select><option>Alta</option><option>Media</option><option>Bassa</option></select></td>
-        <td><input type="date" value="${today}" readonly></td>
-        <td><select><option>FASE1</option><option>FASE2</option><option>FASE3</option></select></td>
-        <td><select><option>Pianificazione cantieri</option><option>Pianificazione squadre</option><option>Da segnalare</option></select></td>
-        <td><input type="text"></td>
-        <td><textarea rows="2" placeholder="Descrizione ticket..."></textarea></td>
-    `;
-
-    // Riga secondaria: gli altri campi
-    row2.innerHTML = `
-        <td><input type="text"></td>
-        <td><input type="text"></td>
-        <td><input type="date"></td>
-        <td><input type="date"></td>
-        <td><input type="date"></td>
-        <td colspan="2"><textarea rows="2" placeholder="Descrizione attività di soluzione..."></textarea></td>
-        <td colspan="3"></td> <!-- Data Stato -->
-    `;
-
-    tbody.appendChild(row1);
-    tbody.appendChild(row2);
+function openModal() {
+  document.getElementById('ticketModal').classList.remove('hidden');
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('dataInserimento').value = today;
 }
 
-function updateStateDate(select) {
-    const row = select.closest('tr');
-    row.nextElementSibling.cells[6].innerText = new Date().toLocaleDateString(); // scrive nella cella Data Stato
+function closeModal() {
+  document.getElementById('ticketModal').classList.add('hidden');
 }
 
-// Salvataggio JSON
-function saveTickets() {
-    const tbody = document.getElementById('ticketTable').querySelector('tbody');
-    const tickets = [];
-    for (let i = 0; i < tbody.rows.length; i += 2) {
-        const r1 = tbody.rows[i];
-        const r2 = tbody.rows[i+1];
-        const ticket = {
-            nr: r1.cells[0].innerText,
-            stato: r1.cells[1].querySelector('select').value,
-            tipo: r1.cells[2].querySelector('select').value,
-            bloccante: r1.cells[3].querySelector('select').value,
-            priorita: r1.cells[4].querySelector('select').value,
-            dataInserimento: r1.cells[5].querySelector('input').value,
-            ambito: r1.cells[6].querySelector('select').value,
-            menu: r1.cells[7].querySelector('select').value,
-            titolo: r1.cells[8].querySelector('input').value,
-            descrizione: r1.cells[9].querySelector('textarea').value,
-            inseritoDa: r2.cells[0].querySelector('input').value,
-            inCaricoA: r2.cells[1].querySelector('input').value,
-            dataInizio: r2.cells[2].querySelector('input').value,
-            dataFine: r2.cells[3].querySelector('input').value,
-            dataRilascio: r2.cells[4].querySelector('input').value,
-            descrizioneSoluzione: r2.cells[5].querySelector('textarea').value,
-            dataStato: r2.cells[6].innerText
-        };
-        tickets.push(ticket);
-    }
-    console.log(JSON.stringify(tickets, null, 2));
-    alert('Ticket salvati correttamente! Controlla console per JSON.');
+document.getElementById('ticketForm').onsubmit = function(e) {
+  e.preventDefault();
+  ticketCount++;
+  const ticket = {
+    nr: ticketCount,
+    stato: document.getElementById('stato').value,
+    tipo: document.getElementById('tipo').value,
+    bloccante: document.getElementById('bloccante').value,
+    priorita: document.getElementById('priorita').value,
+    dataInserimento: document.getElementById('dataInserimento').value,
+    ambito: document.getElementById('ambito').value,
+    menu: document.getElementById('menu').value,
+    titolo: document.getElementById('titolo').value,
+    descrizione: document.getElementById('descrizione').value,
+    inseritoDa: document.getElementById('inseritoDa').value,
+    inCaricoA: document.getElementById('inCaricoA').value
+  };
+  tickets.push(ticket);
+  addTicketRow(ticket);
+  alert('Ticket salvato con successo!');
+  closeModal();
+  this.reset();
+}
+
+function addTicketRow(ticket) {
+  const tbody = document.getElementById('ticketBody');
+  const row = document.createElement('tr');
+  row.className = "bg-white hover:bg-gray-50";
+  row.innerHTML = `
+    <td class="px-4 py-2">${ticket.nr}</td>
+    <td class="px-4 py-2">${ticket.stato}</td>
+    <td class="px-4 py-2">${ticket.tipo}</td>
+    <td class="px-4 py-2">${ticket.priorita}</td>
+    <td class="px-4 py-2">${ticket.dataInserimento}</td>
+    <td class="px-4 py-2">${ticket.ambito}</td>
+    <td class="px-4 py-2">${ticket.menu}</td>
+    <td class="px-4 py-2">${ticket.titolo}</td>
+    <td class="px-4 py-2">${ticket.descrizione}</td>
+    <td class="px-4 py-2">${ticket.inseritoDa}</td>
+    <td class="px-4 py-2">${ticket.inCaricoA}</td>
+  `;
+  tbody.appendChild(row);
 }
 </script>
 
