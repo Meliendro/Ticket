@@ -7,181 +7,121 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 body { font-family: 'Segoe UI', sans-serif; background-color: #f3f4f6; }
-.glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-radius: 1rem; padding: 1rem; margin: 1rem auto; max-width: 800px; }
-label { font-size: 0.8rem; font-weight: bold; display:block; margin-top: 0.5rem; }
-input, select, textarea { width: 100%; padding: 0.4rem; border-radius: 0.3rem; border: 1px solid #ddd; margin-top: 0.2rem; font-size: 0.85rem; }
-button { margin-top: 1rem; background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.3rem; }
+.glass-panel { background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-radius: 1rem; padding: 1rem; margin: 1rem; max-width: 800px; }
+label { font-size:0.8rem; font-weight:bold; display:block; margin-top:0.5rem; }
+input, select, textarea { width:100%; padding:0.4rem; border-radius:0.3rem; border:1px solid #ddd; margin-top:0.2rem; font-size:0.85rem; }
+button { margin-top:1rem; background-color: #3b82f6; color:white; padding:0.5rem 1rem; border-radius:0.3rem; }
 </style>
 </head>
 <body class="p-4">
 
 <div class="glass-panel">
-    <h1 class="text-xl font-bold mb-4">Nuovo Ticket</h1>
-    <form id="ticketForm">
+<h1 class="text-xl font-bold mb-4">Nuovo Ticket</h1>
+<form id="ticketForm">
 
-        <label>Stato</label>
-        <select id="stato">
-            <option value="" selected disabled>Seleziona Stato</option>
-            <option value="Segnalato">Segnalato</option>
-            <option value="Preso in carico">Preso in carico</option>
-            <option value="Rilasciato">Rilasciato</option>
-            <option value="In Test">In Test</option>
-            <option value="Completato">Completato</option>
-        </select>
+<label>Stato</label>
+<select id="stato">
+    <option value="" selected>Seleziona Stato</option>
+    <option value="Segnalato">Segnalato</option>
+    <option value="Preso in carico">Preso in carico</option>
+    <option value="Rilasciato">Rilasciato</option>
+    <option value="In Test">In Test</option>
+    <option value="Completato">Completato</option>
+</select>
 
-        <label>Tipo</label>
-        <select id="tipo">
-            <option>Bug</option>
-            <option>Miglioria</option>
-            <option>Nuova richiesta</option>
-        </select>
+<label>Tipo</label>
+<select id="tipo">
+    <option>Bug</option>
+    <option>Miglioria</option>
+    <option>Nuova richiesta</option>
+</select>
 
-        <label>Priorità</label>
-        <select id="priorita">
-            <option>Alta</option>
-            <option>Media</option>
-            <option>Bassa</option>
-        </select>
+<label>Priorità</label>
+<select id="priorita">
+    <option>Alta</option>
+    <option>Media</option>
+    <option>Bassa</option>
+</select>
 
-        <label>Data Inserimento</label>
-        <input type="date" id="data_inserimento">
+<label>Data Inserimento</label>
+<input type="date" id="data_inserimento">
 
-        <label>Ambito</label>
-        <select id="ambito">
-            <option>FASE1</option>
-            <option>FASE2</option>
-            <option>FASE3</option>
-        </select>
+<label>Ambito</label>
+<select id="ambito">
+    <option>FASE1</option>
+    <option>FASE2</option>
+    <option>FASE3</option>
+</select>
 
-        <label>Menu</label>
-        <select id="menu">
-            <option>Pianificazione cantieri</option>
-            <option>Pianificazione Squadre</option>
-            <option>Da segnalare</option>
-        </select>
+<label>Menu</label>
+<select id="menu">
+    <option>Pianificazione cantieri</option>
+    <option>Pianificazione Squadre</option>
+    <option>Da segnalare</option>
+</select>
 
-        <label>Titolo</label>
-        <input type="text" id="titolo">
+<label>Titolo</label>
+<input type="text" id="titolo">
 
-        <label>Descrizione</label>
-        <textarea id="descrizione" rows="3"></textarea>
+<label>Descrizione</label>
+<textarea id="descrizione" rows="3"></textarea>
 
-        <label>Inserito da</label>
-        <input type="text" id="inserito_da">
+<label>Inserito da</label>
+<input type="text" id="inserito_da">
 
-        <label>In carico a</label>
-        <input type="text" id="in_carico_a">
+<label>In carico a</label>
+<input type="text" id="in_carico_a">
 
-        <label>Data inizio prevista attività</label>
-        <input type="date" id="data_inizio_prevista">
+<label>Data inizio prevista attività</label>
+<input type="date" id="data_inizio_prevista">
 
-        <label>Data fine prevista attività</label>
-        <input type="date" id="data_fine_prevista">
+<label>Data fine prevista attività</label>
+<input type="date" id="data_fine_prevista">
 
-        <label>Data rilascio</label>
-        <input type="date" id="data_rilascio">
+<label>Data rilascio</label>
+<input type="date" id="data_rilascio">
 
-        <label>Descrizione attività di soluzione</label>
-        <textarea id="descrizione_soluzione" rows="3"></textarea>
+<label>Descrizione attività di soluzione</label>
+<textarea id="descrizione_soluzione" rows="2"></textarea>
 
-        <!-- Campi data Stato -->
-        <input type="hidden" id="data_segnalato">
-        <input type="hidden" id="data_preso_in_carico">
-        <input type="hidden" id="data_rilasciato">
-        <input type="hidden" id="data_in_test">
-        <input type="hidden" id="data_completato">
-
-        <button type="submit">Salva Ticket</button>
-    </form>
+<button type="submit">Salva Ticket</button>
+</form>
 </div>
 
 <script>
-const config = {
-    repo: "USERNAME/REPO_NAME",
-    token: "YOUR_GITHUB_TOKEN"
-};
+const form = document.getElementById('ticketForm');
+form.data_inserimento.valueAsDate = new Date(); // inizializza data inserimento
 
-let editIndex = localStorage.getItem("edit_ticket_index");
+form.addEventListener('submit', function(e){
+    e.preventDefault();
 
-// Data inserimento di default
-document.getElementById("data_inserimento").valueAsDate = new Date();
+    // crea oggetto ticket
+    const ticket = {
+        stato: form.stato.value,
+        tipo: form.tipo.value,
+        priorita: form.priorita.value,
+        data_inserimento: form.data_inserimento.value,
+        ambito: form.ambito.value,
+        menu: form.menu.value,
+        titolo: form.titolo.value,
+        descrizione: form.descrizione.value,
+        inserito_da: form.inserito_da.value,
+        in_carico_a: form.in_carico_a.value,
+        data_inizio_prevista: form.data_inizio_prevista.value,
+        data_fine_prevista: form.data_fine_prevista.value,
+        data_rilascio: form.data_rilascio.value,
+        descrizione_soluzione: form.descrizione_soluzione.value
+    };
 
-// Funzione per valorizzare la data relativa allo stato selezionato
-document.getElementById("stato").addEventListener("change", function() {
-    const today = new Date().toISOString().split("T")[0];
-    switch(this.value){
-        case "Segnalato": if(!document.getElementById("data_segnalato").value) document.getElementById("data_segnalato").value = today; break;
-        case "Preso in carico": if(!document.getElementById("data_preso_in_carico").value) document.getElementById("data_preso_in_carico").value = today; break;
-        case "Rilasciato": if(!document.getElementById("data_rilasciato").value) document.getElementById("data_rilasciato").value = today; break;
-        case "In Test": if(!document.getElementById("data_in_test").value) document.getElementById("data_in_test").value = today; break;
-        case "Completato": if(!document.getElementById("data_completato").value) document.getElementById("data_completato").value = today; break;
+    // invia al padre (tabella.html)
+    if(window.opener && !window.opener.closed){
+        window.opener.riceviTicket(ticket);
+        alert("Ticket salvato con successo!");
+        window.close(); // chiude la finestra di inserimento
+    } else {
+        alert("Errore: finestra principale non trovata.");
     }
 });
-
-async function loadTicket() {
-    if(editIndex === null) return;
-    const url = `https://api.github.com/repos/${config.repo}/contents/tickets.json`;
-    const res = await fetch(url, { headers: { "Authorization": `token ${config.token}` } });
-    const data = await res.json();
-    const tickets = JSON.parse(atob(data.content));
-    const t = tickets[editIndex];
-    for(const key in t) {
-        if(document.getElementById(key)) document.getElementById(key).value = t[key];
-    }
-}
-
-document.getElementById("ticketForm").onsubmit = async function(e){
-    e.preventDefault();
-    const url = `https://api.github.com/repos/${config.repo}/contents/tickets.json`;
-    const res = await fetch(url, { headers: { "Authorization": `token ${config.token}` } });
-    const data = await res.json();
-    let tickets = JSON.parse(atob(data.content));
-
-    const ticket = {
-        stato: document.getElementById("stato").value,
-        tipo: document.getElementById("tipo").value,
-        priorita: document.getElementById("priorita").value,
-        data_inserimento: document.getElementById("data_inserimento").value,
-        ambito: document.getElementById("ambito").value,
-        menu: document.getElementById("menu").value,
-        titolo: document.getElementById("titolo").value,
-        descrizione: document.getElementById("descrizione").value,
-        inserito_da: document.getElementById("inserito_da").value,
-        in_carico_a: document.getElementById("in_carico_a").value,
-        data_inizio_prevista: document.getElementById("data_inizio_prevista").value,
-        data_fine_prevista: document.getElementById("data_fine_prevista").value,
-        data_rilascio: document.getElementById("data_rilascio").value,
-        descrizione_soluzione: document.getElementById("descrizione_soluzione").value,
-        data_segnalato: document.getElementById("data_segnalato").value,
-        data_preso_in_carico: document.getElementById("data_preso_in_carico").value,
-        data_rilasciato: document.getElementById("data_rilasciato").value,
-        data_in_test: document.getElementById("data_in_test").value,
-        data_completato: document.getElementById("data_completato").value
-    };
-
-    if(editIndex !== null){
-        tickets[editIndex] = ticket;
-    } else {
-        tickets.push(ticket);
-    }
-
-    const body = {
-        message: editIndex!==null ? `Update ticket ${editIndex}` : "New ticket",
-        content: btoa(JSON.stringify(tickets,null,2)),
-        sha: data.sha
-    };
-
-    const putRes = await fetch(url,{method:"PUT", headers:{ "Authorization":`token ${config.token}`, "Content-Type":"application/json"}, body:JSON.stringify(body)});
-    if(putRes.ok){
-        alert("Ticket salvato!");
-        localStorage.removeItem("edit_ticket_index");
-        window.location.href = "tabella.html";
-    } else {
-        alert("Errore salvataggio!");
-    }
-};
-
-loadTicket();
 </script>
 
 </body>
