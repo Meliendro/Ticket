@@ -190,7 +190,7 @@ button { cursor: pointer; }
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let editTicketData = JSON.parse(localStorage.getItem('edit_ticket')) || {};
 
-// Funzione corretta per decodificare Base64 con supporto UTF-8
+// Decodifica robusta UTF-8
 function b64DecodeUnicode(str) {
     return decodeURIComponent(atob(str).split('').map(function(c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
@@ -200,12 +200,16 @@ function b64DecodeUnicode(str) {
 async function loadStatoOptions() {
     if(!config) return;
     const statoSelect = document.getElementById('stato');
+    
+    // PERCORSO AGGIORNATO: ticket/2026/liste.json
+    const url = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`;
+    
     try {
-        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket_list.json`, {
+        const res = await fetch(url, {
             headers: { 'Authorization': `token ${config.token}`, 'Cache-Control': 'no-cache' }
         });
         
-        if(!res.ok) throw new Error("File ticket_list.json non trovato o errore API");
+        if(!res.ok) throw new Error(`File non trovato al percorso: ticket/2026/liste.json`);
         
         const data = await res.json();
         const content = b64DecodeUnicode(data.content);
@@ -213,6 +217,7 @@ async function loadStatoOptions() {
         
         statoSelect.innerHTML = '<option value="">-- Seleziona Stato --</option>';
         
+        // Carica la chiave "stato" dal file JSON
         if(lists.stato && Array.isArray(lists.stato)) {
             lists.stato.forEach(s => {
                 const opt = document.createElement('option');
@@ -222,14 +227,14 @@ async function loadStatoOptions() {
             });
         }
         
-        // Se siamo in modalità modifica, ripristina il valore dopo il caricamento delle opzioni
+        // Ripristina valore in caso di modifica
         if(editTicketData.stato) {
             statoSelect.value = editTicketData.stato;
         }
     } catch(e) {
-        console.error("Errore dettagliato:", e);
-        statoSelect.innerHTML = '<option value="">Errore caricamento</option>';
-        alert("Errore caricamento lista Stato: " + e.message);
+        console.error("Errore fetch liste:", e);
+        statoSelect.innerHTML = '<option value="">Errore!</option>';
+        alert("Errore caricamento: " + e.message);
     }
 }
 
@@ -237,27 +242,22 @@ function initializeForm() {
     const today = new Date().toISOString().substr(0,10);
     document.getElementById('dataInserimento').value = today;
 
-    // Se stiamo modificando un ticket esistente
     if(editTicketData && editTicketData.nrTicket){
         document.getElementById('ticketTitle').innerText = "Modifica Ticket";
         document.getElementById('ticketNumberPreview').innerText = editTicketData.nrTicket;
         
-        // Popolamento automatico campi
         Object.keys(editTicketData).forEach(key => {
             const el = document.getElementById(key);
             if(el) el.value = editTicketData[key];
         });
     }
 
-    // Carica le opzioni dinamiche
     loadStatoOptions();
 }
 
-// Gestione date cambio stato
 document.getElementById('stato').addEventListener('change', function(){
     const stato = this.value;
     const now = new Date().toLocaleDateString('it-IT');
-    
     if(stato === "Segnalato" && !editTicketData.dataSegnalato) editTicketData.dataSegnalato = now;
     if(stato === "Preso in carico" && !editTicketData.dataPresoInCarico) editTicketData.dataPresoInCarico = now;
     if(stato === "Rilasciato" && !editTicketData.dataRilasciato) editTicketData.dataRilasciato = now;
@@ -266,10 +266,9 @@ document.getElementById('stato').addEventListener('change', function(){
 });
 
 async function saveTicket(){
-    if(!config){ alert("⚠️ Configura GitHub prima di salvare"); return; }
+    if(!config){ alert("⚠️ Configura GitHub"); return; }
     
     try {
-        // 1. Recupera il file dei ticket corrente per avere lo SHA e la lista aggiornata
         const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
             headers: {Authorization:`token ${config.token}`, 'Cache-Control': 'no-cache'}
         });
@@ -283,10 +282,8 @@ async function saveTicket(){
             tickets = JSON.parse(b64DecodeUnicode(data.content));
         }
 
-        // 2. Determina il numero ticket
         let nrTicket = editTicketData.nrTicket || (tickets.length ? Math.max(...tickets.map(t=>t.nrTicket)) + 1 : 1);
 
-        // 3. Costruisci l'oggetto ticket
         const t = {
             nrTicket,
             stato: document.getElementById('stato').value,
@@ -311,7 +308,6 @@ async function saveTicket(){
             dataCompletato: editTicketData.dataCompletato || ""
         };
 
-        // 4. Aggiorna o Aggiungi
         if(editTicketData.nrTicket){
             const index = tickets.findIndex(tt => tt.nrTicket === editTicketData.nrTicket);
             if(index !== -1) tickets[index] = t;
@@ -320,13 +316,8 @@ async function saveTicket(){
             tickets.push(t);
         }
 
-        // 5. Salva su GitHub
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(tickets, null, 2))));
-        const body = {
-            message: `Ticket #${t.nrTicket} - ${t.titolo}`,
-            content: content,
-            sha: currentSha
-        };
+        const body = { message: `Ticket #${t.nrTicket}`, content: content, sha: currentSha };
 
         const putRes = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
             method: "PUT",
@@ -334,17 +325,16 @@ async function saveTicket(){
             body: JSON.stringify(body)
         });
 
-        if(!putRes.ok) throw new Error("Errore durante l'invio a GitHub");
+        if(!putRes.ok) throw new Error("Errore salvataggio GitHub");
         
-        alert("Ticket salvato con successo!");
+        alert("Salvataggio completato!");
         window.close();
         
     } catch(e){ 
-        alert("Errore salvataggio: " + e.message); 
+        alert("Errore: " + e.message); 
     }
 }
 
-// Avvio
 initializeForm();
 </script>
 </body>
