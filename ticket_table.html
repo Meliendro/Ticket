@@ -3,43 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Table 2026</title>
+<title>Ticket Table</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f5f5f5; }
-    .glass-panel { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius:1rem; padding:1rem; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 0.5rem; text-align:center; white-space: nowrap; }
-    th { background:#1f2937; color:white; position:sticky; top:0; z-index:1; }
-    tr:nth-child(even){ background:#f9f9f9; }
-    .priority-high { background:#f87171; color:white; font-weight:bold; border-radius:0.3rem; }
-    .priority-medium { background:#facc15; color:black; font-weight:bold; border-radius:0.3rem; }
-    .priority-low { background:#4ade80; color:black; font-weight:bold; border-radius:0.3rem; }
-    .btn { padding:0.3rem 0.6rem; border-radius:0.5rem; font-size:0.8rem; cursor:pointer; }
-    .btn-edit { background:#3b82f6; color:white; }
+body { font-family: 'Segoe UI', sans-serif; background: #f4f4f5; }
+h1 { font-weight: 700; }
+.table-container { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 0.5rem; text-align: left; white-space: nowrap; }
+th { background: #1f2937; color: #fff; position: sticky; top: 0; }
+tr:nth-child(even) { background: #f9fafb; }
+.priority-alta { background: #dc2626; color: #fff; font-weight: bold; text-align: center; }
+.priority-media { background: #f59e0b; color: #fff; font-weight: bold; text-align: center; }
+.priority-bassa { background: #10b981; color: #fff; font-weight: bold; text-align: center; }
+.status-segnalato { color: #ef4444; font-weight: bold; }
+.status-preso { color: #f59e0b; font-weight: bold; }
+.status-rilasciato { color: #3b82f6; font-weight: bold; }
+.status-intest { color: #6366f1; font-weight: bold; }
+.status-completato { color: #10b981; font-weight: bold; }
+button { cursor: pointer; }
 </style>
 </head>
 <body class="p-6">
 
-<div class="glass-panel shadow-lg">
-    <h1 class="text-2xl font-bold mb-4">Ticket Table 2026</h1>
-    <div class="flex justify-between items-center mb-2">
-        <button onclick="openConfig()" class="btn bg-gray-800 text-white">Config GitHub</button>
-        <button onclick="addNewTicket()" class="btn bg-green-600 text-white">Nuovo Ticket</button>
+<header class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl">Gestione Ticket</h1>
+    <div class="flex gap-3">
+        <button onclick="newTicket()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"><i class="fas fa-plus"></i> Nuovo Ticket</button>
+        <button onclick="configureGitHub()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700"><i class="fas fa-cog"></i> Config GitHub</button>
     </div>
+</header>
 
-    <table border="1">
+<div class="table-container border rounded shadow">
+    <table id="ticketTable">
         <thead>
             <tr>
                 <th>Modifica</th>
-                <th>Nr. Ticket</th>
-                <th>STATO</th>
-                <th>Data Segnalato</th>
-                <th>Data Preso in Carico</th>
-                <th>Data Rilasciato</th>
-                <th>Data In Test</th>
-                <th>Data Completato</th>
+                <th>Nr Ticket</th>
+                <th>Stato</th>
                 <th>Tipo</th>
                 <th>Bloccante</th>
                 <th>Priorità</th>
@@ -49,130 +51,96 @@
                 <th>Titolo</th>
                 <th>Descrizione</th>
                 <th>Inserito da</th>
-                <th>In Carico a</th>
+                <th>In carico a</th>
                 <th>Data Inizio Prevista</th>
                 <th>Data Fine Prevista</th>
                 <th>Data Rilascio</th>
-                <th>Descrizione Attività Soluzione</th>
+                <th>Descrizione Attività</th>
+                <th>Data Segnalato</th>
+                <th>Data Preso In Carico</th>
+                <th>Data Rilasciato</th>
+                <th>Data In Test</th>
+                <th>Data Completato</th>
             </tr>
         </thead>
         <tbody id="ticketBody">
-            <!-- Ticket rows saranno inserite qui -->
         </tbody>
     </table>
 </div>
 
 <script>
-// Config GitHub
-let config = JSON.parse(localStorage.getItem('ticket_config'));
+let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let tickets = [];
 let fileSha = "";
 
-// Funzioni
-function addNewTicket(){
-    localStorage.setItem('edit_ticket', JSON.stringify(null));
-    window.open('ticket_form.html','_blank','width=900,height=800');
-}
-
-function openConfig(){
+function configureGitHub() {
     const pin = prompt("Inserisci PIN per configurazione:");
-    if(pin==="1234"){ // esempio PIN
-        const repo = prompt("Repo GitHub:");
-        const token = prompt("Token GitHub:");
-        localStorage.setItem('ticket_config', JSON.stringify({repo, token}));
+    if(pin === "1234"){
+        const repo = prompt("Repo GitHub (es: user/repo)");
+        const token = prompt("Token GitHub");
+        localStorage.setItem('gh_ticket_config', JSON.stringify({repo, token}));
+        config = {repo, token};
         alert("Configurazione salvata!");
-    }
+    } else alert("PIN errato");
 }
 
-function loadTickets(){
+async function loadTickets() {
     if(!config) { alert("⚠️ Configurare GitHub per visualizzare i ticket"); return; }
-    const url = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`;
-    fetch(url,{headers:{"Authorization":`token ${config.token}`}})
-    .then(res=>res.ok?res.json():Promise.reject("Errore caricamento ticket"))
-    .then(data=>{
+    try {
+        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
+            headers: {Authorization:`token ${config.token}`}
+        });
+        if(!res.ok) throw new Error("Errore caricamento ticket");
+        const data = await res.json();
         fileSha = data.sha;
         tickets = JSON.parse(atob(data.content));
         renderTable();
-    })
-    .catch(e=>alert(e));
+    } catch(e) { alert("Errore caricamento ticket: "+e.message); }
 }
 
-function renderTable(){
+function renderTable() {
     const tbody = document.getElementById('ticketBody');
     tbody.innerHTML = "";
     tickets.forEach((t,i)=>{
         const tr = document.createElement('tr');
-
-        // Modifica
-        const tdEdit = document.createElement('td');
-        const btn = document.createElement('button');
-        btn.className="btn btn-edit";
-        btn.innerHTML='<i class="fas fa-edit"></i>';
-        btn.onclick = ()=>editTicket(i);
-        tdEdit.appendChild(btn);
-        tr.appendChild(tdEdit);
-
-        // Numero ticket
-        const tdNum = document.createElement('td');
-        tdNum.innerText=t.nrTicket;
-        tr.appendChild(tdNum);
-
-        // Stato
-        const tdStato = document.createElement('td');
-        tdStato.innerText=t.stato;
-        tr.appendChild(tdStato);
-
-        // Date STATO
-        ["dataSegnalato","dataPresoInCarico","dataRilasciato","dataInTest","dataCompletato"].forEach(f=>{
-            const td = document.createElement('td');
-            td.innerText=t[f]||"";
-            tr.appendChild(td);
-        });
-
-        // Tipo
-        const tdTipo = document.createElement('td'); td.innerText=t.tipo; tr.appendChild(tdTipo);
-        // Bloccante
-        const tdBloc = document.createElement('td'); tdBloc.innerText=t.bloccante; tr.appendChild(tdBloc);
-        // Priorità
-        const tdPrio = document.createElement('td'); 
-        tdPrio.innerText=t.priorita;
-        tdPrio.className=t.priorita==="Alta"?"priority-high":t.priorita==="Media"?"priority-medium":"priority-low";
-        tr.appendChild(tdPrio);
-        // Data inserimento
-        const tdDateIns = document.createElement('td'); tdDateIns.innerText=t.dataInserimento; tr.appendChild(tdDateIns);
-        // Ambito
-        const tdAmb = document.createElement('td'); tdAmb.innerText=t.ambito; tr.appendChild(tdAmb);
-        // Menu
-        const tdMenu = document.createElement('td'); tdMenu.innerText=t.menu; tr.appendChild(tdMenu);
-        // Titolo
-        const tdTit = document.createElement('td'); tdTit.innerText=t.titolo; tr.appendChild(tdTit);
-        // Descrizione
-        const tdDesc = document.createElement('td'); tdDesc.innerText=t.descrizione; tr.appendChild(tdDesc);
-        // Inserito da
-        const tdIns = document.createElement('td'); tdIns.innerText=t.inseritoDa; tr.appendChild(tdIns);
-        // In carico a
-        const tdCar = document.createElement('td'); tdCar.innerText=t.inCaricoA; tr.appendChild(tdCar);
-        // Data inizio prevista
-        const tdStart = document.createElement('td'); tdStart.innerText=t.dataInizioPrevista; tr.appendChild(tdStart);
-        // Data fine prevista
-        const tdEnd = document.createElement('td'); tdEnd.innerText=t.dataFinePrevista; tr.appendChild(tdEnd);
-        // Data rilascio
-        const tdRelease = document.createElement('td'); tdRelease.innerText=t.dataRilascio; tr.appendChild(tdRelease);
-        // Descrizione attività soluzione
-        const tdSol = document.createElement('td'); tdSol.innerText=t.descrizioneAttivitaSoluzione; tr.appendChild(tdSol);
-
+        tr.innerHTML = `
+        <td><button onclick="editTicket(${i})" class="bg-yellow-400 p-1 rounded hover:bg-yellow-500"><i class="fas fa-edit"></i></button></td>
+        <td>${t.nrTicket}</td>
+        <td class="status-${t.stato.toLowerCase().replace(/\s/g,'')}">${t.stato}</td>
+        <td>${t.tipo}</td>
+        <td>${t.bloccante}</td>
+        <td class="priority-${t.priorita.toLowerCase()}">${t.priorita}</td>
+        <td>${t.dataInserimento}</td>
+        <td>${t.ambito}</td>
+        <td>${t.menu}</td>
+        <td>${t.titolo}</td>
+        <td>${t.descrizione}</td>
+        <td>${t.inseritoDa}</td>
+        <td>${t.inCaricoA}</td>
+        <td>${t.dataInizioPrevista}</td>
+        <td>${t.dataFinePrevista}</td>
+        <td>${t.dataRilascio}</td>
+        <td>${t.descrAttivita}</td>
+        <td>${t.dataSegnalato||""}</td>
+        <td>${t.dataPresoInCarico||""}</td>
+        <td>${t.dataRilasciato||""}</td>
+        <td>${t.dataInTest||""}</td>
+        <td>${t.dataCompletato||""}</td>
+        `;
         tbody.appendChild(tr);
     });
 }
 
-function editTicket(index){
-    localStorage.setItem('edit_ticket', JSON.stringify(tickets[index]));
-    window.open('ticket_form.html','_blank','width=900,height=800');
+function newTicket() {
+    window.open("ticket_form.html","_blank","width=800,height=900");
 }
 
-// Carica i ticket all'avvio
-window.onload = loadTickets;
-</script>
+function editTicket(index){
+    localStorage.setItem('edit_ticket', JSON.stringify(tickets[index]));
+    window.open("ticket_form.html","_blank","width=800,height=900");
+}
 
+loadTickets();
+</script>
 </body>
 </html>
