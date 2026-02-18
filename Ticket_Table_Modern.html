@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket Management</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f3f4f6; }
+  .table-container { overflow-x:auto; }
+  th, td { white-space: nowrap; }
+  .status-date { width:130px; }
+</style>
+</head>
+<body class="p-6">
+
+<div class="max-w-full mx-auto bg-white p-6 rounded-2xl shadow-xl">
+    <h1 class="text-2xl font-bold mb-4">Gestione Ticket</h1>
+    <div class="table-container">
+    <table id="ticketTable" class="min-w-full border border-gray-300 rounded-lg">
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="p-2 border">#</th>
+                <th class="p-2 border">Stato</th>
+                <th class="p-2 border">Tipo</th>
+                <th class="p-2 border">Bloccante</th>
+                <th class="p-2 border">Priorità</th>
+                <th class="p-2 border">Data Inserimento</th>
+                <th class="p-2 border">Ambito</th>
+                <th class="p-2 border">Colonna</th>
+                <th class="p-2 border">Titolo</th>
+                <th class="p-2 border">Descrizione</th>
+                <th class="p-2 border">Inserito da</th>
+                <th class="p-2 border">In carico a</th>
+                <th class="p-2 border">Data Inizio Prev.</th>
+                <th class="p-2 border">Data Fine Prev.</th>
+                <th class="p-2 border">Data Rilascio</th>
+                <th class="p-2 border">Descrizione Soluzione</th>
+                <th class="p-2 border">Segnalato</th>
+                <th class="p-2 border">Preso in carico</th>
+                <th class="p-2 border">Rilasciato</th>
+                <th class="p-2 border">In Test</th>
+                <th class="p-2 border">Completato</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    </div>
+    <button onclick="addTicket()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg shadow-lg hover:bg-blue-700">Aggiungi Ticket</button>
+</div>
+
+<script>
+let ticketCount = 0;
+
+function addTicket() {
+    ticketCount++;
+    const tbody = document.querySelector("#ticketTable tbody");
+    const tr = document.createElement("tr");
+    tr.classList.add("border-b");
+
+    const statoOptions = ["Segnalato", "Preso in carico", "Rilasciato", "in Test", "Completato"];
+    const tipoOptions = ["Bug", "Miglioria", "Nuova richiesta"];
+    const prioritaOptions = ["Alta","Media","Bassa"];
+    const ambitoOptions = ["FASE1","FASE2","FASE3"];
+    const colonnaOptions = ["Pianificazione cantieri","Pianificazione Squadre","Da segnalare"];
+
+    tr.innerHTML = `
+        <td class="p-2 border text-center">${ticketCount}</td>
+        <td class="p-2 border"><select onchange="updateStatusDate(this)">${statoOptions.map(o=>`<option>${o}</option>`).join('')}</select></td>
+        <td class="p-2 border"><select>${tipoOptions.map(o=>`<option>${o}</option>`).join('')}</select></td>
+        <td class="p-2 border text-center">
+          <input type="checkbox" name="bloccante_${ticketCount}" value="Bloccante">Bloccante
+          <input type="checkbox" name="bloccante_${ticketCount}" value="Non Bloccante">Non Bloccante
+        </td>
+        <td class="p-2 border"><select>${prioritaOptions.map(o=>`<option>${o}</option>`).join('')}</select></td>
+        <td class="p-2 border"><input type="date" value="${new Date().toISOString().split('T')[0]}" class="w-full"></td>
+        <td class="p-2 border"><select>${ambitoOptions.map(o=>`<option>${o}</option>`).join('')}</select></td>
+        <td class="p-2 border"><select>${colonnaOptions.map(o=>`<option>${o}</option>`).join('')}</select></td>
+        <td class="p-2 border"><input type="text" class="w-full"></td>
+        <td class="p-2 border"><input type="text" class="w-full"></td>
+        <td class="p-2 border"><input type="text" class="w-full"></td>
+        <td class="p-2 border"><input type="text" class="w-full"></td>
+        <td class="p-2 border"><input type="date" class="w-full"></td>
+        <td class="p-2 border"><input type="date" class="w-full"></td>
+        <td class="p-2 border"><input type="date" class="w-full"></td>
+        <td class="p-2 border"><input type="text" class="w-full"></td>
+        <td class="p-2 border status-date"></td>
+        <td class="p-2 border status-date"></td>
+        <td class="p-2 border status-date"></td>
+        <td class="p-2 border status-date"></td>
+        <td class="p-2 border status-date"></td>
+    `;
+    tbody.appendChild(tr);
+}
+
+function updateStatusDate(select) {
+    const tr = select.closest('tr');
+    const status = select.value;
+    const date = new Date().toLocaleDateString();
+    const statusCols = {
+        "Segnalato":16,
+        "Preso in carico":17,
+        "Rilasciato":18,
+        "in Test":19,
+        "Completato":20
+    };
+    const colIndex = statusCols[status];
+    tr.cells[colIndex].innerText = date;
+}
+
+// inizializza la tabella con una riga
+addTicket();
+</script>
+
+</body>
+</html>
