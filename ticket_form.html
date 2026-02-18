@@ -3,143 +3,186 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inserimento Ticket</title>
+<title>Ticket Form</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-gray-100 p-4">
-<h1 class="text-xl font-bold mb-4">Inserimento / Modifica Ticket</h1>
+<body class="bg-gray-100 p-6">
+<div class="bg-white shadow-lg rounded-lg p-6 max-w-3xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6">Nuovo Ticket</h1>
+    <form id="ticketForm" class="space-y-4">
 
-<form id="ticketForm" class="bg-white p-4 shadow rounded space-y-4">
+        <div class="text-xl font-bold mb-2" id="ticketNumberDisplay"></div>
 
-    <div class="grid grid-cols-2 gap-4">
-        <label>Stato
-            <select id="stato" class="border p-2 w-full">
-                <option value="">-- Seleziona --</option>
-                <option>Segnalato</option>
-                <option>Preso in carico</option>
-                <option>Rilasciato</option>
-                <option>in Test</option>
-                <option>Completato</option>
-            </select>
-        </label>
-        <label>Tipo
-            <select id="tipo" class="border p-2 w-full">
-                <option>Bug</option>
-                <option>Miglioria</option>
-                <option>Nuova richiesta</option>
-            </select>
-        </label>
-    </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="font-bold text-gray-700">STATO</label>
+                <select id="stato" class="w-full p-2 border rounded">
+                    <option value="">-- Seleziona --</option>
+                    <option value="Segnalato">Segnalato</option>
+                    <option value="Preso in carico">Preso in carico</option>
+                    <option value="In Test">In Test</option>
+                    <option value="Rilasciato">Rilasciato</option>
+                    <option value="Completato">Completato</option>
+                </select>
+            </div>
+            <div>
+                <label class="font-bold text-gray-700">Tipo</label>
+                <select id="tipo" class="w-full p-2 border rounded">
+                    <option value="Bug">Bug</option>
+                    <option value="Miglioria">Miglioria</option>
+                    <option value="Nuova richiesta">Nuova richiesta</option>
+                </select>
+            </div>
+            <div>
+                <label class="font-bold text-gray-700">Bloccante</label>
+                <select id="bloccante" class="w-full p-2 border rounded">
+                    <option value="Bloccante">Bloccante</option>
+                    <option value="Non Bloccante">Non Bloccante</option>
+                </select>
+            </div>
+            <div>
+                <label class="font-bold text-gray-700">Priorità</label>
+                <select id="priorita" class="w-full p-2 border rounded">
+                    <option value="Alta">Alta</option>
+                    <option value="Media">Media</option>
+                    <option value="Bassa">Bassa</option>
+                </select>
+            </div>
+            <div>
+                <label class="font-bold text-gray-700">Data Inserimento</label>
+                <input type="date" id="dataInserimento" class="w-full p-2 border rounded">
+            </div>
+            <div>
+                <label class="font-bold text-gray-700">Ambito</label>
+                <select id="ambito" class="w-full p-2 border rounded">
+                    <option value="FASE1">FASE1</option>
+                    <option value="FASE2">FASE2</option>
+                    <option value="FASE3">FASE3</option>
+                </select>
+            </div>
+            <div>
+                <label class="font-bold text-gray-700">Menu</label>
+                <select id="menu" class="w-full p-2 border rounded">
+                    <option value="Pianificazione cantieri">Pianificazione cantieri</option>
+                    <option value="Pianificazione Squadre">Pianificazione Squadre</option>
+                    <option value="Da segnalare">Da segnalare</option>
+                </select>
+            </div>
+        </div>
 
-    <div class="grid grid-cols-2 gap-4">
-        <label>Priorità
-            <select id="priorita" class="border p-2 w-full">
-                <option>Alta</option>
-                <option>Media</option>
-                <option>Bassa</option>
-            </select>
-        </label>
-        <label>Menu
-            <select id="menu" class="border p-2 w-full">
-                <option>Pianificazione cantieri</option>
-                <option>Pianificazione Squadre</option>
-                <option>Da segnalare</option>
-            </select>
-        </label>
-    </div>
+        <div>
+            <label class="font-bold text-gray-700">Titolo</label>
+            <input type="text" id="titolo" class="w-full p-2 border rounded">
+        </div>
+        <div>
+            <label class="font-bold text-gray-700">Descrizione</label>
+            <textarea id="descrizione" class="w-full p-2 border rounded"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="font-bold text-gray-700">Inserito da</label>
+                <input type="text" id="inseritoDa" class="w-full p-2 border rounded">
+            </div>
+            <div>
+                <label class="font-bold text-gray-700">In carico a</label>
+                <input type="text" id="inCaricoA" class="w-full p-2 border rounded">
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+            <div>
+                <label class="font-bold text-gray-700">Data Inizio Prevista</label>
+                <input type="date" id="dataInizioPrevista" class="w-full p-2 border rounded">
+            </div>
+            <div>
+                <label class="font-bold text-gray-700">Data Fine Prevista</label>
+                <input type="date" id="dataFinePrevista" class="w-full p-2 border rounded">
+            </div>
+            <div>
+                <label class="font-bold text-gray-700">Data Rilascio</label>
+                <input type="date" id="dataRilascio" class="w-full p-2 border rounded">
+            </div>
+        </div>
+        <div>
+            <label class="font-bold text-gray-700">Descrizione Attività</label>
+            <textarea id="descrizioneAttivita" class="w-full p-2 border rounded"></textarea>
+        </div>
 
-    <label>Titolo<input id="titolo" class="border p-2 w-full"></label>
-    <label>Descrizione<textarea id="descrizione" class="border p-2 w-full"></textarea></label>
-
-    <div class="grid grid-cols-2 gap-4">
-        <label>Inserito Da<input id="inseritoDa" class="border p-2 w-full"></label>
-        <label>In Carico A<input id="inCaricoA" class="border p-2 w-full"></label>
-    </div>
-
-    <div class="grid grid-cols-3 gap-4">
-        <label>Data Inizio Prevista<input type="date" id="dataInizioPrevista" class="border p-2 w-full"></label>
-        <label>Data Fine Prevista<input type="date" id="dataFinePrevista" class="border p-2 w-full"></label>
-        <label>Data Rilascio<input type="date" id="dataRilascio" class="border p-2 w-full"></label>
-    </div>
-
-    <label>Descrizione Soluzione<textarea id="descrizioneSoluzione" class="border p-2 w-full"></textarea></label>
-
-    <div class="flex justify-end gap-4">
-        <button type="button" onclick="saveTicket()" class="bg-green-600 text-white px-4 py-2 rounded flex items-center gap-2">
-            <i class="fas fa-save"></i> Salva
-        </button>
-        <button type="button" onclick="window.close()" class="bg-gray-400 text-white px-4 py-2 rounded">Chiudi</button>
-    </div>
-</form>
+        <button type="submit" class="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Salva Ticket</button>
+    </form>
+</div>
 
 <script>
-let tickets = JSON.parse(localStorage.getItem("tickets") || "[]");
-let ticketIndex = window.ticketDataIndex ?? null;
-let ticketData = window.ticketData ?? null;
+let tickets = JSON.parse(localStorage.getItem('tickets')) || [];
+let editIndex = null;
 
-const form = document.getElementById("ticketForm");
-
-function initForm(){
-    if(ticketData){
-        document.getElementById("stato").value = ticketData.stato;
-        document.getElementById("tipo").value = ticketData.tipo;
-        document.getElementById("priorita").value = ticketData.priorita;
-        document.getElementById("menu").value = ticketData.menu;
-        document.getElementById("titolo").value = ticketData.titolo;
-        document.getElementById("descrizione").value = ticketData.descrizione;
-        document.getElementById("inseritoDa").value = ticketData.inseritoDa;
-        document.getElementById("inCaricoA").value = ticketData.inCaricoA;
-        document.getElementById("dataInizioPrevista").value = ticketData.dataInizioPrevista;
-        document.getElementById("dataFinePrevista").value = ticketData.dataFinePrevista;
-        document.getElementById("dataRilascio").value = ticketData.dataRilascio;
-        document.getElementById("descrizioneSoluzione").value = ticketData.descrizioneSoluzione;
-    }
+// Controlla se siamo in modifica
+const urlParams = new URLSearchParams(window.location.search);
+if(urlParams.has('edit')){
+    editIndex = parseInt(urlParams.get('edit'));
+    const t = tickets[editIndex];
+    document.getElementById('ticketNumberDisplay').innerText = "Ticket #" + t.ticketNumber;
+    document.getElementById('stato').value = t.stato;
+    document.getElementById('tipo').value = t.tipo;
+    document.getElementById('bloccante').value = t.bloccante;
+    document.getElementById('priorita').value = t.priorita;
+    document.getElementById('dataInserimento').value = t.dataInserimento;
+    document.getElementById('ambito').value = t.ambito;
+    document.getElementById('menu').value = t.menu;
+    document.getElementById('titolo').value = t.titolo;
+    document.getElementById('descrizione').value = t.descrizione;
+    document.getElementById('inseritoDa').value = t.inseritoDa;
+    document.getElementById('inCaricoA').value = t.inCaricoA;
+    document.getElementById('dataInizioPrevista').value = t.dataInizioPrevista;
+    document.getElementById('dataFinePrevista').value = t.dataFinePrevista;
+    document.getElementById('dataRilascio').value = t.dataRilascio;
+    document.getElementById('descrizioneAttivita').value = t.descrizioneAttivita;
 }
 
-function saveTicket(){
-    const now = new Date().toISOString().split("T")[0];
-    let ticket = {
-        nrTicket: ticketData?.nrTicket ?? tickets.length+1,
-        stato: document.getElementById("stato").value,
-        tipo: document.getElementById("tipo").value,
-        priorita: document.getElementById("priorita").value,
-        menu: document.getElementById("menu").value,
-        titolo: document.getElementById("titolo").value,
-        descrizione: document.getElementById("descrizione").value,
-        dataInserimento: ticketData?.dataInserimento ?? now,
-        inseritoDa: document.getElementById("inseritoDa").value,
-        inCaricoA: document.getElementById("inCaricoA").value,
-        dataInizioPrevista: document.getElementById("dataInizioPrevista").value,
-        dataFinePrevista: document.getElementById("dataFinePrevista").value,
-        dataRilascio: document.getElementById("dataRilascio").value,
-        descrizioneSoluzione: document.getElementById("descrizioneSoluzione").value,
-        dataSegnalato: ticketData?.dataSegnalato,
-        dataPresoInCarico: ticketData?.dataPresoInCarico,
-        dataInTest: ticketData?.dataInTest,
-        dataCompletato: ticketData?.dataCompletato
+document.getElementById('dataInserimento').valueAsDate = new Date();
+
+document.getElementById('stato').addEventListener('change', function(){
+    const value = this.value;
+    if(!editIndex) editIndex = null;
+    if(value && editIndex === null) {
+        const now = new Date().toISOString().split('T')[0];
+        if(value === 'Segnalato') document.getElementById('dataSegnalato')?.value || (this.dataset.dataSegnalato = now);
+        if(value === 'Preso in carico') this.dataset.dataPresoInCarico = now;
+        if(value === 'In Test') this.dataset.dataInTest = now;
+        if(value === 'Completato') this.dataset.dataCompletato = now;
+    }
+});
+
+document.getElementById('ticketForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const t = {
+        ticketNumber: editIndex !== null ? tickets[editIndex].ticketNumber : (tickets.length + 1),
+        stato: document.getElementById('stato').value,
+        tipo: document.getElementById('tipo').value,
+        bloccante: document.getElementById('bloccante').value,
+        priorita: document.getElementById('priorita').value,
+        dataInserimento: document.getElementById('dataInserimento').value,
+        ambito: document.getElementById('ambito').value,
+        menu: document.getElementById('menu').value,
+        titolo: document.getElementById('titolo').value,
+        descrizione: document.getElementById('descrizione').value,
+        inseritoDa: document.getElementById('inseritoDa').value,
+        inCaricoA: document.getElementById('inCaricoA').value,
+        dataInizioPrevista: document.getElementById('dataInizioPrevista').value,
+        dataFinePrevista: document.getElementById('dataFinePrevista').value,
+        dataRilascio: document.getElementById('dataRilascio').value,
+        descrizioneAttivita: document.getElementById('descrizioneAttivita').value,
+        dataSegnalato: document.getElementById('stato').value === 'Segnalato' ? new Date().toISOString().split('T')[0] : '',
+        dataPresoInCarico: document.getElementById('stato').value === 'Preso in carico' ? new Date().toISOString().split('T')[0] : '',
+        dataInTest: document.getElementById('stato').value === 'In Test' ? new Date().toISOString().split('T')[0] : '',
+        dataCompletato: document.getElementById('stato').value === 'Completato' ? new Date().toISOString().split('T')[0] : ''
     };
-
-    // valorizzazione date stato solo se vuote
-    if(ticket.stato==="Segnalato" && !ticket.dataSegnalato) ticket.dataSegnalato=now;
-    if(ticket.stato==="Preso in carico" && !ticket.dataPresoInCarico) ticket.dataPresoInCarico=now;
-    if(ticket.stato==="in Test" && !ticket.dataInTest) ticket.dataInTest=now;
-    if(ticket.stato==="Completato" && !ticket.dataCompletato) ticket.dataCompletato=now;
-
-    if(ticketIndex!==null){
-        tickets[ticketIndex]=ticket;
-        alert("Ticket aggiornato con successo!");
-    } else {
-        tickets.push(ticket);
-        alert("Ticket creato con successo!");
-    }
-
-    localStorage.setItem("tickets", JSON.stringify(tickets));
-    window.opener.location.reload();
+    if(editIndex !== null) tickets[editIndex] = t;
+    else tickets.push(t);
+    localStorage.setItem('tickets', JSON.stringify(tickets));
+    alert('Ticket salvato con successo!');
     window.close();
-}
-
-initForm();
+});
 </script>
 </body>
 </html>
