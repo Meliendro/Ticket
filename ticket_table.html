@@ -11,19 +11,18 @@
     .priority-Media { background-color: #fbbf24; color: white; }
     .priority-Bassa { background-color: #34d399; color: white; }
     .status-Segnalato { background-color: #93c5fd; color: white; }
-    .status-PresoinCarico { background-color: #facc15; color: black; }
+    .status-PresoInCarico { background-color: #facc15; color: black; }
     .status-InTest { background-color: #f472b6; color: white; }
     .status-Rilasciato { background-color: #a78bfa; color: white; }
     .status-Completato { background-color: #34d399; color: white; }
     .icon-button { cursor:pointer; padding:4px; border-radius:4px; transition:0.2s; }
     .icon-button:hover { background-color:#eee; }
-    table { table-layout: fixed; width: 100%; }
-    th, td { text-align: center; vertical-align: middle; word-wrap: break-word; }
 </style>
 </head>
 <body class="bg-gray-50 p-6">
+
 <h1 class="text-3xl font-bold mb-6">Elenco Ticket</h1>
-<button onclick="openTicketForm()" class="mb-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
+<button onclick="openTicketForm()" class="mb-4 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700">
     <i class="fas fa-plus"></i> Nuovo Ticket
 </button>
 
@@ -57,7 +56,41 @@
 </table>
 
 <script>
-let tickets = JSON.parse(localStorage.getItem('tickets')) || [];
+let tickets = [];
+let fileSha = "";
+
+async function getConfig() {
+    const config = JSON.parse(localStorage.getItem('gh_crm_config'));
+    return config;
+}
+
+async function fetchTickets() {
+    const config = await getConfig();
+    if(!config) {
+        alert("⚠️ Configurare GitHub per visualizzare i ticket");
+        return;
+    }
+    const url = `https://api.github.com/repos/${config.repo}/contents/2026/ticket2026.json`;
+    try {
+        const res = await fetch(url, {
+            headers: { "Authorization": `token ${config.token}` }
+        });
+        const data = await res.json();
+        if(res.ok) {
+            fileSha = data.sha;
+            const decoded = atob(data.content);
+            tickets = JSON.parse(decoded || "[]");
+            renderTable();
+        } else {
+            if(data.message.includes("Not Found")) {
+                tickets = [];
+                renderTable();
+            }
+        }
+    } catch(e) {
+        console.error("Errore fetch:", e);
+    }
+}
 
 function renderTable() {
     const tbody = document.getElementById('ticketTableBody');
@@ -67,7 +100,9 @@ function renderTable() {
         tr.className = "border-b";
         tr.innerHTML = `
             <td>
-                <span class="icon-button text-blue-600" onclick="editTicket(${idx})"><i class="fas fa-edit"></i></span>
+                <span class="icon-button text-blue-600" onclick="editTicket(${idx})">
+                    <i class="fas fa-edit"></i>
+                </span>
             </td>
             <td>${t.ticketNumber}</td>
             <td class="status-${t.stato.replace(/ /g,'')}">${t.stato}</td>
@@ -95,18 +130,18 @@ function renderTable() {
 }
 
 function openTicketForm() {
-    localStorage.removeItem('editIndex'); // nuovo ticket
+    localStorage.removeItem('editIndex');
     window.open('ticket_form.html', '_blank', 'width=900,height=800');
 }
 
 function editTicket(idx) {
     localStorage.setItem('editIndex', idx);
-    // Apriamo il form **dopo aver salvato l'indice**
-    setTimeout(()=>{ window.open('ticket_form.html', '_blank', 'width=900,height=800'); }, 50);
+    window.open('ticket_form.html', '_blank', 'width=900,height=800');
 }
 
-window.addEventListener('focus', renderTable);
-renderTable();
+window.addEventListener('focus', fetchTickets);
+fetchTickets();
 </script>
+
 </body>
 </html>
