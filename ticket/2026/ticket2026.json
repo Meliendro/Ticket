@@ -73,7 +73,7 @@
     "stato": "Rilasciato",
     "tipo": "Bug",
     "bloccante": "Bloccante",
-    "priorita": "Alta",
+    "priorita": "Bassa",
     "dataInserimento": "2026-02-18",
     "ambito": "FASE1",
     "menu": "Pianificazione cantieri",
