@@ -3,50 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Table Moderna</title>
+<title>Ticket Table</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 body { font-family: 'Segoe UI', sans-serif; background: #f4f4f5; }
 h1 { font-weight: 700; }
-.table-container { overflow-x: auto; border-radius: 0.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); background: #fff; }
+.table-container { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
-th, td { padding: 0.5rem; text-align: left; white-space: nowrap; border-bottom: 1px solid #e5e7eb; }
-th { background: #1f2937; color: #fff; position: sticky; top: 0; z-index: 10; }
-tr:hover { background: #f1f5f9; }
-.priority-Alta { background: #dc2626; color: #fff; font-weight: bold; text-align: center; border-radius: 0.25rem; }
-.priority-Media { background: #f59e0b; color: #fff; font-weight: bold; text-align: center; border-radius: 0.25rem; }
-.priority-Bassa { background: #10b981; color: #fff; font-weight: bold; text-align: center; border-radius: 0.25rem; }
+th, td { padding: 0.5rem; text-align: left; white-space: nowrap; }
+th { background: #1f2937; color: #fff; position: sticky; top: 0; }
+tr:nth-child(even) { background: #f9fafb; }
+.priority-alta { background: #dc2626; color: #fff; font-weight: bold; text-align: center; }
+.priority-media { background: #f59e0b; color: #fff; font-weight: bold; text-align: center; }
+.priority-bassa { background: #10b981; color: #fff; font-weight: bold; text-align: center; }
 .status-Segnalato { color: #ef4444; font-weight: bold; }
 .status-Preso { color: #f59e0b; font-weight: bold; }
 .status-Rilasciato { color: #3b82f6; font-weight: bold; }
 .status-InTest { color: #6366f1; font-weight: bold; }
 .status-Completato { color: #10b981; font-weight: bold; }
-td.tooltip { max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
-td.tooltip:hover::after {
-    content: attr(data-title);
-    position: absolute;
-    background: #1f2937;
-    color: #fff;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    white-space: normal;
-    z-index: 50;
-}
 button { cursor: pointer; }
 </style>
 </head>
 <body class="p-6">
 
 <header class="flex justify-between items-center mb-4">
-    <h1 class="text-2xl">Gestione Ticket Moderna</h1>
+    <h1 class="text-2xl">Gestione Ticket</h1>
     <div class="flex gap-3">
         <button onclick="newTicket()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"><i class="fas fa-plus"></i> Nuovo Ticket</button>
         <button onclick="configureGitHub()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700"><i class="fas fa-cog"></i> Config GitHub</button>
     </div>
 </header>
 
-<div class="table-container">
+<div class="table-container border rounded shadow">
     <table id="ticketTable">
         <thead>
             <tr>
@@ -119,18 +108,18 @@ function renderTable() {
         <td class="status-${t.stato.replace(/\s/g,'')}">${t.stato}</td>
         <td>${t.tipo}</td>
         <td>${t.bloccante}</td>
-        <td class="priority-${t.priorita}">${t.priorita}</td>
+        <td class="priority-${t.priorita.toLowerCase()}">${t.priorita}</td>
         <td>${t.dataInserimento}</td>
         <td>${t.ambito}</td>
         <td>${t.menu}</td>
-        <td class="tooltip" data-title="${t.titolo}">${t.titolo}</td>
-        <td class="tooltip" data-title="${t.descrizione}">${t.descrizione}</td>
+        <td>${t.titolo}</td>
+        <td>${t.descrizione}</td>
         <td>${t.inseritoDa}</td>
         <td>${t.inCaricoA}</td>
         <td>${t.dataInizioPrevista}</td>
         <td>${t.dataFinePrevista}</td>
         <td>${t.dataRilascio}</td>
-        <td class="tooltip" data-title="${t.descrAttivita}">${t.descrAttivita}</td>
+        <td>${t.descrAttivita}</td>
         <td>${t.dataSegnalato||""}</td>
         <td>${t.dataPresoInCarico||""}</td>
         <td>${t.dataRilasciato||""}</td>
@@ -152,4 +141,6 @@ function editTicket(index){
 }
 
 loadTickets();
-</scri
+</script>
+</body>
+</html>
