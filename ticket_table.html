@@ -23,12 +23,13 @@ tr:nth-child(even) { background: #f9fafb; }
 .status-InTest { color: #6366f1; font-weight: bold; }
 .status-Completato { color: #10b981; font-weight: bold; }
 button { cursor: pointer; }
-.group-header { background: #111827; color: white; font-weight: bold; cursor: pointer; }
-.group-content { transition: max-height 0.4s ease, opacity 0.3s ease; overflow: hidden; }
+.group-header { background: #e5e7eb; color: #111827; font-weight: 600; cursor: pointer; border-top: 1px solid #d1d5db; border-bottom: 1px solid #d1d5db; }
+.group-content { overflow: hidden; transition: max-height 0.4s ease, opacity 0.3s ease; }
 .group-content.collapsed { max-height: 0; opacity: 0; }
 .group-content.expanded { opacity: 1; }
 .toggle-icon { transition: transform 0.3s ease; }
 .rotate { transform: rotate(-90deg); }
+.group-header span { font-size: 0.95rem; }
 </style>
 </head>
 <body class="p-6">
