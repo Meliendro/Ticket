@@ -9,10 +9,8 @@
 </head>
 <body class="bg-gray-100 p-6">
 <div class="bg-white shadow-lg rounded-lg p-6 max-w-3xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6">Nuovo Ticket</h1>
+    <h1 class="text-3xl font-bold mb-6" id="ticketNumberDisplay">Nuovo Ticket</h1>
     <form id="ticketForm" class="space-y-4">
-
-        <div class="text-xl font-bold mb-2" id="ticketNumberDisplay"></div>
 
         <div class="grid grid-cols-2 gap-4">
             <div>
@@ -49,6 +47,9 @@
                     <option value="Bassa">Bassa</option>
                 </select>
             </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="font-bold text-gray-700">Data Inserimento</label>
                 <input type="date" id="dataInserimento" class="w-full p-2 border rounded">
@@ -79,6 +80,7 @@
             <label class="font-bold text-gray-700">Descrizione</label>
             <textarea id="descrizione" class="w-full p-2 border rounded"></textarea>
         </div>
+
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="font-bold text-gray-700">Inserito da</label>
@@ -89,6 +91,7 @@
                 <input type="text" id="inCaricoA" class="w-full p-2 border rounded">
             </div>
         </div>
+
         <div class="grid grid-cols-3 gap-4">
             <div>
                 <label class="font-bold text-gray-700">Data Inizio Prevista</label>
@@ -103,6 +106,7 @@
                 <input type="date" id="dataRilascio" class="w-full p-2 border rounded">
             </div>
         </div>
+
         <div>
             <label class="font-bold text-gray-700">Descrizione Attività</label>
             <textarea id="descrizioneAttivita" class="w-full p-2 border rounded"></textarea>
@@ -141,23 +145,16 @@ if(urlParams.has('edit')){
 
 document.getElementById('dataInserimento').valueAsDate = new Date();
 
-document.getElementById('stato').addEventListener('change', function(){
-    const value = this.value;
-    if(!editIndex) editIndex = null;
-    if(value && editIndex === null) {
-        const now = new Date().toISOString().split('T')[0];
-        if(value === 'Segnalato') document.getElementById('dataSegnalato')?.value || (this.dataset.dataSegnalato = now);
-        if(value === 'Preso in carico') this.dataset.dataPresoInCarico = now;
-        if(value === 'In Test') this.dataset.dataInTest = now;
-        if(value === 'Completato') this.dataset.dataCompletato = now;
-    }
-});
-
 document.getElementById('ticketForm').addEventListener('submit', function(e){
     e.preventDefault();
+
+    // Aggiorna le date STATO solo se il campo è cambiato e non era già valorizzato
+    const stato = document.getElementById('stato').value;
+    const now = new Date().toISOString().split('T')[0];
+
     const t = {
         ticketNumber: editIndex !== null ? tickets[editIndex].ticketNumber : (tickets.length + 1),
-        stato: document.getElementById('stato').value,
+        stato: stato,
         tipo: document.getElementById('tipo').value,
         bloccante: document.getElementById('bloccante').value,
         priorita: document.getElementById('priorita').value,
@@ -172,13 +169,15 @@ document.getElementById('ticketForm').addEventListener('submit', function(e){
         dataFinePrevista: document.getElementById('dataFinePrevista').value,
         dataRilascio: document.getElementById('dataRilascio').value,
         descrizioneAttivita: document.getElementById('descrizioneAttivita').value,
-        dataSegnalato: document.getElementById('stato').value === 'Segnalato' ? new Date().toISOString().split('T')[0] : '',
-        dataPresoInCarico: document.getElementById('stato').value === 'Preso in carico' ? new Date().toISOString().split('T')[0] : '',
-        dataInTest: document.getElementById('stato').value === 'In Test' ? new Date().toISOString().split('T')[0] : '',
-        dataCompletato: document.getElementById('stato').value === 'Completato' ? new Date().toISOString().split('T')[0] : ''
+        dataSegnalato: (editIndex !== null && tickets[editIndex].dataSegnalato) || (stato === 'Segnalato' ? now : ''),
+        dataPresoInCarico: (editIndex !== null && tickets[editIndex].dataPresoInCarico) || (stato === 'Preso in carico' ? now : ''),
+        dataInTest: (editIndex !== null && tickets[editIndex].dataInTest) || (stato === 'In Test' ? now : ''),
+        dataCompletato: (editIndex !== null && tickets[editIndex].dataCompletato) || (stato === 'Completato' ? now : '')
     };
+
     if(editIndex !== null) tickets[editIndex] = t;
     else tickets.push(t);
+
     localStorage.setItem('tickets', JSON.stringify(tickets));
     alert('Ticket salvato con successo!');
     window.close();
