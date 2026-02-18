@@ -113,5 +113,28 @@
     "dataRilasciato": "",
     "dataInTest": "",
     "dataCompletato": ""
+  },
+  {
+    "nrTicket": 6,
+    "stato": "",
+    "tipo": "Miglioria",
+    "bloccante": "Non Bloccante",
+    "priorita": "Media",
+    "dataInserimento": "2026-02-18",
+    "ambito": "FASE2",
+    "menu": "Pianificazione cantieri",
+    "titolo": "werqwe",
+    "descrizione": "qwerqwrqw",
+    "inseritoDa": "qrqw",
+    "inCaricoA": "qwrqw",
+    "dataInizioPrevista": "",
+    "dataFinePrevista": "",
+    "dataRilascio": "",
+    "descrAttivita": "",
+    "dataSegnalato": "18/02/2026",
+    "dataPresoInCarico": "",
+    "dataRilasciato": "",
+    "dataInTest": "",
+    "dataCompletato": ""
   }
 ]
