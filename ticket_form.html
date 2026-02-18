@@ -5,150 +5,146 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ticket Form</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-body { font-family: 'Segoe UI', sans-serif; padding:2rem; background:#f5f5f5;}
-label { font-weight:bold; font-size:0.9rem; display:block; margin-top:0.5rem;}
-input, select, textarea { width:100%; padding:0.5rem; margin-top:0.2rem; border-radius:0.5rem; border:1px solid #ccc;}
-button { padding:0.6rem 1rem; margin-top:1rem; border-radius:0.5rem; font-weight:bold;}
+  body { font-family: 'Segoe UI', sans-serif; background:#f3f4f6; }
+  label { font-size:0.85rem; font-weight:bold; margin-top:0.5rem; display:block; }
+  input, select, textarea { width:100%; padding:0.5rem; border-radius:0.5rem; border:1px solid #d1d5db; margin-bottom:0.5rem; }
+  .btn { padding:0.5rem 1rem; border-radius:0.5rem; font-weight:bold; color:white; background:#3b82f6; margin-top:0.5rem; cursor:pointer; }
+  h1 { font-size:1.5rem; font-weight:bold; margin-bottom:1rem; }
 </style>
 </head>
 <body>
-<h1 id="ticketHeader" class="text-2xl font-bold mb-4 text-center"></h1>
-<form id="ticketForm">
-<label>Stato</label>
-<select id="stato">
-<option value="">-- seleziona --</option>
-<option>Segnalato</option>
-<option>Preso in carico</option>
-<option>In Test</option>
-<option>Completato</option>
-</select>
+<div class="p-4 max-w-[800px] mx-auto">
+  <h1 id="ticketNumber">Nuovo Ticket</h1>
+  <button onclick="configure()" class="btn bg-gray-600">⚙️ Config</button>
 
-<label>Tipo</label>
-<select id="tipo">
-<option>Bug</option>
-<option>Miglioria</option>
-<option>Nuova richiesta</option>
-</select>
+  <form id="ticketForm">
+    <label>Stato</label>
+    <select id="stato">
+      <option value="">-- Seleziona --</option>
+      <option value="Segnalato">Segnalato</option>
+      <option value="Preso in carico">Preso in carico</option>
+      <option value="Rilasciato">Rilasciato</option>
+      <option value="In Test">In Test</option>
+      <option value="Completato">Completato</option>
+    </select>
 
-<label>Bloccante</label>
-<select id="bloccante">
-<option>Bloccante</option>
-<option>Non Bloccante</option>
-</select>
+    <label>Tipo</label>
+    <select id="tipo">
+      <option value="Bug">Bug</option>
+      <option value="Miglioria">Miglioria</option>
+      <option value="Nuova richiesta">Nuova richiesta</option>
+    </select>
 
-<label>Priorità</label>
-<select id="priorita">
-<option>Alta</option>
-<option>Media</option>
-<option>Bassa</option>
-</select>
+    <label>Bloccante</label>
+    <select id="bloccante">
+      <option value="Bloccante">Bloccante</option>
+      <option value="Non Bloccante">Non Bloccante</option>
+    </select>
 
-<label>Data Inserimento</label>
-<input type="date" id="dataInserimento">
+    <label>Priorità</label>
+    <select id="priorita">
+      <option value="Alta">Alta</option>
+      <option value="Media">Media</option>
+      <option value="Bassa">Bassa</option>
+    </select>
 
-<label>Ambito</label>
-<select id="ambito">
-<option>FASE1</option>
-<option>FASE2</option>
-<option>FASE3</option>
-</select>
+    <label>Data Inserimento</label>
+    <input type="date" id="dataInserimento">
 
-<label>Menu</label>
-<select id="menu">
-<option>Pianificazione cantieri</option>
-<option>Pianificazione Squadre</option>
-<option>Da segnalare</option>
-</select>
+    <label>Ambito</label>
+    <select id="ambito">
+      <option value="FASE1">FASE1</option>
+      <option value="FASE2">FASE2</option>
+      <option value="FASE3">FASE3</option>
+    </select>
 
-<label>Titolo</label>
-<input type="text" id="titolo">
+    <label>Menu</label>
+    <select id="menu">
+      <option value="Pianificazione cantieri">Pianificazione cantieri</option>
+      <option value="Pianificazione squadre">Pianificazione squadre</option>
+      <option value="Da segnalare">Da segnalare</option>
+    </select>
 
-<label>Descrizione</label>
-<textarea id="descrizione"></textarea>
+    <label>Titolo</label>
+    <input type="text" id="titolo">
 
-<label>Inserito da</label>
-<input type="text" id="inseritoDa">
+    <label>Descrizione</label>
+    <textarea id="descrizione" rows="3"></textarea>
 
-<label>In carico a</label>
-<input type="text" id="inCaricoA">
+    <label>Inserito da</label>
+    <input type="text" id="inseritoDa">
 
-<label>Data Inizio Prevista</label>
-<input type="date" id="dataInizioPrevista">
+    <label>In Carico a</label>
+    <input type="text" id="inCaricoA">
 
-<label>Data Fine Prevista</label>
-<input type="date" id="dataFinePrevista">
+    <label>Data Inizio Prevista Attività</label>
+    <input type="date" id="dataInizioPrev">
 
-<label>Data Rilascio</label>
-<input type="date" id="dataRilascio">
+    <label>Data Fine Prevista Attività</label>
+    <input type="date" id="dataFinePrev">
 
-<label>Descrizione Soluzione</label>
-<textarea id="descrizioneSoluzione"></textarea>
+    <label>Data Rilascio</label>
+    <input type="date" id="dataRilascio">
 
-<button type="submit" class="bg-red-600 text-white w-full">Salva Ticket</button>
-</form>
+    <label>Descrizione Attività di Soluzione</label>
+    <textarea id="descrizioneSoluzione" rows="3"></textarea>
+
+    <button type="button" class="btn" onclick="saveTicket()">Salva Ticket</button>
+  </form>
+</div>
 
 <script>
-// Configurazione GitHub
-let repoPath = 'ticket/2026/ticket2026.json';
-let token = prompt("Inserisci il token GitHub per leggere/scrivere il file JSON");
+let ticketData = window.ticketData || null;
+let config = window.config || JSON.parse(localStorage.getItem('ticket_config')) || {};
+document.getElementById('dataInserimento').value = new Date().toISOString().split('T')[0];
 
-let tickets = [];
-let editIndex = localStorage.getItem('editTicketIndex');
-let editTicketData = localStorage.getItem('editTicketData');
-
-const fields = ['stato','tipo','bloccante','priorita','dataInserimento','ambito','menu','titolo','descrizione','inseritoDa','inCaricoA','dataInizioPrevista','dataFinePrevista','dataRilascio','descrizioneSoluzione'];
-
-if(editTicketData){
-    const ticket = JSON.parse(editTicketData);
-    document.getElementById('ticketHeader').innerText = 'Modifica Ticket: ' + ticket.nrTicket;
-    fields.forEach(f=>{
-        if(ticket[f]!==undefined) document.getElementById(f).value = ticket[f];
-    });
-} else {
-    document.getElementById('ticketHeader').innerText = 'Nuovo Ticket';
-    document.getElementById('dataInserimento').valueAsDate = new Date();
+if(ticketData){
+  document.getElementById('ticketNumber').innerText = "Ticket #" + ticketData.nrTicket;
+  for(let k in ticketData){
+    if(document.getElementById(k)) document.getElementById(k).value = ticketData[k];
+  }
 }
 
-async function fetchTickets() {
-    try {
-        const res = await fetch(`https://api.github.com/repos/YOUR_USER/YOUR_REPO/contents/${repoPath}`,{
-            headers: { "Authorization": `token ${token}` }
-        });
-        if(res.ok){
-            const data = await res.json();
-            tickets = JSON.parse(decodeURIComponent(escape(atob(data.content))));
-        } else { alert("Errore caricamento tickets"); }
-    } catch(e){ console.error(e);}
+function configure(){
+  let pin = prompt("Inserisci PIN per configurare accesso JSON");
+  if(pin !== "1234") return alert("PIN errato");
+  let repo = prompt("Inserisci repo GitHub");
+  let token = prompt("Inserisci token");
+  let path = prompt("Percorso file JSON (es: ticket/2026/ticket2026.json)");
+  config = {repo, token, path};
+  localStorage.setItem('ticket_config', JSON.stringify(config));
+  alert("Configurazione salvata!");
 }
 
-document.getElementById('ticketForm').onsubmit = async function(e){
-    e.preventDefault();
-    const ticket = {};
-    fields.forEach(f=> ticket[f] = document.getElementById(f).value);
-    if(editTicketData){
-        ticket.nrTicket = JSON.parse(editTicketData).nrTicket;
-        tickets[editIndex] = ticket;
-    } else {
-        ticket.nrTicket = tickets.length>0? tickets[tickets.length-1].nrTicket+1 : 1;
-        tickets.push(ticket);
+async function saveTicket(){
+  if(!config.repo || !config.token || !config.path) return alert("⚠️ Configura GitHub!");
+  let ticket = {};
+  document.querySelectorAll("#ticketForm input, #ticketForm select, #ticketForm textarea").forEach(el=>{ ticket[el.id] = el.value; });
+  if(!ticketData) ticket.nrTicket = Date.now();
+  else ticket.nrTicket = ticketData.nrTicket;
+
+  try{
+    // Leggi JSON esistente
+    const url = `https://api.github.com/repos/${config.repo}/contents/${config.path}`;
+    const res = await fetch(url,{headers:{"Authorization":`token ${config.token}`}});
+    const data = await res.json();
+    let tickets = JSON.parse(atob(data.content));
+    if(ticketData){
+      tickets = tickets.map(t=>t.nrTicket==ticket.nrTicket?ticket:t);
+    }else{
+      tickets.unshift(ticket);
     }
-
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(tickets,null,2))));
-    const body = { message: editTicketData?'Modifica Ticket':'Nuovo Ticket', content };
-    const url = `https://api.github.com/repos/YOUR_USER/YOUR_REPO/contents/${repoPath}`;
-    const sha = editTicketData? JSON.parse(await (await fetch(url,{headers:{"Authorization":`token ${token}`}})).text()).sha : undefined;
-    if(sha) body['sha'] = sha;
-
-    const res = await fetch(url,{method:'PUT', headers:{"Authorization":`token ${token}`,"Content-Type":"application/json"}, body:JSON.stringify(body)});
-    if(res.ok){
-        alert('Ticket salvato!');
-        window.close();
-    } else alert('Errore salvataggio');
+    // Salva
+    const body = {message: ticketData?"Aggiornamento Ticket":"Nuovo Ticket", content:btoa(unescape(encodeURIComponent(JSON.stringify(tickets,null,2)))), sha:data.sha};
+    const saveRes = await fetch(url,{method:"PUT", headers:{"Authorization":`token ${config.token}`,"Content-Type":"application/json"}, body:JSON.stringify(body)});
+    if(saveRes.ok){
+      alert("Ticket salvato!");
+      window.close();
+      if(window.opener) window.opener.location.reload();
+    }else alert("Errore salvataggio");
+  }catch(e){console.error(e); alert("Errore salvataggio");}
 }
-
-fetchTickets();
 </script>
 </body>
 </html>
