@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestione Liste Ticket</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#1e293b,#0f172a);
+}
+.card{
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+}
+input, select, textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+input:focus, select:focus, textarea:focus{
+    border-color:#2563eb;
+    box-shadow:0 0 0 2px rgba(37,99,235,0.2);
+    outline:none;
+}
+label {
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: #374151;
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+    display:block;
+}
+.section-title{
+    font-size:0.9rem;
+    font-weight:800;
+    color:#1f2937;
+    border-bottom:2px solid #e5e7eb;
+    padding-bottom:4px;
+    margin-bottom:10px;
+}
+.list-item{
+    background: #f3f4f6;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom:0.3rem;
+}
+.list-item button{
+    background: transparent;
+    color: #ef4444;
+    font-size: 0.9rem;
+}
+</style>
+</head>
+<body class="p-6 flex justify-center">
+
+<div class="card w-full max-w-5xl rounded-2xl shadow-2xl p-8">
+
+<h1 class="text-2xl font-extrabold text-gray-800 mb-6">Gestione Liste Ticket</h1>
+
+<div id="listsContainer" class="space-y-6">
+    <!-- Liste saranno generate dinamicamente qui -->
+</div>
+
+<div class="flex justify-center gap-4 mt-6">
+    <button onclick="saveLists()"
+        class="bg-gradient-to-r from-green-600 to-emerald-500 
+        text-white px-10 py-3 rounded-xl shadow-lg 
+        hover:scale-105 transition transform duration-200 font-bold">
+        <i class="fas fa-save"></i> Salva Liste
+    </button>
+    <button onclick="loadLists()"
+        class="bg-blue-600 text-white px-10 py-3 rounded-xl shadow-lg 
+        hover:scale-105 transition transform duration-200 font-bold">
+        <i class="fas fa-download"></i> Carica Liste
+    </button>
+</div>
+
+</div>
+
+<script>
+let lists = {
+    Bloccante: [],
+    Stato: [],
+    Priorita: [],
+    Tipo: [],
+    Menu: []
+};
+
+// Genera la UI per ogni lista
+function renderLists() {
+    const container = document.getElementById('listsContainer');
+    container.innerHTML = "";
+    for(const listName in lists){
+        const section = document.createElement('div');
+        section.innerHTML = `
+            <div class="section-title">${listName}</div>
+            <div class="space-y-1" id="list-${listName}">
+            </div>
+            <div class="flex gap-2 mt-2">
+                <input type="text" placeholder="Nuovo ${listName}" id="input-${listName}" class="border p-2 rounded w-full">
+                <button onclick="addItem('${listName}')" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"><i class="fas fa-plus"></i></button>
+            </div>
+        `;
+        container.appendChild(section);
+        renderListItems(listName);
+    }
+}
+
+// Renderizza le voci di una lista
+function renderListItems(listName){
+    const listDiv = document.getElementById(`list-${listName}`);
+    listDiv.innerHTML = "";
+    lists[listName].forEach((item, i)=>{
+        const div = document.createElement('div');
+        div.className = "list-item";
+        div.innerHTML = `
+            <span>${item}</span>
+            <button onclick="removeItem('${listName}', ${i})"><i class="fas fa-trash"></i></button>
+        `;
+        listDiv.appendChild(div);
+    });
+}
+
+// Aggiunge un elemento alla lista
+function addItem(listName){
+    const input = document.getElementById(`input-${listName}`);
+    const value = input.value.trim();
+    if(value && !lists[listName].includes(value)){
+        lists[listName].push(value);
+        input.value = "";
+        renderListItems(listName);
+    }
+}
+
+// Rimuove un elemento dalla lista
+function removeItem(listName, index){
+    lists[listName].splice(index,1);
+    renderListItems(listName);
+}
+
+// Salva le liste su file (GitHub)
+async function saveLists(){
+    let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
+    if(!config){ alert("⚠️ Configura GitHub prima di salvare"); return; }
+    try{
+        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`,{
+            headers:{Authorization:`token ${config.token}`}
+        });
+        const data = await res.json();
+        const sha = data.sha;
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(lists,null,2))));
+        const body = {message:"Aggiornamento liste", content, sha};
+        const putRes = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`,{
+            method:"PUT",
+            headers: {"Authorization":`token ${config.token}`, "Content-Type":"application/json"},
+            body: JSON.stringify(body)
+        });
+        if(!putRes.ok) throw new Error("Errore salvataggio");
+        alert("Liste salvate con successo!");
+    }catch(e){ alert("Errore: "+e.message); }
+}
+
+// Carica le liste dal file
+async function loadLists(){
+    let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
+    if(!config){ alert("⚠️ Configura GitHub prima di caricare"); return; }
+    try{
+        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`,{
+            headers:{Authorization:`token ${config.token}`}
+        });
+        const data = await res.json();
+        lists = JSON.parse(atob(data.content));
+        renderLists();
+    }catch(e){ alert("Errore caricamento: "+e.message); }
+}
+
+// Inizializza form
+renderLists();
+</script>
+</body>
+</html>
