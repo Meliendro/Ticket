@@ -10,7 +10,7 @@
 body { font-family: 'Segoe UI', sans-serif; background: #f4f4f5; }
 h1 { font-weight: 700; }
 .table-container { overflow-x: auto; margin-top: 1rem; }
-table { width: 100%; border-collapse: collapse; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 th, td { padding: 0.5rem; text-align: left; white-space: nowrap; }
 th { background: #1f2937; color: #fff; position: sticky; top: 0; }
 tr:nth-child(even) { background: #f9fafb; }
@@ -26,11 +26,16 @@ button, select { cursor: pointer; }
 .filter-bar { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem; }
 .filter-bar select { padding:0.25rem 0.5rem; border-radius:0.5rem; border:1px solid #d1d5db; background:#fff; color:#111827; font-size:0.9rem; transition:all 0.2s; }
 
-/* Nuovo: wrap per descrizione */
+/* Ottimizzazione descrizione */
 td.wrap-text {
     white-space: normal;
     word-break: break-word;
-    max-width: 250px; /* larghezza massima, puoi regolare */
+    max-width: 450px; /* larghezza maggiore per ridurre altezza riga */
+}
+td.wrap-text-act {
+    white-space: normal;
+    word-break: break-word;
+    max-width: 350px; /* attività leggermente più stretta */
 }
 </style>
 </head>
@@ -45,18 +50,10 @@ td.wrap-text {
 </header>
 
 <div class="filter-bar" id="filterBar">
-    <select id="filterStato">
-        <option value="">Tutti gli Stati</option>
-    </select>
-    <select id="filterTipo">
-        <option value="">Tutti i Tipi</option>
-    </select>
-    <select id="filterBloccante">
-        <option value="">Bloccante / Non Bloccante</option>
-    </select>
-    <select id="filterAmbito">
-        <option value="">Tutti gli Ambiti</option>
-    </select>
+    <select id="filterStato"><option value="">Tutti gli Stati</option></select>
+    <select id="filterTipo"><option value="">Tutti i Tipi</option></select>
+    <select id="filterBloccante"><option value="">Bloccante / Non Bloccante</option></select>
+    <select id="filterAmbito"><option value="">Tutti gli Ambiti</option></select>
 </div>
 
 <div class="table-container border rounded shadow">
@@ -129,17 +126,10 @@ function populateFilters() {
     const selectBloccante = document.getElementById("filterBloccante");
     const selectAmbito = document.getElementById("filterAmbito");
 
-    const stati = [...new Set(tickets.map(t=>t.stato))];
-    stati.forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectStato.appendChild(opt); });
-
-    const tipi = [...new Set(tickets.map(t=>t.tipo))];
-    tipi.forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectTipo.appendChild(opt); });
-
-    const bloccanti = [...new Set(tickets.map(t=>t.bloccante))];
-    bloccanti.forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectBloccante.appendChild(opt); });
-
-    const ambiti = [...new Set(tickets.map(t=>t.ambito))];
-    ambiti.forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectAmbito.appendChild(opt); });
+    [...new Set(tickets.map(t=>t.stato))].forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectStato.appendChild(opt); });
+    [...new Set(tickets.map(t=>t.tipo))].forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectTipo.appendChild(opt); });
+    [...new Set(tickets.map(t=>t.bloccante))].forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectBloccante.appendChild(opt); });
+    [...new Set(tickets.map(t=>t.ambito))].forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectAmbito.appendChild(opt); });
 
     selectStato.onchange = ()=>{ filters.stato = selectStato.value; renderTable(); };
     selectTipo.onchange = ()=>{ filters.tipo = selectTipo.value; renderTable(); };
@@ -150,10 +140,7 @@ function populateFilters() {
 function renderTable() {
     const tbody = document.getElementById('ticketBody');
     tbody.innerHTML = "";
-
-    tickets
-    .sort((a,b)=>b.nrTicket - a.nrTicket) // Ordine decrescente
-    .forEach((t,i)=>{
+    tickets.sort((a,b)=>b.nrTicket - a.nrTicket).forEach((t,i)=>{
         if(filters.stato && t.stato!==filters.stato) return;
         if(filters.tipo && t.tipo!==filters.tipo) return;
         if(filters.bloccante && t.bloccante!==filters.bloccante) return;
@@ -177,7 +164,7 @@ function renderTable() {
         <td>${t.dataInizioPrevista}</td>
         <td>${t.dataFinePrevista}</td>
         <td>${t.dataRilascio}</td>
-        <td class="wrap-text">${t.descrAttivita.replace(/\n/g,'<br>')}</td>
+        <td class="wrap-text-act">${t.descrAttivita.replace(/\n/g,'<br>')}</td>
         <td>${t.dataSegnalato||""}</td>
         <td>${t.dataPresoInCarico||""}</td>
         <td>${t.dataRilasciato||""}</td>
