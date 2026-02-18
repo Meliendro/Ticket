@@ -70,7 +70,7 @@
   },
   {
     "nrTicket": 4,
-    "stato": "Segnalato",
+    "stato": "Preso in carico",
     "tipo": "Bug",
     "bloccante": "Bloccante",
     "priorita": "Alta",
@@ -84,9 +84,9 @@
     "dataInizioPrevista": "",
     "dataFinePrevista": "",
     "dataRilascio": "",
-    "descrizioneAttivitaSoluzione": "",
+    "descrAttivita": "",
     "dataSegnalato": "",
-    "dataPresoInCarico": "",
+    "dataPresoInCarico": "18/02/2026",
     "dataRilasciato": "",
     "dataInTest": "",
     "dataCompletato": ""
