@@ -10,10 +10,15 @@
     .priority-Alta { background-color: #f87171; color: white; }
     .priority-Media { background-color: #fbbf24; color: white; }
     .priority-Bassa { background-color: #34d399; color: white; }
+    .status-Segnalato { background-color: #93c5fd; color: white; }
+    .status-Preso { background-color: #facc15; color: black; }
+    .status-InTest { background-color: #f472b6; color: white; }
+    .status-Rilasciato { background-color: #a78bfa; color: white; }
+    .status-Completato { background-color: #34d399; color: white; }
     .icon-button { cursor:pointer; padding:4px; border-radius:4px; transition:0.2s; }
     .icon-button:hover { background-color:#eee; }
     table { table-layout: fixed; width: 100%; }
-    th, td { text-align: center; vertical-align: middle; }
+    th, td { text-align: center; vertical-align: middle; word-wrap: break-word; }
 </style>
 </head>
 <body class="bg-gray-50 p-6">
@@ -52,7 +57,6 @@
 </table>
 
 <script>
-// Caricamento e salvataggio su localStorage (puoi poi sostituire con GitHub JSON)
 let tickets = JSON.parse(localStorage.getItem('tickets')) || [];
 
 function saveTickets() {
@@ -70,7 +74,7 @@ function renderTable() {
                 <span class="icon-button text-blue-600" onclick="editTicket(${idx})"><i class="fas fa-edit"></i></span>
             </td>
             <td>${t.ticketNumber}</td>
-            <td>${t.stato}</td>
+            <td class="status-${t.stato.replace(/ /g,'')}">${t.stato}</td>
             <td>${t.tipo}</td>
             <td>${t.bloccante}</td>
             <td class="priority-${t.priorita} font-bold">${t.priorita}</td>
@@ -100,9 +104,7 @@ function openTicketForm(idx) {
     window.open(url, '_blank', 'width=900,height=800');
 }
 
-// Quando la pagina torna in focus, ricarica i dati
 window.addEventListener('focus', renderTable);
-
 renderTable();
 </script>
 </body>
