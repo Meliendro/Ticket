@@ -25,6 +25,13 @@ tr:nth-child(even) { background: #f9fafb; }
 button, select { cursor: pointer; }
 .filter-bar { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem; }
 .filter-bar select { padding:0.25rem 0.5rem; border-radius:0.5rem; border:1px solid #d1d5db; background:#fff; color:#111827; font-size:0.9rem; transition:all 0.2s; }
+
+/* Nuovo: wrap per descrizione */
+td.wrap-text {
+    white-space: normal;
+    word-break: break-word;
+    max-width: 250px; /* larghezza massima, puoi regolare */
+}
 </style>
 </head>
 <body class="p-6">
@@ -164,13 +171,13 @@ function renderTable() {
         <td>${t.ambito}</td>
         <td>${t.menu}</td>
         <td>${t.titolo}</td>
-        <td>${t.descrizione}</td>
+        <td class="wrap-text">${t.descrizione.replace(/\n/g,'<br>')}</td>
         <td>${t.inseritoDa}</td>
         <td>${t.inCaricoA}</td>
         <td>${t.dataInizioPrevista}</td>
         <td>${t.dataFinePrevista}</td>
         <td>${t.dataRilascio}</td>
-        <td>${t.descrAttivita}</td>
+        <td class="wrap-text">${t.descrAttivita.replace(/\n/g,'<br>')}</td>
         <td>${t.dataSegnalato||""}</td>
         <td>${t.dataPresoInCarico||""}</td>
         <td>${t.dataRilasciato||""}</td>
