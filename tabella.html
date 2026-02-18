@@ -45,12 +45,12 @@ button { background-color: #3b82f6; color:white; padding:0.3rem 0.5rem; border-r
 </tr>
 </thead>
 <tbody>
-<!-- I ticket verranno inseriti qui -->
 </tbody>
 </table>
 
 <script>
 let tickets = [];
+let ticketCounter = 1;
 
 function apriInserimento(ticketIndex=null){
     let url = 'inserimento.html';
@@ -64,7 +64,7 @@ function aggiornaTabella() {
     tickets.forEach((t,i)=>{
         const tr = document.createElement('tr');
         tr.innerHTML = `
-        <td>${i+1}</td>
+        <td>${t.nr_ticket}</td>
         <td>${t.stato}</td>
         <td>${t.tipo}</td>
         <td>${t.priorita}</td>
@@ -95,6 +95,7 @@ function riceviTicket(ticket, index=null) {
     if(index !== null){
         tickets[index] = ticket;
     } else {
+        ticket.nr_ticket = ticketCounter++;
         tickets.unshift(ticket);
     }
     aggiornaTabella();
