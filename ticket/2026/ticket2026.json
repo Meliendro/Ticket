@@ -24,7 +24,7 @@
   },
   {
     "nrTicket": 2,
-    "stato": "Segnalato",
+    "stato": "Completato",
     "tipo": "Bug",
     "bloccante": "Bloccante",
     "priorita": "Alta",
@@ -38,12 +38,12 @@
     "dataInizioPrevista": "",
     "dataFinePrevista": "",
     "dataRilascio": "",
-    "descrizioneAttivitaSoluzione": "",
+    "descrAttivita": "",
     "dataSegnalato": "",
     "dataPresoInCarico": "",
     "dataRilasciato": "",
     "dataInTest": "",
-    "dataCompletato": ""
+    "dataCompletato": "18/02/2026"
   },
   {
     "nrTicket": 3,
