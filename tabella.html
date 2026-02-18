@@ -3,32 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestione Ticket</title>
+<title>Elenco Ticket</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-body { font-family: 'Segoe UI', sans-serif; background:#f5f5f5; }
-.container { max-width: 1400px; margin: 2rem auto; padding: 1rem; }
-table { width: 100%; border-collapse: collapse; }
-th, td { padding: 0.5rem; border: 1px solid #ccc; text-align: center; font-size: 0.85rem; }
-thead { background: #1e3a8a; color: #fff; }
-button { cursor: pointer; }
+    body { font-family: 'Segoe UI', sans-serif; background-color: #f3f4f6; }
+    .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-radius: 1rem; padding: 1rem; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.5rem; border: 1px solid #ddd; text-align: left; font-size: 0.85rem; }
+    th { background-color: #f87171; color: white; }
+    button { background-color: #3b82f6; color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
 </style>
 </head>
-<body>
+<body class="p-4">
 
-<div class="container">
-    <h1 class="text-2xl font-bold mb-4">Gestione Ticket</h1>
-    <div class="mb-4">
-        <button onclick="window.location.href='ticket.html'" class="bg-blue-600 text-white px-4 py-2 rounded shadow">Nuovo Ticket</button>
-    </div>
+<div class="flex justify-between items-center mb-4">
+    <h1 class="text-xl font-bold">Elenco Ticket</h1>
+    <button onclick="window.location.href='inserimento.html'">Nuovo Ticket</button>
+</div>
 
-    <table id="ticketTable">
+<div class="glass-panel">
+    <table id="ticketsTable">
         <thead>
             <tr>
-                <th>Nr Ticket</th>
+                <th>#</th>
                 <th>Stato</th>
                 <th>Tipo</th>
-                <th>Bloccante</th>
                 <th>Priorità</th>
                 <th>Data Inserimento</th>
                 <th>Ambito</th>
@@ -37,65 +36,76 @@ button { cursor: pointer; }
                 <th>Descrizione</th>
                 <th>Inserito da</th>
                 <th>In carico a</th>
-                <th>Data Inizio Prevista</th>
-                <th>Data Fine Prevista</th>
-                <th>Data Rilascio</th>
-                <th>Descrizione Soluzione</th>
+                <th>Data inizio prevista</th>
+                <th>Data fine prevista</th>
+                <th>Data rilascio</th>
+                <th>Descrizione soluzione</th>
                 <th>Data Segnalato</th>
                 <th>Data Preso in carico</th>
                 <th>Data Rilasciato</th>
-                <th>Data in Test</th>
+                <th>Data In Test</th>
                 <th>Data Completato</th>
-                <th>Azioni</th>
+                <th>Azione</th>
             </tr>
         </thead>
         <tbody>
+            <!-- Righe generate via JS -->
         </tbody>
     </table>
 </div>
 
 <script>
-let tickets = JSON.parse(localStorage.getItem('tickets') || '[]');
+const config = {
+    repo: "USERNAME/REPO_NAME",
+    token: "YOUR_GITHUB_TOKEN"
+};
 
-function renderTable() {
-    const tbody = document.querySelector('#ticketTable tbody');
-    tbody.innerHTML = '';
-    tickets.forEach((t, i) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${i+1}</td>
-            <td>${t.stato || ''}</td>
-            <td>${t.tipo || ''}</td>
-            <td>${t.bloccante || ''}</td>
-            <td>${t.priorita || ''}</td>
-            <td>${t.dataInserimento || ''}</td>
-            <td>${t.ambito || ''}</td>
-            <td>${t.menu || ''}</td>
-            <td>${t.titolo || ''}</td>
-            <td>${t.descrizione || ''}</td>
-            <td>${t.inseritoDa || ''}</td>
-            <td>${t.inCaricoA || ''}</td>
-            <td>${t.dataInizioPrevista || ''}</td>
-            <td>${t.dataFinePrevista || ''}</td>
-            <td>${t.dataRilascio || ''}</td>
-            <td>${t.descrizioneSoluzione || ''}</td>
-            <td>${t.dataSegnalato || ''}</td>
-            <td>${t.dataPresoInCarico || ''}</td>
-            <td>${t.dataRilasciato || ''}</td>
-            <td>${t.dataInTest || ''}</td>
-            <td>${t.dataCompletato || ''}</td>
-            <td><button onclick="editTicket(${i})" class="bg-yellow-500 text-white px-2 py-1 rounded">Modifica</button></td>
-        `;
-        tbody.appendChild(tr);
-    });
+async function fetchTickets() {
+    const url = `https://api.github.com/repos/${config.repo}/contents/tickets.json`;
+    try {
+        const res = await fetch(url, { headers: { "Authorization": `token ${config.token}` } });
+        if(!res.ok) return;
+        const data = await res.json();
+        const tickets = JSON.parse(atob(data.content));
+        const tbody = document.querySelector("#ticketsTable tbody");
+        tbody.innerHTML = "";
+        tickets.forEach((t, i) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${i+1}</td>
+                <td>${t.stato}</td>
+                <td>${t.tipo}</td>
+                <td>${t.priorita}</td>
+                <td>${t.data_inserimento}</td>
+                <td>${t.ambito}</td>
+                <td>${t.menu}</td>
+                <td>${t.titolo}</td>
+                <td>${t.descrizione}</td>
+                <td>${t.inserito_da}</td>
+                <td>${t.in_carico_a}</td>
+                <td>${t.data_inizio_prevista}</td>
+                <td>${t.data_fine_prevista}</td>
+                <td>${t.data_rilascio}</td>
+                <td>${t.descrizione_soluzione}</td>
+                <td>${t.data_segnalato || ""}</td>
+                <td>${t.data_preso_in_carico || ""}</td>
+                <td>${t.data_rilasciato || ""}</td>
+                <td>${t.data_in_test || ""}</td>
+                <td>${t.data_completato || ""}</td>
+                <td><button onclick="editTicket(${i})">Modifica</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch(e) { console.error(e); }
 }
 
 function editTicket(index) {
-    localStorage.setItem('editTicketIndex', index);
-    window.location.href = 'ticket.html';
+    localStorage.setItem("edit_ticket_index", index);
+    window.location.href = "inserimento.html";
 }
 
-renderTable();
+fetchTickets();
 </script>
+
 </body>
 </html>
