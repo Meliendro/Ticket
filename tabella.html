@@ -3,108 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Elenco Ticket</title>
+<title>Tabella Ticket</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-    body { font-family: 'Segoe UI', sans-serif; background-color: #f3f4f6; }
-    .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-radius: 1rem; padding: 1rem; margin: 1rem 0; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 0.5rem; border: 1px solid #ddd; text-align: left; font-size: 0.85rem; }
-    th { background-color: #f87171; color: white; }
-    button { background-color: #3b82f6; color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+body { font-family: 'Segoe UI', sans-serif; background-color: #f3f4f6; }
+table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+th, td { border: 1px solid #ddd; padding: 0.5rem; font-size: 0.85rem; }
+th { background-color: #3b82f6; color: white; }
+button { background-color: #3b82f6; color:white; padding:0.3rem 0.5rem; border-radius:0.25rem; font-size:0.8rem; }
 </style>
 </head>
 <body class="p-4">
 
-<div class="flex justify-between items-center mb-4">
-    <h1 class="text-xl font-bold">Elenco Ticket</h1>
-    <button onclick="window.location.href='inserimento.html'">Nuovo Ticket</button>
-</div>
+<h1 class="text-xl font-bold">Elenco Ticket</h1>
+<button onclick="apriInserimento()" class="mb-2">Nuovo Ticket</button>
 
-<div class="glass-panel">
-    <table id="ticketsTable">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Stato</th>
-                <th>Tipo</th>
-                <th>Priorità</th>
-                <th>Data Inserimento</th>
-                <th>Ambito</th>
-                <th>Menu</th>
-                <th>Titolo</th>
-                <th>Descrizione</th>
-                <th>Inserito da</th>
-                <th>In carico a</th>
-                <th>Data inizio prevista</th>
-                <th>Data fine prevista</th>
-                <th>Data rilascio</th>
-                <th>Descrizione soluzione</th>
-                <th>Data Segnalato</th>
-                <th>Data Preso in carico</th>
-                <th>Data Rilasciato</th>
-                <th>Data In Test</th>
-                <th>Data Completato</th>
-                <th>Azione</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Righe generate via JS -->
-        </tbody>
-    </table>
-</div>
+<table id="ticketTable">
+    <thead>
+        <tr>
+            <th>Nr.</th>
+            <th>Stato</th>
+            <th>Tipo</th>
+            <th>Priorità</th>
+            <th>Data Inserimento</th>
+            <th>Ambito</th>
+            <th>Menu</th>
+            <th>Titolo</th>
+            <th>Descrizione</th>
+            <th>Inserito da</th>
+            <th>In carico a</th>
+            <th>Data inizio prevista</th>
+            <th>Data fine prevista</th>
+            <th>Data rilascio</th>
+            <th>Descrizione soluzione</th>
+            <th>Azioni</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- I ticket verranno inseriti qui -->
+    </tbody>
+</table>
 
 <script>
-const config = {
-    repo: "USERNAME/REPO_NAME",
-    token: "YOUR_GITHUB_TOKEN"
-};
+let tickets = []; // array locale
 
-async function fetchTickets() {
-    const url = `https://api.github.com/repos/${config.repo}/contents/tickets.json`;
-    try {
-        const res = await fetch(url, { headers: { "Authorization": `token ${config.token}` } });
-        if(!res.ok) return;
-        const data = await res.json();
-        const tickets = JSON.parse(atob(data.content));
-        const tbody = document.querySelector("#ticketsTable tbody");
-        tbody.innerHTML = "";
-        tickets.forEach((t, i) => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${i+1}</td>
-                <td>${t.stato}</td>
-                <td>${t.tipo}</td>
-                <td>${t.priorita}</td>
-                <td>${t.data_inserimento}</td>
-                <td>${t.ambito}</td>
-                <td>${t.menu}</td>
-                <td>${t.titolo}</td>
-                <td>${t.descrizione}</td>
-                <td>${t.inserito_da}</td>
-                <td>${t.in_carico_a}</td>
-                <td>${t.data_inizio_prevista}</td>
-                <td>${t.data_fine_prevista}</td>
-                <td>${t.data_rilascio}</td>
-                <td>${t.descrizione_soluzione}</td>
-                <td>${t.data_segnalato || ""}</td>
-                <td>${t.data_preso_in_carico || ""}</td>
-                <td>${t.data_rilasciato || ""}</td>
-                <td>${t.data_in_test || ""}</td>
-                <td>${t.data_completato || ""}</td>
-                <td><button onclick="editTicket(${i})">Modifica</button></td>
-            `;
-            tbody.appendChild(tr);
-        });
-    } catch(e) { console.error(e); }
+function apriInserimento() {
+    window.open('inserimento.html', 'popup', 'width=900,height=700');
 }
 
-function editTicket(index) {
-    localStorage.setItem("edit_ticket_index", index);
-    window.location.href = "inserimento.html";
+// funzione per aggiornare la tabella
+function aggiornaTabella() {
+    const tbody = document.querySelector('#ticketTable tbody');
+    tbody.innerHTML = '';
+    tickets.forEach((t, i)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+        <td>${i+1}</td>
+        <td>${t.stato}</td>
+        <td>${t.tipo}</td>
+        <td>${t.priorita}</td>
+        <td>${t.data_inserimento}</td>
+        <td>${t.ambito}</td>
+        <td>${t.menu}</td>
+        <td>${t.titolo}</td>
+        <td>${t.descrizione}</td>
+        <td>${t.inserito_da}</td>
+        <td>${t.in_carico_a}</td>
+        <td>${t.data_inizio_prevista}</td>
+        <td>${t.data_fine_prevista}</td>
+        <td>${t.data_rilascio}</td>
+        <td>${t.descrizione_soluzione}</td>
+        <td><button onclick="modificaTicket(${i})">Modifica</button></td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
 
-fetchTickets();
+// funzione per ricevere ticket dal popup
+function riceviTicket(ticket) {
+    tickets.unshift(ticket);
+    aggiornaTabella();
+}
 </script>
 
 </body>
