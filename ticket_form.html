@@ -124,25 +124,28 @@ if(editIndex !== null) editIndex = parseInt(editIndex);
 const now = new Date().toISOString().split('T')[0];
 document.getElementById('dataInserimento').value = now;
 
-if(editIndex !== null) {
-    const t = tickets[editIndex];
-    document.getElementById('ticketNumberDisplay').innerText = "Ticket #" + t.ticketNumber;
-    document.getElementById('stato').value = t.stato;
-    document.getElementById('tipo').value = t.tipo;
-    document.getElementById('bloccante').value = t.bloccante;
-    document.getElementById('priorita').value = t.priorita;
-    document.getElementById('dataInserimento').value = t.dataInserimento;
-    document.getElementById('ambito').value = t.ambito;
-    document.getElementById('menu').value = t.menu;
-    document.getElementById('titolo').value = t.titolo;
-    document.getElementById('descrizione').value = t.descrizione;
-    document.getElementById('inseritoDa').value = t.inseritoDa;
-    document.getElementById('inCaricoA').value = t.inCaricoA;
-    document.getElementById('dataInizioPrevista').value = t.dataInizioPrevista;
-    document.getElementById('dataFinePrevista').value = t.dataFinePrevista;
-    document.getElementById('dataRilascio').value = t.dataRilascio;
-    document.getElementById('descrizioneAttivita').value = t.descrizioneAttivita;
+function loadTicketData() {
+    if(editIndex !== null) {
+        const t = tickets[editIndex];
+        document.getElementById('ticketNumberDisplay').innerText = "Ticket #" + t.ticketNumber;
+        document.getElementById('stato').value = t.stato;
+        document.getElementById('tipo').value = t.tipo;
+        document.getElementById('bloccante').value = t.bloccante;
+        document.getElementById('priorita').value = t.priorita;
+        document.getElementById('dataInserimento').value = t.dataInserimento;
+        document.getElementById('ambito').value = t.ambito;
+        document.getElementById('menu').value = t.menu;
+        document.getElementById('titolo').value = t.titolo;
+        document.getElementById('descrizione').value = t.descrizione;
+        document.getElementById('inseritoDa').value = t.inseritoDa;
+        document.getElementById('inCaricoA').value = t.inCaricoA;
+        document.getElementById('dataInizioPrevista').value = t.dataInizioPrevista;
+        document.getElementById('dataFinePrevista').value = t.dataFinePrevista;
+        document.getElementById('dataRilascio').value = t.dataRilascio;
+        document.getElementById('descrizioneAttivita').value = t.descrizioneAttivita;
+    }
 }
+loadTicketData();
 
 document.getElementById('ticketForm').addEventListener('submit', function(e){
     e.preventDefault();
