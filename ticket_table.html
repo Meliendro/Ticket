@@ -1,59 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Table</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-body { font-family: 'Segoe UI', sans-serif; background: #f4f4f5; }
-h1 { font-weight: 700; }
-.table-container { overflow-x: auto; margin-top: 1rem; }
-table { width: 100%; border-collapse: collapse; table-layout: auto; }
-th, td { padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; }
-th { background: #1f2937; color: #fff; position: sticky; top: 0; z-index:1; }
-tr:nth-child(even) { background: #f9fafb; }
-.priority-alta { background: #dc2626; color: #fff; font-weight: bold; text-align: center; }
-.priority-media { background: #f59e0b; color: #fff; font-weight: bold; text-align: center; }
-.priority-bassa { background: #10b981; color: #fff; font-weight: bold; text-align: center; }
-.status-Segnalato { color: #ef4444; font-weight: bold; }
-.status-Preso { color: #f59e0b; font-weight: bold; }
-.status-Rilasciato { color: #3b82f6; font-weight: bold; }
-.status-InTest { color: #6366f1; font-weight: bold; }
-.status-Completato { color: #10b981; font-weight: bold; }
-button, select { cursor: pointer; }
-.filter-bar { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem; }
-.filter-bar select { padding:0.25rem 0.5rem; border-radius:0.5rem; border:1px solid #d1d5db; background:#fff; color:#111827; font-size:0.9rem; transition:all 0.2s; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Table</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f4f5; }
+        h1 { font-weight: 700; }
+        .table-container { overflow-x: auto; margin-top: 1rem; background: white; }
+        
+        /* Cambiato table-layout in fixed per controllare le larghezze */
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 2500px; }
+        
+        th, td { padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; border-bottom: 1px solid #e5e7eb; }
+        th { background: #1f2937; color: #fff; position: sticky; top: 0; z-index: 1; }
+        tr:nth-child(even) { background: #f9fafb; }
+        
+        /* Classi Priorità */
+        .priority-alta { background: #dc2626 !important; color: #fff; font-weight: bold; text-align: center; }
+        .priority-media { background: #f59e0b !important; color: #fff; font-weight: bold; text-align: center; }
+        .priority-bassa { background: #10b981 !important; color: #fff; font-weight: bold; text-align: center; }
+        
+        /* Classi Stato */
+        .status-Segnalato { color: #ef4444; font-weight: bold; }
+        .status-Preso { color: #f59e0b; font-weight: bold; }
+        .status-Rilasciato { color: #3b82f6; font-weight: bold; }
+        .status-InTest { color: #6366f1; font-weight: bold; }
+        .status-Completato { color: #10b981; font-weight: bold; }
+        
+        .filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .filter-bar select { padding: 0.25rem 0.5rem; border-radius: 0.5rem; border: 1px solid #d1d5db; background: #fff; color: #111827; font-size: 0.9rem; }
 
-/* Colonne descrizione larghe con scroll se troppo lungo */
-td.wrap-text {
-    max-width: 800px;          /* larghezza maggiore */
-    white-space: normal;
-    word-break: break-word;
-    overflow-y: auto;          /* scroll verticale se troppo lungo */
-    max-height: 200px;         /* altezza massima della cella */
-    padding-right: 0.5rem;     /* spazio interno per scroll */
-}
-td.wrap-text-act {
-    max-width: 600px;
-    white-space: normal;
-    word-break: break-word;
-    overflow-y: auto;
-    max-height: 200px;
-}
+        /* --- OTTIMIZZAZIONE COLONNE DESCRIZIONE --- */
+        
+        /* Colonna Descrizione (più larga) */
+        .col-desc { width: 500px; } 
+        /* Colonna Descrizione Attività */
+        .col-desc-act { width: 400px; }
+        
+        /* Altre colonne (larghezza fissa per evitare sovrapposizioni) */
+        .col-small { width: 80px; }
+        .col-medium { width: 150px; }
+        .col-date { width: 130px; }
 
-/* Line-height e font per compattezza */
-td, th { line-height: 1.3; font-size: 0.875rem; }
-</style>
+        td.wrap-text, td.wrap-text-act {
+            white-space: normal;
+            word-break: break-word;
+            line-height: 1.5;
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            color: #374151;
+        }
+
+        td, th { font-size: 0.875rem; }
+    </style>
 </head>
 <body class="p-6">
 
 <header class="flex justify-between items-center mb-2">
-    <h1 class="text-2xl">Gestione Ticket</h1>
+    <h1 class="text-2xl text-slate-800">Gestione Ticket</h1>
     <div class="flex gap-3">
-        <button onclick="newTicket()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"><i class="fas fa-plus"></i> Nuovo Ticket</button>
-        <button onclick="configureGitHub()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700"><i class="fas fa-cog"></i> Config GitHub</button>
+        <button onclick="newTicket()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"><i class="fas fa-plus"></i> Nuovo Ticket</button>
+        <button onclick="configureGitHub()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700 transition"><i class="fas fa-cog"></i> Config GitHub</button>
     </div>
 </header>
 
@@ -64,32 +75,30 @@ td, th { line-height: 1.3; font-size: 0.875rem; }
     <select id="filterAmbito"><option value="">Tutti gli Ambiti</option></select>
 </div>
 
-<div class="table-container border rounded shadow">
+<div class="table-container border rounded shadow-lg">
     <table id="ticketTable">
         <thead>
             <tr>
-                <th>Modifica</th>
-                <th>Nr Ticket</th>
-                <th>Stato</th>
-                <th>Tipo</th>
-                <th>Bloccante</th>
-                <th>Priorità</th>
-                <th>Data Inserimento</th>
-                <th>Ambito</th>
-                <th>Menu</th>
-                <th>Titolo</th>
-                <th>Descrizione</th>
-                <th>Inserito da</th>
-                <th>In carico a</th>
-                <th>Data Inizio Prevista</th>
-                <th>Data Fine Prevista</th>
-                <th>Data Rilascio</th>
-                <th>Descrizione Attività</th>
-                <th>Data Segnalato</th>
-                <th>Data Preso In Carico</th>
-                <th>Data Rilasciato</th>
-                <th>Data In Test</th>
-                <th>Data Completato</th>
+                <th class="col-small">Modifica</th>
+                <th class="col-small">Nr Ticket</th>
+                <th class="col-medium">Stato</th>
+                <th class="col-medium">Tipo</th>
+                <th class="col-medium">Bloccante</th>
+                <th class="col-small">Priorità</th>
+                <th class="col-date">Data Inser.</th>
+                <th class="col-medium">Ambito</th>
+                <th class="col-medium">Menu</th>
+                <th class="col-medium">Titolo</th>
+                <th class="col-desc">Descrizione</th> <th class="col-medium">Inserito da</th>
+                <th class="col-medium">In carico a</th>
+                <th class="col-date">Inizio Prev.</th>
+                <th class="col-date">Fine Prev.</th>
+                <th class="col-date">Data Rilascio</th>
+                <th class="col-desc-act">Descrizione Attività</th> <th class="col-date">Data Segnal.</th>
+                <th class="col-date">Data Preso</th>
+                <th class="col-date">Data Rilasci.</th>
+                <th class="col-date">Data Test</th>
+                <th class="col-date">Data Compl.</th>
             </tr>
         </thead>
         <tbody id="ticketBody"></tbody>
@@ -110,6 +119,7 @@ function configureGitHub() {
         localStorage.setItem('gh_ticket_config', JSON.stringify({repo, token}));
         config = {repo, token};
         alert("Configurazione salvata!");
+        location.reload();
     } else alert("PIN errato");
 }
 
@@ -156,8 +166,8 @@ function renderTable() {
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-        <td><button onclick="editTicket(${i})" class="bg-yellow-400 p-1 rounded hover:bg-yellow-500"><i class="fas fa-edit"></i></button></td>
-        <td>${t.nrTicket}</td>
+        <td class="text-center"><button onclick="editTicket(${i})" class="bg-yellow-400 p-2 rounded hover:bg-yellow-500 transition"><i class="fas fa-edit"></i></button></td>
+        <td><b>${t.nrTicket}</b></td>
         <td class="status-${t.stato.replace(/\s/g,'')}">${t.stato}</td>
         <td>${t.tipo}</td>
         <td>${t.bloccante}</td>
@@ -172,7 +182,7 @@ function renderTable() {
         <td>${t.dataInizioPrevista}</td>
         <td>${t.dataFinePrevista}</td>
         <td>${t.dataRilascio}</td>
-        <td class="wrap-text-act">${t.descrAttivita.replace(/\n/g,'<br>')}</td>
+        <td class="wrap-text-act">${(t.descrAttivita || "").replace(/\n/g,'<br>')}</td>
         <td>${t.dataSegnalato||""}</td>
         <td>${t.dataPresoInCarico||""}</td>
         <td>${t.dataRilasciato||""}</td>
