@@ -1,253 +1,265 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Table</title>
+<title>Ticket 2026</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
+
 <style>
-body { font-family: 'Segoe UI', sans-serif; background: #f4f4f5; }
-h1 { font-weight: 700; }
-.table-container { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; }
-th, td { padding: 0.5rem; text-align: left; white-space: nowrap; }
-th { background: #1f2937; color: #fff; position: sticky; top: 0; }
-tr:nth-child(even) { background: #f9fafb; }
-.priority-alta { background: #dc2626; color: #fff; font-weight: bold; text-align: center; }
-.priority-media { background: #f59e0b; color: #fff; font-weight: bold; text-align: center; }
-.priority-bassa { background: #10b981; color: #fff; font-weight: bold; text-align: center; }
-.status-Segnalato { color: #ef4444; font-weight: bold; }
-.status-Preso { color: #f59e0b; font-weight: bold; }
-.status-Rilasciato { color: #3b82f6; font-weight: bold; }
-.status-InTest { color: #6366f1; font-weight: bold; }
-.status-Completato { color: #10b981; font-weight: bold; }
-button { cursor: pointer; }
-.filter-select {
-    padding:6px 10px;
-    border-radius:6px;
-    border:1px solid #d1d5db;
-    background:white;
+body { background:#f3f4f6; }
+
+table { font-size:13px; }
+
+th {
+    background:#111827;
+    color:white;
+    position:sticky;
+    top:0;
+    z-index:5;
 }
+
+.group-header {
+    background: linear-gradient(90deg, #1f2937, #111827);
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.group-header:hover {
+    background: linear-gradient(90deg, #374151, #1f2937);
+}
+
+.group-content {
+    overflow:hidden;
+    transition:max-height 0.4s ease, opacity 0.3s ease;
+}
+
+.group-content.collapsed {
+    max-height:0;
+    opacity:0;
+}
+
+.group-content.expanded {
+    opacity:1;
+}
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+}
+
+.rotate {
+    transform: rotate(-90deg);
+}
+
+td { white-space:nowrap; }
+
+.priority-Alta { color:#dc2626; font-weight:bold; }
+.priority-Media { color:#d97706; }
+.priority-Bassa { color:#16a34a; }
+
 </style>
 </head>
+
 <body class="p-6">
 
-<header class="flex justify-between items-center mb-4">
-    <h1 class="text-2xl">Gestione Ticket</h1>
-    <div class="flex gap-3">
-        <button onclick="newTicket()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"><i class="fas fa-plus"></i> Nuovo Ticket</button>
-        <button onclick="configureGitHub()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700"><i class="fas fa-cog"></i> Config GitHub</button>
-    </div>
-</header>
+<div class="bg-white shadow-xl rounded-2xl p-6">
 
-<!-- FILTRI -->
-<div class="flex gap-4 mb-4 flex-wrap">
-    <select id="filterStato" class="filter-select" onchange="applyFilters()">
-        <option value="">Tutti gli Stati</option>
-    </select>
+<div class="flex justify-between items-center mb-4">
+<h1 class="text-2xl font-bold text-gray-800">Gestione Ticket 2026</h1>
 
-    <select id="filterPriorita" class="filter-select" onchange="applyFilters()">
-        <option value="">Tutte le Priorità</option>
-        <option value="Alta">Alta</option>
-        <option value="Media">Media</option>
-        <option value="Bassa">Bassa</option>
-    </select>
+<div class="flex gap-3">
+<select id="filterStato" class="border p-2 rounded">
+<option value="">Tutti Stati</option>
+</select>
 
-    <select id="filterBloccante" class="filter-select" onchange="applyFilters()">
-        <option value="">Bloccante (Tutti)</option>
-        <option value="SI">SI</option>
-        <option value="NO">NO</option>
-    </select>
+<select id="filterPriorita" class="border p-2 rounded">
+<option value="">Tutte Priorità</option>
+<option>Alta</option>
+<option>Media</option>
+<option>Bassa</option>
+</select>
+
+<select id="filterBloccante" class="border p-2 rounded">
+<option value="">Bloccante?</option>
+<option>SI</option>
+<option>NO</option>
+</select>
+
+<button onclick="loadTickets()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+<i class="fas fa-rotate mr-2"></i>Ricarica
+</button>
+</div>
 </div>
 
-<div class="table-container border rounded shadow">
-    <table id="ticketTable">
-        <thead>
-            <tr>
-                <th>Modifica</th>
-                <th>Nr Ticket</th>
-                <th>Stato</th>
-                <th>Tipo</th>
-                <th>Bloccante</th>
-                <th>Priorità</th>
-                <th>Data Inserimento</th>
-                <th>Ambito</th>
-                <th>Menu</th>
-                <th>Titolo</th>
-                <th>Descrizione</th>
-                <th>Inserito da</th>
-                <th>In carico a</th>
-                <th>Data Inizio Prevista</th>
-                <th>Data Fine Prevista</th>
-                <th>Data Rilascio</th>
-                <th>Descrizione Attività</th>
-                <th>Data Segnalato</th>
-                <th>Data Preso In Carico</th>
-                <th>Data Rilasciato</th>
-                <th>Data In Test</th>
-                <th>Data Completato</th>
-            </tr>
-        </thead>
-        <tbody id="ticketBody"></tbody>
-    </table>
+<div class="overflow-auto rounded-xl border">
+<table class="min-w-full">
+<thead>
+<tr>
+<th></th>
+<th>Nr</th>
+<th>Stato</th>
+<th>Tipo</th>
+<th>Blocc</th>
+<th>Priorità</th>
+<th>Data Ins</th>
+<th>Ambito</th>
+<th>Menu</th>
+<th>Titolo</th>
+<th>Descrizione</th>
+<th>Inserito</th>
+<th>In Carico</th>
+<th>Inizio Prev</th>
+<th>Fine Prev</th>
+<th>Rilascio</th>
+<th>Attività</th>
+<th>Segnalato</th>
+<th>Preso Carico</th>
+<th>Rilasciato</th>
+<th>Test</th>
+<th>Completato</th>
+</tr>
+</thead>
+<tbody id="ticketBody"></tbody>
+</table>
+</div>
 </div>
 
 <script>
-let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
+
+const GITHUB_RAW_URL = "https://raw.githubusercontent.com/TUO_USER/TUO_REPO/main/ticket/2026/ticket2026.json";
+
 let tickets = [];
-let fileSha = "";
 
-function configureGitHub() {
-    const pin = prompt("Inserisci PIN per configurazione:");
-    if(pin === "1234"){
-        const repo = prompt("Repo GitHub (es: user/repo)");
-        const token = prompt("Token GitHub");
-        localStorage.setItem('gh_ticket_config', JSON.stringify({repo, token}));
-        config = {repo, token};
-        alert("Configurazione salvata!");
-    } else alert("PIN errato");
-}
+async function loadTickets(){
+    try{
+        const res = await fetch(GITHUB_RAW_URL);
+        tickets = await res.json();
 
-async function loadTickets() {
-    if(!config) { alert("⚠️ Configurare GitHub per visualizzare i ticket"); return; }
-    try {
-        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
-            headers: {Authorization:`token ${config.token}`}
-        });
-        if(!res.ok) throw new Error("Errore caricamento ticket");
-        const data = await res.json();
-        fileSha = data.sha;
-        tickets = JSON.parse(atob(data.content));
+        tickets.sort((a,b)=> b.nrTicket - a.nrTicket);
 
-        // ✅ ORDINAMENTO DECRESCENTE
-        tickets.sort((a,b)=> Number(b.nrTicket) - Number(a.nrTicket));
-
-        populateFilters();
         applyFilters();
-
-    } catch(e) { alert("Errore caricamento ticket: "+e.message); }
+        populateStatoFilter();
+    }catch(e){
+        alert("Errore connessione GitHub");
+    }
 }
 
-function populateFilters(){
-    const stati = [...new Set(tickets.map(t=>t.stato).filter(Boolean))];
+function populateStatoFilter(){
+    const stati = [...new Set(tickets.map(t=>t.stato))];
     const select = document.getElementById("filterStato");
+    select.innerHTML='<option value="">Tutti Stati</option>';
     stati.forEach(s=>{
-        const opt=document.createElement("option");
-        opt.value=s;
-        opt.textContent=s;
-        select.appendChild(opt);
+        select.innerHTML+=`<option>${s}</option>`;
     });
 }
 
 function applyFilters(){
+    let filtered = [...tickets];
+
     const stato = document.getElementById("filterStato").value;
     const priorita = document.getElementById("filterPriorita").value;
-    const bloccante = document.getElementById("filterBloccante").value;
+    const blocc = document.getElementById("filterBloccante").value;
 
-    let filtered = tickets.filter(t =>
-        (stato==="" || t.stato===stato) &&
-        (priorita==="" || t.priorita===priorita) &&
-        (bloccante==="" || t.bloccante===bloccante)
-    );
+    if(stato) filtered = filtered.filter(t=>t.stato===stato);
+    if(priorita) filtered = filtered.filter(t=>t.priorita===priorita);
+    if(blocc) filtered = filtered.filter(t=>t.bloccante===blocc);
 
     renderTable(filtered);
 }
 
-function renderTable(data) {
-    const tbody = document.getElementById('ticketBody');
-    tbody.innerHTML = "";
+document.getElementById("filterStato").onchange=applyFilters;
+document.getElementById("filterPriorita").onchange=applyFilters;
+document.getElementById("filterBloccante").onchange=applyFilters;
 
-    // Raggruppamento per stato
+function renderTable(data){
+
+    const tbody = document.getElementById("ticketBody");
+    tbody.innerHTML="";
+
     const grouped = {};
-    data.forEach(t => {
-        const stato = t.stato || "Senza Stato";
-        if(!grouped[stato]) grouped[stato] = [];
-        grouped[stato].push(t);
+    data.forEach(t=>{
+        if(!grouped[t.stato]) grouped[t.stato]=[];
+        grouped[t.stato].push(t);
     });
 
-    Object.keys(grouped).forEach(stato => {
+    Object.keys(grouped).forEach(stato=>{
 
-        // HEADER GRUPPO
-        const headerRow = document.createElement('tr');
-        headerRow.className = "bg-gray-800 text-white cursor-pointer hover:bg-gray-700 transition";
-        headerRow.innerHTML = `
-            <td colspan="22" class="px-4 py-2 font-bold text-sm flex justify-between items-center">
-                <span>
-                    <i class="fas fa-layer-group mr-2"></i>
-                    ${stato} 
-                    <span class="ml-2 bg-blue-500 text-xs px-2 py-1 rounded-full">
-                        ${grouped[stato].length}
-                    </span>
-                </span>
+        const header = document.createElement("tr");
+        header.className="group-header";
+        header.innerHTML=`
+        <td colspan="22" class="px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
                 <i class="fas fa-chevron-down toggle-icon"></i>
-            </td>
-        `;
-        tbody.appendChild(headerRow);
+                <span>${stato}</span>
+                <span class="bg-blue-500 text-xs px-2 py-1 rounded-full">
+                ${grouped[stato].length}
+                </span>
+            </div>
+        </td>`;
+        tbody.appendChild(header);
 
-        // CONTENITORE RIGHE
-        grouped[stato].forEach(t => {
-            const tr = document.createElement('tr');
-            tr.classList.add("group-"+stato.replace(/\s/g,''));
-            tr.innerHTML = `
-            <td><button onclick="editTicket(${tickets.indexOf(t)})" class="bg-yellow-400 p-1 rounded hover:bg-yellow-500 transition"><i class="fas fa-edit"></i></button></td>
-            <td>${t.nrTicket}</td>
-            <td class="status-${t.stato.replace(/\s/g,'')}">${t.stato}</td>
-            <td>${t.tipo}</td>
-            <td>${t.bloccante}</td>
-            <td class="priority-${t.priorita.toLowerCase()}">${t.priorita}</td>
-            <td>${t.dataInserimento}</td>
-            <td>${t.ambito}</td>
-            <td>${t.menu}</td>
-            <td>${t.titolo}</td>
-            <td>${t.descrizione}</td>
-            <td>${t.inseritoDa}</td>
-            <td>${t.inCaricoA}</td>
-            <td>${t.dataInizioPrevista}</td>
-            <td>${t.dataFinePrevista}</td>
-            <td>${t.dataRilascio}</td>
-            <td>${t.descrAttivita}</td>
-            <td>${t.dataSegnalato||""}</td>
-            <td>${t.dataPresoInCarico||""}</td>
-            <td>${t.dataRilasciato||""}</td>
-            <td>${t.dataInTest||""}</td>
-            <td>${t.dataCompletato||""}</td>
-            `;
-            tbody.appendChild(tr);
+        const wrapper=document.createElement("tbody");
+        wrapper.className="group-content expanded";
+
+        grouped[stato].forEach(t=>{
+
+            const tr=document.createElement("tr");
+            tr.className="hover:bg-gray-100 transition";
+
+            tr.innerHTML=`
+<td></td>
+<td>${t.nrTicket}</td>
+<td>${t.stato}</td>
+<td>${t.tipo}</td>
+<td>${t.bloccante}</td>
+<td class="priority-${t.priorita}">${t.priorita}</td>
+<td>${t.dataInserimento||""}</td>
+<td>${t.ambito||""}</td>
+<td>${t.menu||""}</td>
+<td>${t.titolo||""}</td>
+<td>${t.descrizione||""}</td>
+<td>${t.inseritoDa||""}</td>
+<td>${t.inCaricoA||""}</td>
+<td>${t.dataInizioPrevista||""}</td>
+<td>${t.dataFinePrevista||""}</td>
+<td>${t.dataRilascio||""}</td>
+<td>${t.descrAttivita||""}</td>
+<td>${t.dataSegnalato||""}</td>
+<td>${t.dataPresoInCarico||""}</td>
+<td>${t.dataRilasciato||""}</td>
+<td>${t.dataInTest||""}</td>
+<td>${t.dataCompletato||""}</td>
+`;
+            wrapper.appendChild(tr);
         });
 
-        // Toggle collapse
-        headerRow.addEventListener("click", function(){
-            const groupClass = "group-"+stato.replace(/\s/g,'');
-            const rows = document.querySelectorAll("."+groupClass);
-            const icon = headerRow.querySelector(".toggle-icon");
+        tbody.appendChild(wrapper);
 
-            rows.forEach(r=>{
-                if(r.style.display==="none"){
-                    r.style.display="";
-                } else {
-                    r.style.display="none";
-                }
-            });
+        header.onclick=function(){
+            const icon=header.querySelector(".toggle-icon");
+            if(wrapper.classList.contains("collapsed")){
+                wrapper.classList.remove("collapsed");
+                wrapper.classList.add("expanded");
+                wrapper.style.maxHeight=wrapper.scrollHeight+"px";
+                icon.classList.remove("rotate");
+            }else{
+                wrapper.classList.add("collapsed");
+                wrapper.classList.remove("expanded");
+                wrapper.style.maxHeight="0px";
+                icon.classList.add("rotate");
+            }
+        };
 
-            icon.classList.toggle("fa-chevron-down");
-            icon.classList.toggle("fa-chevron-right");
-        });
-
+        wrapper.style.maxHeight=wrapper.scrollHeight+"px";
     });
-}
-
-function newTicket() {
-    localStorage.removeItem('edit_ticket');
-    window.open("ticket_form.html","_blank","width=800,height=900");
-}
-
-function editTicket(index){
-    localStorage.setItem('edit_ticket', JSON.stringify(tickets[index]));
-    window.open("ticket_form.html","_blank","width=800,height=900");
 }
 
 loadTickets();
+
 </script>
+
 </body>
 </html>
