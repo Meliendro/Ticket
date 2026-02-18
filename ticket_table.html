@@ -157,33 +157,83 @@ function applyFilters(){
 function renderTable(data) {
     const tbody = document.getElementById('ticketBody');
     tbody.innerHTML = "";
-    data.forEach((t,i)=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-        <td><button onclick="editTicket(${tickets.indexOf(t)})" class="bg-yellow-400 p-1 rounded hover:bg-yellow-500"><i class="fas fa-edit"></i></button></td>
-        <td>${t.nrTicket}</td>
-        <td class="status-${t.stato.replace(/\s/g,'')}">${t.stato}</td>
-        <td>${t.tipo}</td>
-        <td>${t.bloccante}</td>
-        <td class="priority-${t.priorita.toLowerCase()}">${t.priorita}</td>
-        <td>${t.dataInserimento}</td>
-        <td>${t.ambito}</td>
-        <td>${t.menu}</td>
-        <td>${t.titolo}</td>
-        <td>${t.descrizione}</td>
-        <td>${t.inseritoDa}</td>
-        <td>${t.inCaricoA}</td>
-        <td>${t.dataInizioPrevista}</td>
-        <td>${t.dataFinePrevista}</td>
-        <td>${t.dataRilascio}</td>
-        <td>${t.descrAttivita}</td>
-        <td>${t.dataSegnalato||""}</td>
-        <td>${t.dataPresoInCarico||""}</td>
-        <td>${t.dataRilasciato||""}</td>
-        <td>${t.dataInTest||""}</td>
-        <td>${t.dataCompletato||""}</td>
+
+    // Raggruppamento per stato
+    const grouped = {};
+    data.forEach(t => {
+        const stato = t.stato || "Senza Stato";
+        if(!grouped[stato]) grouped[stato] = [];
+        grouped[stato].push(t);
+    });
+
+    Object.keys(grouped).forEach(stato => {
+
+        // HEADER GRUPPO
+        const headerRow = document.createElement('tr');
+        headerRow.className = "bg-gray-800 text-white cursor-pointer hover:bg-gray-700 transition";
+        headerRow.innerHTML = `
+            <td colspan="22" class="px-4 py-2 font-bold text-sm flex justify-between items-center">
+                <span>
+                    <i class="fas fa-layer-group mr-2"></i>
+                    ${stato} 
+                    <span class="ml-2 bg-blue-500 text-xs px-2 py-1 rounded-full">
+                        ${grouped[stato].length}
+                    </span>
+                </span>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </td>
         `;
-        tbody.appendChild(tr);
+        tbody.appendChild(headerRow);
+
+        // CONTENITORE RIGHE
+        grouped[stato].forEach(t => {
+            const tr = document.createElement('tr');
+            tr.classList.add("group-"+stato.replace(/\s/g,''));
+            tr.innerHTML = `
+            <td><button onclick="editTicket(${tickets.indexOf(t)})" class="bg-yellow-400 p-1 rounded hover:bg-yellow-500 transition"><i class="fas fa-edit"></i></button></td>
+            <td>${t.nrTicket}</td>
+            <td class="status-${t.stato.replace(/\s/g,'')}">${t.stato}</td>
+            <td>${t.tipo}</td>
+            <td>${t.bloccante}</td>
+            <td class="priority-${t.priorita.toLowerCase()}">${t.priorita}</td>
+            <td>${t.dataInserimento}</td>
+            <td>${t.ambito}</td>
+            <td>${t.menu}</td>
+            <td>${t.titolo}</td>
+            <td>${t.descrizione}</td>
+            <td>${t.inseritoDa}</td>
+            <td>${t.inCaricoA}</td>
+            <td>${t.dataInizioPrevista}</td>
+            <td>${t.dataFinePrevista}</td>
+            <td>${t.dataRilascio}</td>
+            <td>${t.descrAttivita}</td>
+            <td>${t.dataSegnalato||""}</td>
+            <td>${t.dataPresoInCarico||""}</td>
+            <td>${t.dataRilasciato||""}</td>
+            <td>${t.dataInTest||""}</td>
+            <td>${t.dataCompletato||""}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Toggle collapse
+        headerRow.addEventListener("click", function(){
+            const groupClass = "group-"+stato.replace(/\s/g,'');
+            const rows = document.querySelectorAll("."+groupClass);
+            const icon = headerRow.querySelector(".toggle-icon");
+
+            rows.forEach(r=>{
+                if(r.style.display==="none"){
+                    r.style.display="";
+                } else {
+                    r.style.display="none";
+                }
+            });
+
+            icon.classList.toggle("fa-chevron-down");
+            icon.classList.toggle("fa-chevron-right");
+        });
+
     });
 }
 
