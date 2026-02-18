@@ -23,6 +23,12 @@ tr:nth-child(even) { background: #f9fafb; }
 .status-InTest { color: #6366f1; font-weight: bold; }
 .status-Completato { color: #10b981; font-weight: bold; }
 button { cursor: pointer; }
+.group-header { background: #111827; color: white; font-weight: bold; cursor: pointer; }
+.group-content { transition: max-height 0.4s ease, opacity 0.3s ease; overflow: hidden; }
+.group-content.collapsed { max-height: 0; opacity: 0; }
+.group-content.expanded { opacity: 1; }
+.toggle-icon { transition: transform 0.3s ease; }
+.rotate { transform: rotate(-90deg); }
 </style>
 </head>
 <body class="p-6">
@@ -32,6 +38,11 @@ button { cursor: pointer; }
     <div class="flex gap-3">
         <button onclick="newTicket()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"><i class="fas fa-plus"></i> Nuovo Ticket</button>
         <button onclick="configureGitHub()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700"><i class="fas fa-cog"></i> Config GitHub</button>
+        <select id="filterBloccante" class="border p-1 rounded">
+            <option value="">Tutti Bloccante</option>
+            <option value="Bloccante">Bloccante</option>
+            <option value="Non Bloccante">Non Bloccante</option>
+        </select>
     </div>
 </header>
 
@@ -93,42 +104,92 @@ async function loadTickets() {
         const data = await res.json();
         fileSha = data.sha;
         tickets = JSON.parse(atob(data.content));
-        renderTable();
+        renderGroupedTable();
     } catch(e) { alert("Errore caricamento ticket: "+e.message); }
 }
 
-function renderTable() {
+function renderGroupedTable() {
     const tbody = document.getElementById('ticketBody');
     tbody.innerHTML = "";
+
+    const bloccFilter = document.getElementById("filterBloccante").value;
+
+    // Raggruppa per stato
+    const grouped = {};
     tickets.forEach((t,i)=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-        <td><button onclick="editTicket(${i})" class="bg-yellow-400 p-1 rounded hover:bg-yellow-500"><i class="fas fa-edit"></i></button></td>
-        <td>${t.nrTicket}</td>
-        <td class="status-${t.stato.replace(/\s/g,'')}">${t.stato}</td>
-        <td>${t.tipo}</td>
-        <td>${t.bloccante}</td>
-        <td class="priority-${t.priorita.toLowerCase()}">${t.priorita}</td>
-        <td>${t.dataInserimento}</td>
-        <td>${t.ambito}</td>
-        <td>${t.menu}</td>
-        <td>${t.titolo}</td>
-        <td>${t.descrizione}</td>
-        <td>${t.inseritoDa}</td>
-        <td>${t.inCaricoA}</td>
-        <td>${t.dataInizioPrevista}</td>
-        <td>${t.dataFinePrevista}</td>
-        <td>${t.dataRilascio}</td>
-        <td>${t.descrAttivita}</td>
-        <td>${t.dataSegnalato||""}</td>
-        <td>${t.dataPresoInCarico||""}</td>
-        <td>${t.dataRilasciato||""}</td>
-        <td>${t.dataInTest||""}</td>
-        <td>${t.dataCompletato||""}</td>
-        `;
-        tbody.appendChild(tr);
+        if(bloccFilter && t.bloccante!==bloccFilter) return;
+        if(!grouped[t.stato]) grouped[t.stato]=[];
+        grouped[t.stato].push({data:t,index:i});
+    });
+
+    Object.keys(grouped).forEach(stato=>{
+        // header gruppo
+        const header = document.createElement("tr");
+        header.className="group-header";
+        header.innerHTML=`<td colspan="22" class="px-4 py-2 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-chevron-down toggle-icon"></i>
+                <span>${stato} (${grouped[stato].length})</span>
+            </div>
+        </td>`;
+        tbody.appendChild(header);
+
+        // contenuto gruppo
+        const wrapper = document.createElement("tbody");
+        wrapper.className="group-content expanded";
+
+        grouped[stato].forEach(g=>{
+            const t = g.data;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+            <td><button onclick="editTicket(${g.index})" class="bg-yellow-400 p-1 rounded hover:bg-yellow-500"><i class="fas fa-edit"></i></button></td>
+            <td>${t.nrTicket}</td>
+            <td class="status-${t.stato.replace(/\s/g,'')}">${t.stato}</td>
+            <td>${t.tipo}</td>
+            <td>${t.bloccante}</td>
+            <td class="priority-${t.priorita.toLowerCase()}">${t.priorita}</td>
+            <td>${t.dataInserimento}</td>
+            <td>${t.ambito}</td>
+            <td>${t.menu}</td>
+            <td>${t.titolo}</td>
+            <td>${t.descrizione}</td>
+            <td>${t.inseritoDa}</td>
+            <td>${t.inCaricoA}</td>
+            <td>${t.dataInizioPrevista}</td>
+            <td>${t.dataFinePrevista}</td>
+            <td>${t.dataRilascio}</td>
+            <td>${t.descrAttivita}</td>
+            <td>${t.dataSegnalato||""}</td>
+            <td>${t.dataPresoInCarico||""}</td>
+            <td>${t.dataRilasciato||""}</td>
+            <td>${t.dataInTest||""}</td>
+            <td>${t.dataCompletato||""}</td>
+            `;
+            wrapper.appendChild(tr);
+        });
+
+        tbody.appendChild(wrapper);
+
+        // toggle click
+        header.onclick = function(){
+            const icon = header.querySelector(".toggle-icon");
+            if(wrapper.classList.contains("collapsed")){
+                wrapper.classList.remove("collapsed");
+                wrapper.classList.add("expanded");
+                wrapper.style.maxHeight = wrapper.scrollHeight + "px";
+                icon.classList.remove("rotate");
+            } else {
+                wrapper.classList.add("collapsed");
+                wrapper.classList.remove("expanded");
+                wrapper.style.maxHeight = "0px";
+                icon.classList.add("rotate");
+            }
+        };
+        wrapper.style.maxHeight = wrapper.scrollHeight + "px";
     });
 }
+
+document.getElementById("filterBloccante").onchange=renderGroupedTable;
 
 function newTicket() {
     localStorage.removeItem('edit_ticket');
