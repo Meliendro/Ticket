@@ -7,115 +7,103 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-    .status-dot { height:10px; width:10px; border-radius:50%; display:inline-block; margin-right:4px; }
-    .status-Segnalato { background-color:orange; }
-    .status-Preso { background-color:blue; }
-    .status-Rilasciato { background-color:purple; }
-    .status-inTest { background-color:yellow; }
-    .status-Completato { background-color:green; }
-    .priority-Alta { color:red; font-weight:bold; }
-    .priority-Media { color:orange; }
-    .priority-Bassa { color:green; }
-    .ticket-number { font-weight:bold; }
+    .priority-Alta { background-color: #f87171; color: white; }
+    .priority-Media { background-color: #fbbf24; color: white; }
+    .priority-Bassa { background-color: #34d399; color: white; }
+    .icon-button { cursor:pointer; padding:4px; border-radius:4px; transition:0.2s; }
+    .icon-button:hover { background-color:#eee; }
+    table { table-layout: fixed; width: 100%; }
+    th, td { text-align: center; vertical-align: middle; }
 </style>
 </head>
-<body class="bg-gray-100 p-4">
+<body class="bg-gray-50 p-6">
+<h1 class="text-3xl font-bold mb-6">Elenco Ticket</h1>
+<button onclick="openTicketForm()" class="mb-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
+    <i class="fas fa-plus"></i> Nuovo Ticket
+</button>
 
-<div class="flex justify-between items-center mb-4">
-    <h1 class="text-xl font-bold">Gestione Ticket</h1>
-    <button onclick="openForm()" class="bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2">
-        <i class="fas fa-plus"></i> Nuovo Ticket
-    </button>
-</div>
-
-<table class="min-w-full bg-white shadow rounded">
+<table class="table-auto bg-white shadow rounded-lg overflow-hidden">
     <thead class="bg-gray-200">
         <tr>
-            <th class="p-2">Modifica</th>
-            <th class="p-2">Nr Ticket</th>
-            <th class="p-2">Stato</th>
-            <th class="p-2">Tipo</th>
-            <th class="p-2">Priorità</th>
-            <th class="p-2">Menu</th>
-            <th class="p-2">Titolo</th>
-            <th class="p-2">Descrizione</th>
-            <th class="p-2">Data Inserimento</th>
-            <th class="p-2">Inserito Da</th>
-            <th class="p-2">In Carico A</th>
-            <th class="p-2">Data Inizio Prevista</th>
-            <th class="p-2">Data Fine Prevista</th>
-            <th class="p-2">Data Rilascio</th>
-            <th class="p-2">Descrizione Soluzione</th>
-            <th class="p-2">Data Segnalato</th>
-            <th class="p-2">Data Preso In Carico</th>
-            <th class="p-2">Data In Test</th>
-            <th class="p-2">Data Completato</th>
+            <th>Modifica</th>
+            <th>Nr Ticket</th>
+            <th>STATO</th>
+            <th>Tipo</th>
+            <th>Bloccante</th>
+            <th>Priorità</th>
+            <th>Data Inserimento</th>
+            <th>Ambito</th>
+            <th>Menu</th>
+            <th>Titolo</th>
+            <th>Descrizione</th>
+            <th>Inserito da</th>
+            <th>In carico a</th>
+            <th>Data Inizio Prevista</th>
+            <th>Data Fine Prevista</th>
+            <th>Data Rilascio</th>
+            <th>Descrizione Attività</th>
+            <th>Data Segnalato</th>
+            <th>Data Preso in Carico</th>
+            <th>Data In Test</th>
+            <th>Data Completato</th>
         </tr>
     </thead>
-    <tbody id="ticketBody">
-    </tbody>
+    <tbody id="ticketTableBody"></tbody>
 </table>
 
 <script>
-let tickets = JSON.parse(localStorage.getItem("tickets") || "[]");
+// Caricamento e salvataggio su localStorage (puoi poi sostituire con GitHub JSON)
+let tickets = JSON.parse(localStorage.getItem('tickets')) || [];
 
-function renderTable(){
-    const tbody = document.getElementById("ticketBody");
-    tbody.innerHTML = "";
-    tickets.forEach((t,i)=>{
-        const tr = document.createElement("tr");
-        tr.className="border-b";
-        tr.innerHTML=`
-            <td class="p-2 text-center">
-                <button onclick="editTicket(${i})" class="text-blue-600 hover:text-blue-800">
-                    <i class="fas fa-edit"></i>
-                </button>
+function saveTickets() {
+    localStorage.setItem('tickets', JSON.stringify(tickets));
+}
+
+function renderTable() {
+    const tbody = document.getElementById('ticketTableBody');
+    tbody.innerHTML = '';
+    tickets.forEach((t, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = "border-b";
+        tr.innerHTML = `
+            <td>
+                <span class="icon-button text-blue-600" onclick="editTicket(${idx})"><i class="fas fa-edit"></i></span>
             </td>
-            <td class="p-2 ticket-number">${t.nrTicket}</td>
-            <td class="p-2"><span class="status-dot status-${t.stato.replace(/\s/g,'')}"></span> ${t.stato}</td>
-            <td class="p-2">${t.tipo}</td>
-            <td class="p-2 priority-${t.priorita}">${t.priorita}</td>
-            <td class="p-2">${t.menu}</td>
-            <td class="p-2">${t.titolo}</td>
-            <td class="p-2">${t.descrizione}</td>
-            <td class="p-2">${t.dataInserimento}</td>
-            <td class="p-2">${t.inseritoDa}</td>
-            <td class="p-2">${t.inCaricoA}</td>
-            <td class="p-2">${t.dataInizioPrevista}</td>
-            <td class="p-2">${t.dataFinePrevista}</td>
-            <td class="p-2">${t.dataRilascio}</td>
-            <td class="p-2">${t.descrizioneSoluzione}</td>
-            <td class="p-2">${t.dataSegnalato || ""}</td>
-            <td class="p-2">${t.dataPresoInCarico || ""}</td>
-            <td class="p-2">${t.dataInTest || ""}</td>
-            <td class="p-2">${t.dataCompletato || ""}</td>
+            <td>${t.ticketNumber}</td>
+            <td>${t.stato}</td>
+            <td>${t.tipo}</td>
+            <td>${t.bloccante}</td>
+            <td class="priority-${t.priorita} font-bold">${t.priorita}</td>
+            <td>${t.dataInserimento}</td>
+            <td>${t.ambito}</td>
+            <td>${t.menu}</td>
+            <td>${t.titolo}</td>
+            <td>${t.descrizione}</td>
+            <td>${t.inseritoDa}</td>
+            <td>${t.inCaricoA}</td>
+            <td>${t.dataInizioPrevista}</td>
+            <td>${t.dataFinePrevista}</td>
+            <td>${t.dataRilascio}</td>
+            <td>${t.descrizioneAttivita}</td>
+            <td>${t.dataSegnalato || ''}</td>
+            <td>${t.dataPresoInCarico || ''}</td>
+            <td>${t.dataInTest || ''}</td>
+            <td>${t.dataCompletato || ''}</td>
         `;
         tbody.appendChild(tr);
     });
 }
 
-function openForm(index=null){
-    if(index!==null){
-        localStorage.setItem("editingTicket", JSON.stringify({ticketIndex:index,ticketData:tickets[index]}));
-    } else {
-        localStorage.removeItem("editingTicket");
-    }
-    const win = window.open("ticket_form.html","ticketForm","width=900,height=800");
-    const timer = setInterval(()=>{
-        if(win.closed){
-            clearInterval(timer);
-            tickets = JSON.parse(localStorage.getItem("tickets") || "[]");
-            renderTable();
-        }
-    },500);
+function openTicketForm(idx) {
+    let url = 'ticket_form.html';
+    if (idx !== undefined) url += '?edit=' + idx;
+    window.open(url, '_blank', 'width=900,height=800');
 }
 
-function editTicket(index){
-    openForm(index);
-}
+// Quando la pagina torna in focus, ricarica i dati
+window.addEventListener('focus', renderTable);
 
 renderTable();
 </script>
-
 </body>
 </html>
