@@ -7,21 +7,75 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-body { font-family: 'Segoe UI', sans-serif; background: #f4f4f5; }
-h1 { font-weight: 700; text-align: center; margin-bottom: 1rem; }
-input, select, textarea { width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.5rem; }
-input:disabled, select:disabled, textarea:disabled { background: #e5e7eb; }
-label { font-size: 0.75rem; font-weight: bold; margin-top: 0.25rem; display:block; }
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#1e293b,#0f172a);
+}
+.form-card{
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+}
+input, select, textarea {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.6rem;
+    transition: all 0.2s ease;
+}
+input:focus, select:focus, textarea:focus{
+    border-color:#2563eb;
+    box-shadow:0 0 0 2px rgba(37,99,235,0.2);
+    outline:none;
+}
+input:disabled, select:disabled, textarea:disabled {
+    background: #e5e7eb;
+}
+label {
+    font-size: 0.70rem;
+    font-weight: 700;
+    margin-top: 0.25rem;
+    display:block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color:#374151;
+}
 button { cursor: pointer; }
+.ticket-number-badge{
+    background:#2563eb;
+    color:white;
+    padding:6px 14px;
+    border-radius:999px;
+    font-weight:700;
+    font-size:0.9rem;
+}
+.section-title{
+    font-size:0.8rem;
+    font-weight:800;
+    letter-spacing:1px;
+    color:#1f2937;
+    border-bottom:2px solid #e5e7eb;
+    padding-bottom:4px;
+    margin-bottom:10px;
+}
 </style>
 </head>
-<body class="p-6">
+<body class="p-6 flex justify-center">
 
-<h1 id="ticketTitle">Nuovo Ticket</h1>
+<div class="form-card w-full max-w-6xl rounded-2xl shadow-2xl p-8">
 
-<form id="ticketForm" class="space-y-4">
+<div class="flex justify-between items-center mb-6">
+    <h1 id="ticketTitle" class="text-2xl font-extrabold text-gray-800">Nuovo Ticket</h1>
+    <div class="ticket-number-badge">
+        # <span id="ticketNumberPreview">--</span>
+    </div>
+</div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<form id="ticketForm" class="space-y-6">
+
+<div>
+<div class="section-title">INFORMAZIONI GENERALI</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
     <div>
         <label>Nr Ticket</label>
         <input type="text" id="nrTicket" disabled>
@@ -65,6 +119,10 @@ button { cursor: pointer; }
         <input type="date" id="dataInserimento" disabled>
     </div>
 </div>
+</div>
+
+<div>
+<div class="section-title">DETTAGLIO TICKET</div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
@@ -116,9 +174,18 @@ button { cursor: pointer; }
         <textarea id="descrAttivita" rows="2"></textarea>
     </div>
 </div>
+</div>
 
-<div class="flex justify-center gap-4 mt-4">
-    <button type="button" onclick="saveTicket()" class="bg-green-600 text-white px-6 py-2 rounded shadow hover:bg-green-700"><i class="fas fa-save"></i> Salva Ticket</button>
+<div class="flex justify-center mt-6">
+    <button type="button" onclick="saveTicket()"
+        class="bg-gradient-to-r from-green-600 to-emerald-500 
+        text-white px-10 py-3 rounded-xl shadow-lg 
+        hover:scale-105 transition transform duration-200 font-bold">
+        <i class="fas fa-save"></i> Salva Ticket
+    </button>
+</div>
+
+</form>
 </div>
 
 <script>
@@ -133,7 +200,8 @@ function initializeForm() {
     document.getElementById('dataInserimento').value = today;
 
     if(editTicketData && editTicketData.nrTicket){
-        document.getElementById('ticketTitle').innerText = "Modifica Ticket #" + editTicketData.nrTicket;
+        document.getElementById('ticketTitle').innerText = "Modifica Ticket";
+        document.getElementById('ticketNumberPreview').innerText = editTicketData.nrTicket;
         for(const key in editTicketData){
             if(document.getElementById(key)) document.getElementById(key).value = editTicketData[key];
         }
