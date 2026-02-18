@@ -16,16 +16,15 @@ button { margin-top:1rem; background-color: #3b82f6; color:white; padding:0.5rem
 <body class="p-4">
 
 <div class="glass-panel">
-<h1 class="text-xl font-bold mb-4">Nuovo Ticket</h1>
+<h1 class="text-xl font-bold mb-4" id="titoloForm">Nuovo Ticket</h1>
 <form id="ticketForm">
-
 <label>Stato</label>
 <select id="stato">
     <option value="" selected>Seleziona Stato</option>
     <option value="Segnalato">Segnalato</option>
     <option value="Preso in carico">Preso in carico</option>
-    <option value="Rilasciato">Rilasciato</option>
     <option value="In Test">In Test</option>
+    <option value="Rilasciato">Rilasciato</option>
     <option value="Completato">Completato</option>
 </select>
 
@@ -61,7 +60,7 @@ button { margin-top:1rem; background-color: #3b82f6; color:white; padding:0.5rem
 </select>
 
 <label>Titolo</label>
-<input type="text" id="titolo">
+<input type="text" id="titolo_input">
 
 <label>Descrizione</label>
 <textarea id="descrizione" rows="3"></textarea>
@@ -89,13 +88,50 @@ button { margin-top:1rem; background-color: #3b82f6; color:white; padding:0.5rem
 </div>
 
 <script>
+// gestione edit
+const urlParams = new URLSearchParams(window.location.search);
+let editIndex = urlParams.has('edit') ? parseInt(urlParams.get('edit')) : null;
+let ticketData = editIndex!==null && window.opener ? window.opener.tickets[editIndex] : null;
+
 const form = document.getElementById('ticketForm');
-form.data_inserimento.valueAsDate = new Date(); // inizializza data inserimento
+form.data_inserimento.valueAsDate = new Date();
+
+// se edit inizializza campi
+if(ticketData){
+    document.getElementById('titoloForm').innerText = 'Modifica Ticket';
+    form.stato.value = ticketData.stato;
+    form.tipo.value = ticketData.tipo;
+    form.priorita.value = ticketData.priorita;
+    form.data_inserimento.value = ticketData.data_inserimento;
+    form.ambito.value = ticketData.ambito;
+    form.menu.value = ticketData.menu;
+    form.titolo_input.value = ticketData.titolo;
+    form.descrizione.value = ticketData.descrizione;
+    form.inserito_da.value = ticketData.inserito_da;
+    form.in_carico_a.value = ticketData.in_carico_a;
+    form.data_inizio_prevista.value = ticketData.data_inizio_prevista;
+    form.data_fine_prevista.value = ticketData.data_fine_prevista;
+    form.data_rilascio.value = ticketData.data_rilascio;
+    form.descrizione_soluzione.value = ticketData.descrizione_soluzione;
+}
+
+// date automatiche per stato
+const statoSelect = document.getElementById('stato');
+statoSelect.addEventListener('change', ()=>{
+    const now = new Date().toISOString().split('T')[0];
+    switch(statoSelect.value){
+        case 'Segnalato': if(!ticketData?.data_segnalato) ticketData = {...ticketData, data_segnalato:now}; break;
+        case 'Preso in carico': if(!ticketData?.data_preso_in_carico) ticketData = {...ticketData, data_preso_in_carico:now}; break;
+        case 'In Test': if(!ticketData?.data_in_test) ticketData = {...ticketData, data_in_test:now}; break;
+        case 'Rilasciato': if(!ticketData?.data_rilasciato) ticketData = {...ticketData, data_rilasciato:now}; break;
+        case 'Completato': if(!ticketData?.data_completato) ticketData = {...ticketData, data_completato:now}; break;
+    }
+});
 
 form.addEventListener('submit', function(e){
     e.preventDefault();
+    const now = new Date().toISOString().split('T')[0];
 
-    // crea oggetto ticket
     const ticket = {
         stato: form.stato.value,
         tipo: form.tipo.value,
@@ -103,21 +139,25 @@ form.addEventListener('submit', function(e){
         data_inserimento: form.data_inserimento.value,
         ambito: form.ambito.value,
         menu: form.menu.value,
-        titolo: form.titolo.value,
+        titolo: form.titolo_input.value,
         descrizione: form.descrizione.value,
         inserito_da: form.inserito_da.value,
         in_carico_a: form.in_carico_a.value,
         data_inizio_prevista: form.data_inizio_prevista.value,
         data_fine_prevista: form.data_fine_prevista.value,
         data_rilascio: form.data_rilascio.value,
-        descrizione_soluzione: form.descrizione_soluzione.value
+        descrizione_soluzione: form.descrizione_soluzione.value,
+        data_segnalato: ticketData?.data_segnalato || null,
+        data_preso_in_carico: ticketData?.data_preso_in_carico || null,
+        data_in_test: ticketData?.data_in_test || null,
+        data_rilasciato: ticketData?.data_rilasciato || null,
+        data_completato: ticketData?.data_completato || null
     };
 
-    // invia al padre (tabella.html)
     if(window.opener && !window.opener.closed){
-        window.opener.riceviTicket(ticket);
+        window.opener.riceviTicket(ticket, editIndex);
         alert("Ticket salvato con successo!");
-        window.close(); // chiude la finestra di inserimento
+        window.close();
     } else {
         alert("Errore: finestra principale non trovata.");
     }
