@@ -17,11 +17,11 @@ tr:nth-child(even) { background: #f9fafb; }
 .priority-alta { background: #dc2626; color: #fff; font-weight: bold; text-align: center; }
 .priority-media { background: #f59e0b; color: #fff; font-weight: bold; text-align: center; }
 .priority-bassa { background: #10b981; color: #fff; font-weight: bold; text-align: center; }
-.status-segnalato { color: #ef4444; font-weight: bold; }
-.status-preso { color: #f59e0b; font-weight: bold; }
-.status-rilasciato { color: #3b82f6; font-weight: bold; }
-.status-intest { color: #6366f1; font-weight: bold; }
-.status-completato { color: #10b981; font-weight: bold; }
+.status-Segnalato { color: #ef4444; font-weight: bold; }
+.status-Preso { color: #f59e0b; font-weight: bold; }
+.status-Rilasciato { color: #3b82f6; font-weight: bold; }
+.status-InTest { color: #6366f1; font-weight: bold; }
+.status-Completato { color: #10b981; font-weight: bold; }
 button { cursor: pointer; }
 </style>
 </head>
@@ -63,8 +63,7 @@ button { cursor: pointer; }
                 <th>Data Completato</th>
             </tr>
         </thead>
-        <tbody id="ticketBody">
-        </tbody>
+        <tbody id="ticketBody"></tbody>
     </table>
 </div>
 
@@ -106,7 +105,7 @@ function renderTable() {
         tr.innerHTML = `
         <td><button onclick="editTicket(${i})" class="bg-yellow-400 p-1 rounded hover:bg-yellow-500"><i class="fas fa-edit"></i></button></td>
         <td>${t.nrTicket}</td>
-        <td class="status-${t.stato.toLowerCase().replace(/\s/g,'')}">${t.stato}</td>
+        <td class="status-${t.stato.replace(/\s/g,'')}">${t.stato}</td>
         <td>${t.tipo}</td>
         <td>${t.bloccante}</td>
         <td class="priority-${t.priorita.toLowerCase()}">${t.priorita}</td>
@@ -132,6 +131,7 @@ function renderTable() {
 }
 
 function newTicket() {
+    localStorage.removeItem('edit_ticket');
     window.open("ticket_form.html","_blank","width=800,height=900");
 }
 
