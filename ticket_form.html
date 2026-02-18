@@ -84,11 +84,6 @@ button { cursor: pointer; }
         <label>Stato</label>
         <select id="stato">
             <option value="">-- Seleziona Stato --</option>
-            <option>Segnalato</option>
-            <option>Preso in carico</option>
-            <option>Rilasciato</option>
-            <option>In Test</option>
-            <option>Completato</option>
         </select>
     </div>
     <div>
@@ -201,6 +196,33 @@ let fileSha = "";
 let editTicketData = JSON.parse(localStorage.getItem('edit_ticket')) || {};
 const ticketForm = document.getElementById('ticketForm');
 
+async function loadStatoOptions() {
+    if(!config) return;
+    try {
+        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket_list.json`, {
+            headers: {Authorization:`token ${config.token}`}
+        });
+        if(!res.ok) throw new Error("Errore caricamento liste");
+        const data = await res.json();
+        const lists = JSON.parse(atob(data.content));
+        const statoSelect = document.getElementById('stato');
+        statoSelect.innerHTML = '<option value="">-- Seleziona Stato --</option>';
+        if(lists.stato) {
+            lists.stato.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                statoSelect.appendChild(opt);
+            });
+        }
+        // Se stiamo modificando, selezioniamo il valore
+        if(editTicketData.stato) statoSelect.value = editTicketData.stato;
+    } catch(e) {
+        console.error(e);
+        alert("Errore caricamento lista Stato: " + e.message);
+    }
+}
+
 function initializeForm() {
     const today = new Date().toISOString().substr(0,10);
     document.getElementById('dataInserimento').value = today;
@@ -212,6 +234,8 @@ function initializeForm() {
             if(document.getElementById(key)) document.getElementById(key).value = editTicketData[key];
         }
     }
+
+    loadStatoOptions(); // carica lista da file JSON
 }
 
 document.getElementById('stato').addEventListener('change', function(){
