@@ -67,5 +67,28 @@
     "dataRilasciato": "",
     "dataInTest": "",
     "dataCompletato": ""
+  },
+  {
+    "nrTicket": 4,
+    "stato": "Segnalato",
+    "tipo": "Bug",
+    "bloccante": "Bloccante",
+    "priorita": "Alta",
+    "dataInserimento": "2026-02-18",
+    "ambito": "FASE1",
+    "menu": "Pianificazione cantieri",
+    "titolo": "4444",
+    "descrizione": "4444444",
+    "inseritoDa": "4444",
+    "inCaricoA": "44444",
+    "dataInizioPrevista": "",
+    "dataFinePrevista": "",
+    "dataRilascio": "",
+    "descrizioneAttivitaSoluzione": "",
+    "dataSegnalato": "",
+    "dataPresoInCarico": "",
+    "dataRilasciato": "",
+    "dataInTest": "",
+    "dataCompletato": ""
   }
 ]
