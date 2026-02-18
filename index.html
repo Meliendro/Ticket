@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket Management - RIVIT</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
+    .table-header { background-color: #1f2937; color: white; }
+    .status-btn { padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: bold; cursor: pointer; }
+    .status-Segnalato { background-color: #facc15; color: #1f2937; }
+    .status-Preso { background-color: #3b82f6; color: white; }
+    .status-Rilasciato { background-color: #10b981; color: white; }
+    .status-inTest { background-color: #f97316; color: white; }
+    .status-Completato { background-color: #6b7280; color: white; }
+    .card { background: white; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 1rem; padding: 1rem; }
+    .scroll-container { overflow-x: auto; }
+</style>
+</head>
+<body class="p-4">
+
+<h1 class="text-2xl font-bold mb-4 text-gray-800">Ticket Management</h1>
+
+<div class="scroll-container">
+<table class="min-w-full border border-gray-200">
+    <thead class="table-header">
+        <tr>
+            <th class="px-2 py-1 text-xs">#</th>
+            <th class="px-2 py-1 text-xs">Stato</th>
+            <th class="px-2 py-1 text-xs">Tipo</th>
+            <th class="px-2 py-1 text-xs">Bloccante</th>
+            <th class="px-2 py-1 text-xs">Priorità</th>
+            <th class="px-2 py-1 text-xs">Data Inserimento</th>
+            <th class="px-2 py-1 text-xs">Ambito</th>
+            <th class="px-2 py-1 text-xs">Colonna</th>
+            <th class="px-2 py-1 text-xs">Titolo</th>
+            <th class="px-2 py-1 text-xs">Descrizione</th>
+            <th class="px-2 py-1 text-xs">Inserito da</th>
+            <th class="px-2 py-1 text-xs">In carico a</th>
+            <th class="px-2 py-1 text-xs">Data Inizio Prevista</th>
+            <th class="px-2 py-1 text-xs">Data Fine Prevista</th>
+            <th class="px-2 py-1 text-xs">Data Rilascio</th>
+            <th class="px-2 py-1 text-xs">Descrizione Soluzione</th>
+            <th class="px-2 py-1 text-xs">Data Segnalato</th>
+            <th class="px-2 py-1 text-xs">Data Preso in carico</th>
+            <th class="px-2 py-1 text-xs">Data Rilasciato</th>
+            <th class="px-2 py-1 text-xs">Data in Test</th>
+            <th class="px-2 py-1 text-xs">Data Completato</th>
+        </tr>
+    </thead>
+    <tbody id="ticketBody">
+        <!-- Le righe vengono aggiunte dinamicamente -->
+    </tbody>
+</table>
+</div>
+
+<button onclick="addRow()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">Aggiungi Ticket</button>
+
+<script>
+const ticketBody = document.getElementById('ticketBody');
+let ticketCount = 0;
+
+function addRow() {
+    ticketCount++;
+    const tr = document.createElement('tr');
+    tr.className = "border-b border-gray-200";
+
+    tr.innerHTML = `
+        <td class="px-2 py-1 text-xs">${ticketCount}</td>
+        <td class="px-2 py-1 text-xs">
+            <select onchange="updateStateDate(this)" class="status-select text-xs rounded border px-1">
+                <option value="">Seleziona</option>
+                <option value="Segnalato">Segnalato</option>
+                <option value="Preso in carico">Preso in carico</option>
+                <option value="Rilasciato">Rilasciato</option>
+                <option value="in Test">in Test</option>
+                <option value="Completato">Completato</option>
+            </select>
+        </td>
+        <td class="px-2 py-1 text-xs">
+            <select class="text-xs rounded border px-1">
+                <option value="">Seleziona</option>
+                <option value="Bug">Bug</option>
+                <option value="Miglioria">Miglioria</option>
+                <option value="Nuova richiesta">Nuova richiesta</option>
+            </select>
+        </td>
+        <td class="px-2 py-1 text-xs">
+            <select class="text-xs rounded border px-1">
+                <option value="Bloccante">Bloccante</option>
+                <option value="Non Bloccante">Non Bloccante</option>
+            </select>
+        </td>
+        <td class="px-2 py-1 text-xs">
+            <select class="text-xs rounded border px-1">
+                <option value="">Seleziona</option>
+                <option value="Alta">Alta</option>
+                <option value="Media">Media</option>
+                <option value="Bassa">Bassa</option>
+            </select>
+        </td>
+        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
+        <td class="px-2 py-1 text-xs">
+            <select class="text-xs border rounded px-1">
+                <option value="">Seleziona</option>
+                <option value="FASE1">FASE1</option>
+                <option value="FASE2">FASE2</option>
+                <option value="FASE3">FASE3</option>
+            </select>
+        </td>
+        <td class="px-2 py-1 text-xs">
+            <select class="text-xs border rounded px-1">
+                <option value="">Seleziona</option>
+                <option value="Pianificazione cantieri">Pianificazione cantieri</option>
+                <option value="Pianificazione Squadre">Pianificazione Squadre</option>
+                <option value="da segnalare">da segnalare</option>
+            </select>
+        </td>
+        <td class="px-2 py-1 text-xs"><input type="text" class="text-xs border rounded px-1"></td>
+        <td class="px-2 py-1 text-xs"><textarea class="text-xs border rounded px-1" rows="2"></textarea></td>
+        <td class="px-2 py-1 text-xs"><input type="text" class="text-xs border rounded px-1"></td>
+        <td class="px-2 py-1 text-xs"><input type="text" class="text-xs border rounded px-1"></td>
+        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
+        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
+        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
+        <td class="px-2 py-1 text-xs"><textarea class="text-xs border rounded px-1" rows="2"></textarea></td>
+        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
+        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
+        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
+        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
+        <td class="px-2 py-1 text-xs"><input type="date" class="text-xs border rounded px-1"></td>
+    `;
+    ticketBody.appendChild(tr);
+}
+
+function updateStateDate(select) {
+    const row = select.parentElement.parentElement;
+    const today = new Date().toISOString().split('T')[0];
+    const state = select.value;
+    const dateCells = {
+        "Segnalato": 16,
+        "Preso in carico": 17,
+        "Rilasciato": 18,
+        "in Test": 19,
+        "Completato": 20
+    };
+    if(state && dateCells[state]) {
+        row.cells[dateCells[state]].querySelector('input').value = today;
+    }
+}
+</script>
+
+</body>
+</html>
