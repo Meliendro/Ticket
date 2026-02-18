@@ -119,19 +119,18 @@ if(ticketData){
 const statoSelect = document.getElementById('stato');
 statoSelect.addEventListener('change', ()=>{
     const now = new Date().toISOString().split('T')[0];
+    ticketData = ticketData || {};
     switch(statoSelect.value){
-        case 'Segnalato': if(!ticketData?.data_segnalato) ticketData = {...ticketData, data_segnalato:now}; break;
-        case 'Preso in carico': if(!ticketData?.data_preso_in_carico) ticketData = {...ticketData, data_preso_in_carico:now}; break;
-        case 'In Test': if(!ticketData?.data_in_test) ticketData = {...ticketData, data_in_test:now}; break;
-        case 'Rilasciato': if(!ticketData?.data_rilasciato) ticketData = {...ticketData, data_rilasciato:now}; break;
-        case 'Completato': if(!ticketData?.data_completato) ticketData = {...ticketData, data_completato:now}; break;
+        case 'Segnalato': if(!ticketData.data_segnalato) ticketData.data_segnalato = now; break;
+        case 'Preso in carico': if(!ticketData.data_preso_in_carico) ticketData.data_preso_in_carico = now; break;
+        case 'In Test': if(!ticketData.data_in_test) ticketData.data_in_test = now; break;
+        case 'Rilasciato': if(!ticketData.data_rilasciato) ticketData.data_rilasciato = now; break;
+        case 'Completato': if(!ticketData.data_completato) ticketData.data_completato = now; break;
     }
 });
 
 form.addEventListener('submit', function(e){
     e.preventDefault();
-    const now = new Date().toISOString().split('T')[0];
-
     const ticket = {
         stato: form.stato.value,
         tipo: form.tipo.value,
