@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Form</title>
+<title>Ticket Form - RIVIT</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -88,24 +88,19 @@ button { cursor: pointer; }
                 <div>
                     <label>Tipo</label>
                     <select id="tipo">
-                        <option>Bug</option>
-                        <option>Miglioria</option>
-                        <option>Nuova richiesta</option>
+                        <option value="">Caricamento...</option>
                     </select>
                 </div>
                 <div>
                     <label>Bloccante</label>
                     <select id="bloccante">
-                        <option>Bloccante</option>
-                        <option>Non Bloccante</option>
+                        <option value="">Caricamento...</option>
                     </select>
                 </div>
                 <div>
                     <label>Priorità</label>
                     <select id="priorita">
-                        <option>Alta</option>
-                        <option>Media</option>
-                        <option>Bassa</option>
+                        <option value="">Caricamento...</option>
                     </select>
                 </div>
                 <div>
@@ -129,19 +124,16 @@ button { cursor: pointer; }
                 <div>
                     <label>Menu</label>
                     <select id="menu">
-                        <option>Pianificazione cantieri</option>
-                        <option>Pianificazione Squadre</option>
-                        <option>Pianificazione materiali</option>
-                        <option>Da segnalare</option>
+                        <option value="">Caricamento...</option>
                     </select>
                 </div>
                 <div>
                     <label>Titolo</label>
-                    <input type="text" id="titolo">
+                    <input type="text" id="titolo" placeholder="Titolo sintetico">
                 </div>
                 <div>
                     <label>Descrizione</label>
-                    <textarea id="descrizione" rows="3"></textarea>
+                    <textarea id="descrizione" rows="3" placeholder="Dettagli del ticket..."></textarea>
                 </div>
                 <div>
                     <label>Inserito da</label>
@@ -190,51 +182,51 @@ button { cursor: pointer; }
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let editTicketData = JSON.parse(localStorage.getItem('edit_ticket')) || {};
 
-// Decodifica robusta UTF-8
 function b64DecodeUnicode(str) {
     return decodeURIComponent(atob(str).split('').map(function(c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
 }
 
-async function loadStatoOptions() {
+// Funzione universale per popolare una select
+function populateSelect(id, dataArray, placeholder, currentValue) {
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    sel.innerHTML = `<option value="">-- ${placeholder} --</option>`;
+    if(dataArray && Array.isArray(dataArray)) {
+        dataArray.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item;
+            opt.textContent = item;
+            if(item === currentValue) opt.selected = true;
+            sel.appendChild(opt);
+        });
+    }
+}
+
+async function loadAllOptions() {
     if(!config) return;
-    const statoSelect = document.getElementById('stato');
-    
-    // PERCORSO AGGIORNATO: ticket/2026/liste.json
-    const url = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`;
-    
     try {
+        const url = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`;
         const res = await fetch(url, {
             headers: { 'Authorization': `token ${config.token}`, 'Cache-Control': 'no-cache' }
         });
         
-        if(!res.ok) throw new Error(`File non trovato al percorso: ticket/2026/liste.json`);
+        if(!res.ok) throw new Error("File liste.json non trovato in ticket/2026/");
         
         const data = await res.json();
-        const content = b64DecodeUnicode(data.content);
-        const lists = JSON.parse(content);
+        const lists = JSON.parse(b64DecodeUnicode(data.content));
         
-        statoSelect.innerHTML = '<option value="">-- Seleziona Stato --</option>';
-        
-        // Carica la chiave "stato" dal file JSON
-        if(lists.stato && Array.isArray(lists.stato)) {
-            lists.stato.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s;
-                opt.textContent = s;
-                statoSelect.appendChild(opt);
-            });
-        }
-        
-        // Ripristina valore in caso di modifica
-        if(editTicketData.stato) {
-            statoSelect.value = editTicketData.stato;
-        }
+        // Popolamento dinamico usando le chiavi ESATTE del tuo JSON
+        populateSelect('stato', lists.Stato, "Seleziona Stato", editTicketData.stato);
+        populateSelect('bloccante', lists.Bloccante, "Seleziona Bloccante", editTicketData.bloccante);
+        populateSelect('priorita', lists.Priorita, "Seleziona Priorità", editTicketData.priorita);
+        populateSelect('tipo', lists.Tipo, "Seleziona Tipo", editTicketData.tipo);
+        populateSelect('menu', lists.Menu, "Seleziona Menu", editTicketData.menu);
+
     } catch(e) {
-        console.error("Errore fetch liste:", e);
-        statoSelect.innerHTML = '<option value="">Errore!</option>';
-        alert("Errore caricamento: " + e.message);
+        console.error(e);
+        alert("Errore caricamento liste: " + e.message);
     }
 }
 
@@ -246,13 +238,17 @@ function initializeForm() {
         document.getElementById('ticketTitle').innerText = "Modifica Ticket";
         document.getElementById('ticketNumberPreview').innerText = editTicketData.nrTicket;
         
-        Object.keys(editTicketData).forEach(key => {
-            const el = document.getElementById(key);
-            if(el) el.value = editTicketData[key];
+        // Carica dati testuali
+        const fields = ['nrTicket', 'titolo', 'descrizione', 'inseritoDa', 'inCaricoA', 
+                       'dataInizioPrevista', 'dataFinePrevista', 'dataRilascio', 'descrAttivita', 'ambito'];
+        fields.forEach(f => {
+            const el = document.getElementById(f);
+            if(el && editTicketData[f]) el.value = editTicketData[f];
         });
     }
-
-    loadStatoOptions();
+    
+    // Carica le opzioni dai menu a tendina
+    loadAllOptions();
 }
 
 document.getElementById('stato').addEventListener('change', function(){
@@ -267,7 +263,10 @@ document.getElementById('stato').addEventListener('change', function(){
 
 async function saveTicket(){
     if(!config){ alert("⚠️ Configura GitHub"); return; }
-    
+    const saveBtn = document.querySelector('button[onclick="saveTicket()"]');
+    saveBtn.disabled = true;
+    saveBtn.innerText = "Salvataggio...";
+
     try {
         const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
             headers: {Authorization:`token ${config.token}`, 'Cache-Control': 'no-cache'}
@@ -325,13 +324,15 @@ async function saveTicket(){
             body: JSON.stringify(body)
         });
 
-        if(!putRes.ok) throw new Error("Errore salvataggio GitHub");
+        if(!putRes.ok) throw new Error("Errore durante l'invio");
         
         alert("Salvataggio completato!");
         window.close();
         
     } catch(e){ 
         alert("Errore: " + e.message); 
+        saveBtn.disabled = false;
+        saveBtn.innerText = "Salva Ticket";
     }
 }
 
