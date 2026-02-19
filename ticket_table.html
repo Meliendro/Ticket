@@ -221,6 +221,14 @@ function editTicket(index){
 }
 
 loadTickets();
+// Resta in ascolto di segnali dal form
+const channel = new BroadcastChannel('ticket_updates');
+channel.onmessage = (event) => {
+    if (event.data === 'reload_table') {
+        console.log("Ricevuto segnale di aggiornamento, ricarico...");
+        loadTickets(); // Ricarica i dati senza refresh della pagina intera
+    }
+};
 </script>
 </body>
 </html>
