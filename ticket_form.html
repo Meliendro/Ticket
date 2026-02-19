@@ -86,7 +86,6 @@ function populateSelect(id, dataArray, placeholder, currentValue) {
             const opt = document.createElement('option');
             opt.value = item;
             opt.textContent = item;
-            // Confronto case-insensitive per sicurezza
             if(String(item).toLowerCase() === String(currentValue).toLowerCase()) opt.selected = true;
             sel.appendChild(opt);
         });
@@ -110,15 +109,12 @@ async function loadData() {
         const json = await res.json();
         const lists = JSON.parse(decodeUTF8(json.content));
 
-        // Popolamento select dai file delle liste
-        // NOTA: editTicketData.campo deve essere scritto esattamente come nel JSON del ticket
         populateSelect('stato', lists.Stato, "Stato", editTicketData.stato);
         populateSelect('tipo', lists.Tipo, "Tipo", editTicketData.tipo);
         populateSelect('bloccante', lists.Bloccante, "Bloccante", editTicketData.bloccante);
         populateSelect('priorita', lists.Priorita, "Priorità", editTicketData.priorita);
         populateSelect('menu', lists.Menu, "Menu", editTicketData.menu);
 
-        // Campi data e testo
         document.getElementById('dataInserimento').value = editTicketData.dataInserimento || new Date().toISOString().substr(0,10);
         
         if(editTicketData.nrTicket) {
@@ -126,7 +122,6 @@ async function loadData() {
             document.getElementById('ticketNumberPreview').innerText = editTicketData.nrTicket;
             document.getElementById('nrTicket').value = editTicketData.nrTicket;
             
-            // Mappatura esatta campi testo
             const fields = ['titolo', 'descrizione', 'inseritoDa', 'inCaricoA', 
                           'dataInizioPrevista', 'dataFinePrevista', 'dataRilascio', 'descrAttivita', 'ambito'];
             fields.forEach(f => {
@@ -171,7 +166,6 @@ async function saveTicket() {
             dataFinePrevista: document.getElementById('dataFinePrevista').value,
             dataRilascio: document.getElementById('dataRilascio').value,
             descrAttivita: document.getElementById('descrAttivita').value,
-            // Mantengo le date di log se esistenti
             dataSegnalato: editTicketData.dataSegnalato || "",
             dataPresoInCarico: editTicketData.dataPresoInCarico || "",
             dataRilasciato: editTicketData.dataRilasciato || "",
@@ -201,6 +195,10 @@ async function saveTicket() {
 
         if(putRes.ok) { 
             alert("Ticket salvato!"); 
+            // COMANDO PER RICARICARE LA TABELLA
+            if (window.opener && !window.opener.closed) {
+                window.opener.location.reload();
+            }
             window.close(); 
         } else { throw new Error("Errore nel salvataggio GitHub"); }
     } catch(e) {
