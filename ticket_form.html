@@ -30,10 +30,10 @@
             <div class="section-title">INFORMAZIONI GENERALI</div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div><label>Nr Ticket</label><input type="text" id="nrTicket" disabled></div>
-                <div><label>Stato</label><select id="stato"><option value="">Caricamento...</option></select></div>
-                <div><label>Tipo</label><select id="tipo"><option value="">Caricamento...</option></select></div>
-                <div><label>Bloccante</label><select id="bloccante"><option value="">Caricamento...</option></select></div>
-                <div><label>Priorità</label><select id="priorita"><option value="">Caricamento...</option></select></div>
+                <div><label>Stato</label><select id="stato"><option value="">In attesa...</option></select></div>
+                <div><label>Tipo</label><select id="tipo"><option value="">In attesa...</option></select></div>
+                <div><label>Bloccante</label><select id="bloccante"><option value="">In attesa...</option></select></div>
+                <div><label>Priorità</label><select id="priorita"><option value="">In attesa...</option></select></div>
                 <div><label>Data Inserimento</label><input type="date" id="dataInserimento" disabled></div>
             </div>
         </div>
@@ -42,7 +42,7 @@
             <div class="section-title">DETTAGLIO TICKET</div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div><label>Ambito</label><select id="ambito"><option>FASE1</option><option>FASE2</option><option>FASE3</option></select></div>
-                <div><label>Menu</label><select id="menu"><option value="">Caricamento...</option></select></div>
+                <div><label>Menu</label><select id="menu"><option value="">In attesa...</option></select></div>
                 <div><label>Titolo</label><input type="text" id="titolo"></div>
                 <div><label>Descrizione</label><textarea id="descrizione" rows="4"></textarea></div>
                 <div><label>Inserito da</label><input type="text" id="inseritoDa"></div>
@@ -66,16 +66,12 @@
 </div>
 
 <script>
+// Recupero configurazione (deve essere identica a ticket_table.html)
 const config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 const editTicketData = JSON.parse(localStorage.getItem('edit_ticket')) || {};
 
 function decodeUTF8(s) {
-    try {
-        return decodeURIComponent(escape(atob(s)));
-    } catch (e) {
-        console.error("Errore decodifica:", e);
-        return "Errore";
-    }
+    try { return decodeURIComponent(escape(atob(s))); } catch (e) { return "Errore"; }
 }
 
 function encodeUTF8(s) {
@@ -98,48 +94,55 @@ function populateSelect(id, dataArray, placeholder, currentValue) {
 }
 
 async function loadData() {
+    // 1. Controllo immediato configurazione
     if(!config || !config.repo || !config.token) {
-        alert("Configurazione GitHub mancante o incompleta.");
+        alert("ATTENZIONE: Nessuna configurazione GitHub trovata nel browser.\nTorna alla tabella e usa l'icona ingranaggio.");
         return;
     }
 
     try {
-        const urlLists = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`;
-        const resLists = await fetch(urlLists, {
+        // PERCORSO FILE JSON (Assicurati che su GitHub sia esattamente così)
+        const path = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`;
+        
+        const res = await fetch(path, {
             headers: { 
                 'Authorization': `token ${config.token}`,
                 'Cache-Control': 'no-cache' 
             }
         });
         
-        if(!resLists.ok) throw new Error(`Errore caricamento liste: ${resLists.status}`);
+        if(!res.ok) {
+            throw new Error(`GitHub non trova il file delle liste (Status: ${res.status}). Controlla il percorso: /ticket/2026/liste.json`);
+        }
         
-        const dataLists = await resLists.json();
-        const lists = JSON.parse(decodeUTF8(dataLists.content));
+        const data = await res.json();
+        const content = decodeUTF8(data.content);
+        const lists = JSON.parse(content);
 
-        populateSelect('stato', lists.Stato, "Stato", editTicketData.stato);
-        populateSelect('tipo', lists.Tipo, "Tipo", editTicketData.tipo);
-        populateSelect('bloccante', lists.Bloccante, "Bloccante", editTicketData.bloccante);
-        populateSelect('priorita', lists.Priorita, "Priorità", editTicketData.priorita);
-        populateSelect('menu', lists.Menu, "Menu", editTicketData.menu);
+        // Popolamento select (Uso le chiavi Maiuscole come da tuo standard)
+        populateSelect('stato', lists.Stato, "Seleziona Stato", editTicketData.stato);
+        populateSelect('tipo', lists.Tipo, "Seleziona Tipo", editTicketData.tipo);
+        populateSelect('bloccante', lists.Bloccante, "Seleziona Bloccante", editTicketData.bloccante);
+        populateSelect('priorita', lists.Priorita, "Seleziona Priorità", editTicketData.priorita);
+        populateSelect('menu', lists.Menu, "Seleziona Menu", editTicketData.menu);
 
-        const today = new Date().toISOString().substr(0,10);
-        document.getElementById('dataInserimento').value = editTicketData.dataInserimento || today;
+        // Impostazione data e campi esistenti
+        document.getElementById('dataInserimento').value = editTicketData.dataInserimento || new Date().toISOString().substr(0,10);
 
         if(editTicketData.nrTicket) {
             document.getElementById('ticketTitle').innerText = "Modifica Ticket";
             document.getElementById('ticketNumberPreview').innerText = editTicketData.nrTicket;
             
-            const textFields = ['nrTicket', 'titolo', 'descrizione', 'inseritoDa', 'inCaricoA', 
-                               'dataInizioPrevista', 'dataFinePrevista', 'dataRilascio', 'descrAttivita', 'ambito'];
-            textFields.forEach(f => {
+            const fields = ['nrTicket', 'titolo', 'descrizione', 'inseritoDa', 'inCaricoA', 
+                          'dataInizioPrevista', 'dataFinePrevista', 'dataRilascio', 'descrAttivita', 'ambito'];
+            fields.forEach(f => {
                 let el = document.getElementById(f);
                 if(el && editTicketData[f]) el.value = editTicketData[f];
             });
         }
     } catch(e) {
-        console.error(e);
-        alert("Errore caricamento liste: " + e.message);
+        console.error("Dettaglio errore fetch:", e);
+        alert("Errore caricamento liste:\n" + e.message);
     }
 }
 
@@ -149,9 +152,13 @@ async function saveTicket() {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvataggio...';
 
     try {
-        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
+        const urlFile = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`;
+        const res = await fetch(urlFile, {
             headers: { Authorization: `token ${config.token}`, 'Cache-Control': 'no-cache' }
         });
+        
+        if(!res.ok) throw new Error("File ticket2026.json non trovato su GitHub.");
+
         const data = await res.json();
         const tickets = JSON.parse(decodeUTF8(data.content));
         const sha = data.sha;
@@ -193,25 +200,26 @@ async function saveTicket() {
         if(index !== -1) tickets[index] = t; else tickets.push(t);
 
         const content = encodeUTF8(JSON.stringify(tickets, null, 2));
-        const putRes = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
+        const putRes = await fetch(urlFile, {
             method: "PUT",
             headers: { Authorization: `token ${config.token}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ message: `Aggiornamento Ticket #${nrTicket}`, content, sha })
+            body: JSON.stringify({ message: `Update Ticket #${nrTicket}`, content, sha })
         });
 
         if(putRes.ok) { 
-            alert("Ticket salvato correttamente!");
+            alert("Ticket salvato con successo!");
             window.close(); 
         } else {
-            throw new Error("Errore durante il salvataggio");
+            throw new Error("Errore durante il salvataggio su GitHub.");
         }
     } catch(e) {
-        alert(e.message);
+        alert("Errore salvataggio: " + e.message);
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-save"></i> Salva Ticket';
     }
 }
 
+// Avvio automatico al caricamento
 loadData();
 </script>
 </body>
