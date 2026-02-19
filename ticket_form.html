@@ -21,7 +21,7 @@
 
 <div class="form-card w-full max-w-6xl rounded-2xl shadow-2xl p-8">
     <div class="flex justify-between items-center mb-6">
-        <h1 id="ticketTitle" class="text-2xl font-extrabold text-gray-800">Nuovo Ticket</h1>
+        <h1 id="ticketTitle" class="text-2xl font-extrabold text-gray-800 text-slate-800">Nuovo Ticket</h1>
         <div class="ticket-number-badge"># <span id="ticketNumberPreview">--</span></div>
     </div>
 
@@ -66,9 +66,20 @@
 </div>
 
 <script>
-// Recupero configurazione (deve essere identica a ticket_table.html)
-const config = JSON.parse(localStorage.getItem('gh_ticket_config'));
+// Tenta di recuperare la configurazione
+let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 const editTicketData = JSON.parse(localStorage.getItem('edit_ticket')) || {};
+
+// Se config è nullo, prova a prenderlo dalla finestra che ha aperto questa
+if (!config && window.opener) {
+    try {
+        const parentConfig = window.opener.localStorage.getItem('gh_ticket_config');
+        if (parentConfig) {
+            config = JSON.parse(parentConfig);
+            localStorage.setItem('gh_ticket_config', parentConfig);
+        }
+    } catch(e) { console.error("Accesso parent negato"); }
+}
 
 function decodeUTF8(s) {
     try { return decodeURIComponent(escape(atob(s))); } catch (e) { return "Errore"; }
@@ -94,39 +105,35 @@ function populateSelect(id, dataArray, placeholder, currentValue) {
 }
 
 async function loadData() {
-    // 1. Controllo immediato configurazione
     if(!config || !config.repo || !config.token) {
-        alert("ATTENZIONE: Nessuna configurazione GitHub trovata nel browser.\nTorna alla tabella e usa l'icona ingranaggio.");
+        alert("Configurazione mancante. Inserisci i dati nella tabella principale.");
         return;
     }
 
     try {
-        // PERCORSO FILE JSON (Assicurati che su GitHub sia esattamente così)
-        const path = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`;
+        // PERCORSO IDENTICO A TICKET_TABLE
+        const url = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`;
         
-        const res = await fetch(path, {
+        const res = await fetch(url, {
             headers: { 
                 'Authorization': `token ${config.token}`,
-                'Cache-Control': 'no-cache' 
+                'Accept': 'application/vnd.github.v3+json'
             }
         });
         
-        if(!res.ok) {
-            throw new Error(`GitHub non trova il file delle liste (Status: ${res.status}). Controlla il percorso: /ticket/2026/liste.json`);
-        }
+        if(!res.ok) throw new Error("Errore GitHub: " + res.status);
         
-        const data = await res.json();
-        const content = decodeUTF8(data.content);
-        const lists = JSON.parse(content);
+        const json = await res.json();
+        const lists = JSON.parse(decodeUTF8(json.content));
 
-        // Popolamento select (Uso le chiavi Maiuscole come da tuo standard)
-        populateSelect('stato', lists.Stato, "Seleziona Stato", editTicketData.stato);
-        populateSelect('tipo', lists.Tipo, "Seleziona Tipo", editTicketData.tipo);
-        populateSelect('bloccante', lists.Bloccante, "Seleziona Bloccante", editTicketData.bloccante);
-        populateSelect('priorita', lists.Priorita, "Seleziona Priorità", editTicketData.priorita);
-        populateSelect('menu', lists.Menu, "Seleziona Menu", editTicketData.menu);
+        // Popolamento (Chiavi Maiuscole come nel tuo JSON)
+        populateSelect('stato', lists.Stato, "Stato", editTicketData.stato);
+        populateSelect('tipo', lists.Tipo, "Tipo", editTicketData.tipo);
+        populateSelect('bloccante', lists.Bloccante, "Bloccante", editTicketData.bloccante);
+        populateSelect('priorita', lists.Priorita, "Priorità", editTicketData.priorita);
+        populateSelect('menu', lists.Menu, "Menu", editTicketData.menu);
 
-        // Impostazione data e campi esistenti
+        // Data inserimento
         document.getElementById('dataInserimento').value = editTicketData.dataInserimento || new Date().toISOString().substr(0,10);
 
         if(editTicketData.nrTicket) {
@@ -141,8 +148,7 @@ async function loadData() {
             });
         }
     } catch(e) {
-        console.error("Dettaglio errore fetch:", e);
-        alert("Errore caricamento liste:\n" + e.message);
+        alert("Errore nel caricamento dei dati da GitHub: " + e.message);
     }
 }
 
@@ -154,15 +160,11 @@ async function saveTicket() {
     try {
         const urlFile = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`;
         const res = await fetch(urlFile, {
-            headers: { Authorization: `token ${config.token}`, 'Cache-Control': 'no-cache' }
+            headers: { Authorization: `token ${config.token}` }
         });
-        
-        if(!res.ok) throw new Error("File ticket2026.json non trovato su GitHub.");
-
         const data = await res.json();
         const tickets = JSON.parse(decodeUTF8(data.content));
-        const sha = data.sha;
-
+        
         let nrTicket = editTicketData.nrTicket || (tickets.length ? Math.max(...tickets.map(t=>t.nrTicket)) + 1 : 1);
         
         const t = {
@@ -199,27 +201,27 @@ async function saveTicket() {
         const index = tickets.findIndex(tt => tt.nrTicket === nrTicket);
         if(index !== -1) tickets[index] = t; else tickets.push(t);
 
-        const content = encodeUTF8(JSON.stringify(tickets, null, 2));
         const putRes = await fetch(urlFile, {
             method: "PUT",
             headers: { Authorization: `token ${config.token}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ message: `Update Ticket #${nrTicket}`, content, sha })
+            body: JSON.stringify({ 
+                message: `Update Ticket #${nrTicket}`, 
+                content: encodeUTF8(JSON.stringify(tickets, null, 2)), 
+                sha: data.sha 
+            })
         });
 
         if(putRes.ok) { 
-            alert("Ticket salvato con successo!");
+            alert("Ticket salvato!"); 
             window.close(); 
-        } else {
-            throw new Error("Errore durante il salvataggio su GitHub.");
-        }
+        } else { throw new Error("Errore PUT"); }
     } catch(e) {
-        alert("Errore salvataggio: " + e.message);
+        alert("Errore: " + e.message);
         btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-save"></i> Salva Ticket';
+        btn.innerHTML = 'Salva Ticket';
     }
 }
 
-// Avvio automatico al caricamento
 loadData();
 </script>
 </body>
