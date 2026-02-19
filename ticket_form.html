@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Form - RIVIT</title>
+<title>Ticket Form</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -66,11 +66,16 @@
 </div>
 
 <script>
-let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
-let editTicketData = JSON.parse(localStorage.getItem('edit_ticket')) || {};
+const config = JSON.parse(localStorage.getItem('gh_ticket_config'));
+const editTicketData = JSON.parse(localStorage.getItem('edit_ticket')) || {};
 
 function decodeUTF8(s) {
-    return decodeURIComponent(escape(atob(s)));
+    try {
+        return decodeURIComponent(escape(atob(s)));
+    } catch (e) {
+        console.error("Errore decodifica:", e);
+        return "Errore";
+    }
 }
 
 function encodeUTF8(s) {
@@ -93,28 +98,31 @@ function populateSelect(id, dataArray, placeholder, currentValue) {
 }
 
 async function loadData() {
-    if(!config) { alert("Configurazione GitHub mancante!"); return; }
+    if(!config || !config.repo || !config.token) {
+        alert("Configurazione GitHub mancante o incompleta.");
+        return;
+    }
 
     try {
-        // PERCORSO IDENTICO A TICKET_TABLE
         const urlLists = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`;
         const resLists = await fetch(urlLists, {
-            headers: { Authorization: `token ${config.token}`, 'Cache-Control': 'no-cache' }
+            headers: { 
+                'Authorization': `token ${config.token}`,
+                'Cache-Control': 'no-cache' 
+            }
         });
         
-        if(!resLists.ok) throw new Error("File ticket/2026/liste.json non trovato");
+        if(!resLists.ok) throw new Error(`Errore caricamento liste: ${resLists.status}`);
         
         const dataLists = await resLists.json();
         const lists = JSON.parse(decodeUTF8(dataLists.content));
 
-        // Popola i menu usando le chiavi MAIUSCOLE del tuo JSON
         populateSelect('stato', lists.Stato, "Stato", editTicketData.stato);
         populateSelect('tipo', lists.Tipo, "Tipo", editTicketData.tipo);
         populateSelect('bloccante', lists.Bloccante, "Bloccante", editTicketData.bloccante);
         populateSelect('priorita', lists.Priorita, "Priorità", editTicketData.priorita);
         populateSelect('menu', lists.Menu, "Menu", editTicketData.menu);
 
-        // Inizializza campi data
         const today = new Date().toISOString().substr(0,10);
         document.getElementById('dataInserimento').value = editTicketData.dataInserimento || today;
 
@@ -130,7 +138,7 @@ async function loadData() {
             });
         }
     } catch(e) {
-        console.error("Errore caricamento:", e);
+        console.error(e);
         alert("Errore caricamento liste: " + e.message);
     }
 }
@@ -193,20 +201,17 @@ async function saveTicket() {
 
         if(putRes.ok) { 
             alert("Ticket salvato correttamente!");
-            // Chiudi e prova a ricaricare la tabella madre
-            if (window.opener) { try { window.opener.loadTickets(); } catch(e){} }
             window.close(); 
         } else {
-            throw new Error("Errore durante il salvataggio su GitHub");
+            throw new Error("Errore durante il salvataggio");
         }
     } catch(e) {
-        alert("Errore durante il salvataggio: " + e.message);
+        alert(e.message);
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-save"></i> Salva Ticket';
     }
 }
 
-// Avvio caricamento
 loadData();
 </script>
 </body>
