@@ -8,29 +8,24 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f4f4f5; }
-        h1 { font-weight: 700; }
         .table-container { overflow-x: auto; margin-top: 1rem; background: white; }
-        
         table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 2500px; }
-        
         th, td { padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; border-bottom: 1px solid #e5e7eb; }
         th { background: #1f2937; color: #fff; position: sticky; top: 0; z-index: 1; }
         tr:nth-child(even) { background: #f9fafb; }
         
-        /* Classi Priorità */
         .priority-alta { background: #dc2626 !important; color: #fff; font-weight: bold; text-align: center; }
         .priority-media { background: #f59e0b !important; color: #fff; font-weight: bold; text-align: center; }
         .priority-bassa { background: #10b981 !important; color: #fff; font-weight: bold; text-align: center; }
         
-        /* Classi Stato */
         .status-Segnalato { color: #ef4444; font-weight: bold; }
         .status-Preso { color: #f59e0b; font-weight: bold; }
         .status-Rilasciato { color: #3b82f6; font-weight: bold; }
         .status-InTest { color: #6366f1; font-weight: bold; }
         .status-Completato { color: #10b981; font-weight: bold; }
         
-        .filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
-        .filter-bar select { padding: 0.25rem 0.5rem; border-radius: 0.5rem; border: 1px solid #d1d5db; background: #fff; color: #111827; font-size: 0.9rem; }
+        /* Cella numero ticket scaduto */
+        .expired-red { background-color: #ef4444 !important; color: white !important; font-weight: bold; text-align: center; border-radius: 4px; }
 
         .col-desc { width: 500px; } 
         .col-desc-act { width: 400px; }
@@ -41,34 +36,29 @@
         td.wrap-text, td.wrap-text-act {
             white-space: normal;
             word-break: break-word;
-            line-height: 1.5;
-            max-height: 150px;
-            overflow-y: auto;
             font-size: 0.85rem;
             color: #374151;
         }
-
-        td, th { font-size: 0.875rem; }
-
-        /* Stile per Ticket Scaduto */
-        .expired-ticket { background-color: #ef4444 !important; color: white !important; font-weight: 800; text-align: center; border-radius: 4px; }
     </style>
 </head>
 <body class="p-6">
 
-<header class="flex justify-between items-center mb-2">
-    <h1 class="text-2xl text-slate-800">Gestione Ticket</h1>
+<header class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl font-bold text-slate-800">Gestione Ticket</h1>
     <div class="flex gap-3">
-        <button onclick="newTicket()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"><i class="fas fa-plus"></i> Nuovo Ticket</button>
-        <button onclick="configureGitHub()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700 transition"><i class="fas fa-cog"></i> Config GitHub</button>
+        <button onclick="newTicket()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">
+            <i class="fas fa-plus"></i> Nuovo Ticket
+        </button>
+        <button onclick="configureGitHub()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700 transition">
+            <i class="fas fa-cog"></i> Config GitHub
+        </button>
     </div>
 </header>
 
-<div class="filter-bar" id="filterBar">
-    <select id="filterStato"><option value="">Tutti gli Stati</option></select>
-    <select id="filterTipo"><option value="">Tutti i Tipi</option></select>
-    <select id="filterBloccante"><option value="">Bloccante / Non Bloccante</option></select>
-    <select id="filterAmbito"><option value="">Tutti gli Ambiti</option></select>
+<div class="flex gap-4 mb-4" id="filterBar">
+    <select id="filterStato" class="border p-2 rounded text-sm"><option value="">Stati: Tutti</option></select>
+    <select id="filterTipo" class="border p-2 rounded text-sm"><option value="">Tipi: Tutti</option></select>
+    <select id="filterAmbito" class="border p-2 rounded text-sm"><option value="">Ambiti: Tutti</option></select>
 </div>
 
 <div class="table-container border rounded shadow-lg">
@@ -86,16 +76,9 @@
                 <th class="col-medium">Menu</th>
                 <th class="col-medium">Titolo</th>
                 <th class="col-desc">Descrizione</th> 
-                <th class="col-medium">Inserito da</th>
                 <th class="col-medium">In carico a</th>
-                <th class="col-date">Inizio Prev.</th>
                 <th class="col-date">Fine Prev.</th>
-                <th class="col-date">Data Rilascio</th>
-                <th class="col-desc-act">Descrizione Attività</th> 
-                <th class="col-date">Data Segnal.</th>
-                <th class="col-date">Data Preso</th>
-                <th class="col-date">Data Rilasci.</th>
-                <th class="col-date">Data Test</th>
+                <th class="col-desc-act">Attività</th>
                 <th class="col-date">Data Compl.</th>
             </tr>
         </thead>
@@ -106,108 +89,102 @@
 <script>
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let tickets = [];
-let fileSha = "";
-let filters = { stato:"", tipo:"", bloccante:"", ambito:"" };
+let filters = { stato: "", tipo: "", ambito: "" };
+
+function decodeUTF8(s) {
+    try { return decodeURIComponent(escape(atob(s))); } catch (e) { return "Errore decodifica"; }
+}
 
 function configureGitHub() {
-    const pin = prompt("Inserisci PIN per configurazione:");
+    const pin = prompt("PIN:");
     if(pin === "1234"){
-        const repo = prompt("Repo GitHub (es: user/repo)");
-        const token = prompt("Token GitHub");
-        localStorage.setItem('gh_ticket_config', JSON.stringify({repo, token}));
-        config = {repo, token};
-        alert("Configurazione salvata!");
-        location.reload();
-    } else alert("PIN errato");
+        const repo = prompt("Repo (utente/repo):", config?.repo || "");
+        const token = prompt("Token:", config?.token || "");
+        if(repo && token) {
+            localStorage.setItem('gh_ticket_config', JSON.stringify({repo, token}));
+            location.reload();
+        }
+    }
 }
 
 async function loadTickets() {
-    if(!config) { alert("⚠️ Configurare GitHub per visualizzare i ticket"); return; }
+    if(!config) return;
     try {
-        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
-            headers: {Authorization:`token ${config.token}`, 'Cache-Control': 'no-cache'}
+        // Percorso esatto del file su GitHub
+        const url = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json?t=${Date.now()}`;
+        const res = await fetch(url, {
+            headers: { 'Authorization': `token ${config.token}`, 'Cache-Control': 'no-cache' }
         });
-        if(!res.ok) throw new Error("Errore caricamento ticket");
+        
+        if(!res.ok) throw new Error("File non trovato o errore Token");
+        
         const data = await res.json();
-        fileSha = data.sha;
-        tickets = JSON.parse(decodeURIComponent(escape(atob(data.content))));
-        populateFilters();
+        tickets = JSON.parse(decodeUTF8(data.content));
+        
+        populateFilterDropdowns();
         renderTable();
-    } catch(e) { alert("Errore caricamento ticket: "+e.message); }
+    } catch(e) {
+        console.error(e);
+        document.getElementById('ticketBody').innerHTML = `<tr><td colspan="15" class="p-4 text-red-500">Errore caricamento: ${e.message}. Verifica Repo e Token.</td></tr>`;
+    }
 }
 
-function populateFilters() {
-    const selectStato = document.getElementById("filterStato");
-    const selectTipo = document.getElementById("filterTipo");
-    const selectBloccante = document.getElementById("filterBloccante");
-    const selectAmbito = document.getElementById("filterAmbito");
-
-    // Pulizia opzioni precedenti (tranne la prima)
-    [selectStato, selectTipo, selectBloccante, selectAmbito].forEach(s => s.innerHTML = s.options[0].outerHTML);
-
-    [...new Set(tickets.map(t=>t.stato))].filter(Boolean).forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectStato.appendChild(opt); });
-    [...new Set(tickets.map(t=>t.tipo))].filter(Boolean).forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectTipo.appendChild(opt); });
-    [...new Set(tickets.map(t=>t.bloccante))].filter(Boolean).forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectBloccante.appendChild(opt); });
-    [...new Set(tickets.map(t=>t.ambito))].filter(Boolean).forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectAmbito.appendChild(opt); });
-
-    selectStato.onchange = ()=>{ filters.stato = selectStato.value; renderTable(); };
-    selectTipo.onchange = ()=>{ filters.tipo = selectTipo.value; renderTable(); };
-    selectBloccante.onchange = ()=>{ filters.bloccante = selectBloccante.value; renderTable(); };
-    selectAmbito.onchange = ()=>{ filters.ambito = selectAmbito.value; renderTable(); };
+function populateFilterDropdowns() {
+    const fill = (id, key) => {
+        const sel = document.getElementById(id);
+        const values = [...new Set(tickets.map(t => t[key]))].filter(Boolean);
+        values.forEach(v => {
+            const opt = document.createElement("option");
+            opt.value = v; opt.textContent = v;
+            sel.appendChild(opt);
+        });
+        sel.onchange = (e) => { filters[key] = e.target.value; renderTable(); };
+    };
+    fill("filterStato", "stato");
+    fill("filterTipo", "tipo");
+    fill("filterAmbito", "ambito");
 }
 
 function renderTable() {
     const tbody = document.getElementById('ticketBody');
     tbody.innerHTML = "";
     
-    // Data attuale (solo parte data per confronto preciso)
     const today = new Date();
     today.setHours(0,0,0,0);
 
-    tickets.sort((a,b)=>b.nrTicket - a.nrTicket).forEach((t,i)=>{
-        if(filters.stato && t.stato!==filters.stato) return;
-        if(filters.tipo && t.tipo!==filters.tipo) return;
-        if(filters.bloccante && t.bloccante!==filters.bloccante) return;
-        if(filters.ambito && t.ambito!==filters.ambito) return;
+    const filtered = tickets.filter(t => {
+        return (!filters.stato || t.stato === filters.stato) &&
+               (!filters.tipo || t.tipo === filters.tipo) &&
+               (!filters.ambito || t.ambito === filters.ambito);
+    });
 
-        // Logica controllo scadenza
-        let isExpired = false;
+    filtered.sort((a,b) => b.nrTicket - a.nrTicket).forEach((t) => {
+        // Controllo scadenza
+        let expiredClass = "";
         if (t.dataFinePrevista && t.stato !== "Completato") {
-            const deadline = new Date(t.dataFinePrevista);
-            deadline.setHours(0,0,0,0);
-            if (today > deadline) {
-                isExpired = true;
-            }
+            const d = new Date(t.dataFinePrevista);
+            if (d < today) expiredClass = "expired-red";
         }
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-        <td class="text-center">
-            <button onclick="editTicket(${i})" class="bg-yellow-400 p-2 rounded hover:bg-yellow-500 transition">
-                <i class="fas fa-edit"></i>
-            </button>
-        </td>
-        <td class="${isExpired ? 'expired-ticket' : ''}"><b>${t.nrTicket}</b></td>
-        <td class="status-${(t.stato || '').replace(/\s/g,'')}">${t.stato || ''}</td>
-        <td>${t.tipo || ''}</td>
-        <td>${t.bloccante || ''}</td>
-        <td class="priority-${(t.priorita || '').toLowerCase()}">${t.priorita || ''}</td>
-        <td>${t.dataInserimento || ''}</td>
-        <td>${t.ambito || ''}</td>
-        <td>${t.menu || ''}</td>
-        <td>${t.titolo || ''}</td>
-        <td class="wrap-text">${(t.descrizione || '').replace(/\n/g,'<br>')}</td>
-        <td>${t.inseritoDa || ''}</td>
-        <td>${t.inCaricoA || ''}</td>
-        <td>${t.dataInizioPrevista || ''}</td>
-        <td>${t.dataFinePrevista || ''}</td>
-        <td>${t.dataRilascio || ''}</td>
-        <td class="wrap-text-act">${(t.descrAttivita || "").replace(/\n/g,'<br>')}</td>
-        <td>${t.dataSegnalato||""}</td>
-        <td>${t.dataPresoInCarico||""}</td>
-        <td>${t.dataRilasciato||""}</td>
-        <td>${t.dataInTest||""}</td>
-        <td>${t.dataCompletato||""}</td>
+            <td class="text-center">
+                <button onclick='editTicket(${JSON.stringify(t).replace(/'/g, "&apos;")})' class="bg-yellow-400 px-2 py-1 rounded text-xs"><i class="fas fa-edit"></i></button>
+            </td>
+            <td class="${expiredClass}"><b>${t.nrTicket}</b></td>
+            <td class="status-${(t.stato||'').replace(/\s/g,'')}">${t.stato||''}</td>
+            <td>${t.tipo||''}</td>
+            <td>${t.bloccante||''}</td>
+            <td class="priority-${(t.priorita||'').toLowerCase()}">${t.priorita||''}</td>
+            <td>${t.dataInserimento||''}</td>
+            <td>${t.ambito||''}</td>
+            <td>${t.menu||''}</td>
+            <td>${t.titolo||''}</td>
+            <td class="wrap-text">${(t.descrizione||'').substring(0,100)}...</td>
+            <td>${t.inCaricoA||''}</td>
+            <td>${t.dataFinePrevista||''}</td>
+            <td class="wrap-text-act">${(t.descrAttivita||'')}</td>
+            <td>${t.dataCompletato||''}</td>
         `;
         tbody.appendChild(tr);
     });
@@ -215,15 +192,12 @@ function renderTable() {
 
 function newTicket() {
     localStorage.removeItem('edit_ticket');
-    window.open("ticket_form.html","_blank","width=1100,height=900");
+    window.open("ticket_form.html", "_blank");
 }
 
-function editTicket(index){
-    // Trovo l'oggetto ticket originale filtrando correttamente l'indice se necessario
-    // ma dato che renderTable usa l'indice del loop, passiamo l'oggetto direttamente
-    const sortedTickets = tickets.sort((a,b)=>b.nrTicket - a.nrTicket);
-    localStorage.setItem('edit_ticket', JSON.stringify(sortedTickets[index]));
-    window.open("ticket_form.html","_blank","width=1100,height=900");
+window.editTicket = function(ticketObj) {
+    localStorage.setItem('edit_ticket', JSON.stringify(ticketObj));
+    window.open("ticket_form.html", "_blank");
 }
 
 loadTickets();
