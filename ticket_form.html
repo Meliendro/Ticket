@@ -69,9 +69,6 @@
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let editTicketData = JSON.parse(localStorage.getItem('edit_ticket')) || {};
 
-/**
- * Funzioni di codifica/decodifica sicure per UTF-8 (gestione accenti)
- */
 function decodeUTF8(s) {
     return decodeURIComponent(escape(atob(s)));
 }
@@ -80,12 +77,11 @@ function encodeUTF8(s) {
     return btoa(unescape(encodeURIComponent(s)));
 }
 
-// Popola le select con i dati dal JSON
 function populateSelect(id, dataArray, placeholder, currentValue) {
     const sel = document.getElementById(id);
     if(!sel) return;
     sel.innerHTML = `<option value="">-- ${placeholder} --</option>`;
-    if(dataArray) {
+    if(dataArray && Array.isArray(dataArray)) {
         dataArray.forEach(item => {
             const opt = document.createElement('option');
             opt.value = item;
@@ -100,23 +96,25 @@ async function loadData() {
     if(!config) { alert("Configurazione GitHub mancante!"); return; }
 
     try {
-        // Carica le liste dinamiche
-        const resLists = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`, {
+        // PERCORSO IDENTICO A TICKET_TABLE
+        const urlLists = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`;
+        const resLists = await fetch(urlLists, {
             headers: { Authorization: `token ${config.token}`, 'Cache-Control': 'no-cache' }
         });
+        
         if(!resLists.ok) throw new Error("File ticket/2026/liste.json non trovato");
         
         const dataLists = await resLists.json();
         const lists = JSON.parse(decodeUTF8(dataLists.content));
 
-        // Popola i menu
+        // Popola i menu usando le chiavi MAIUSCOLE del tuo JSON
         populateSelect('stato', lists.Stato, "Stato", editTicketData.stato);
         populateSelect('tipo', lists.Tipo, "Tipo", editTicketData.tipo);
         populateSelect('bloccante', lists.Bloccante, "Bloccante", editTicketData.bloccante);
         populateSelect('priorita', lists.Priorita, "Priorità", editTicketData.priorita);
         populateSelect('menu', lists.Menu, "Menu", editTicketData.menu);
 
-        // Inizializza campi
+        // Inizializza campi data
         const today = new Date().toISOString().substr(0,10);
         document.getElementById('dataInserimento').value = editTicketData.dataInserimento || today;
 
@@ -124,7 +122,6 @@ async function loadData() {
             document.getElementById('ticketTitle').innerText = "Modifica Ticket";
             document.getElementById('ticketNumberPreview').innerText = editTicketData.nrTicket;
             
-            // Riempimento campi testuali
             const textFields = ['nrTicket', 'titolo', 'descrizione', 'inseritoDa', 'inCaricoA', 
                                'dataInizioPrevista', 'dataFinePrevista', 'dataRilascio', 'descrAttivita', 'ambito'];
             textFields.forEach(f => {
@@ -133,7 +130,8 @@ async function loadData() {
             });
         }
     } catch(e) {
-        alert("Errore caricamento dati: " + e.message);
+        console.error("Errore caricamento:", e);
+        alert("Errore caricamento liste: " + e.message);
     }
 }
 
@@ -143,7 +141,6 @@ async function saveTicket() {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvataggio...';
 
     try {
-        // 1. Leggi il file corrente per ottenere SHA e lista esistente
         const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
             headers: { Authorization: `token ${config.token}`, 'Cache-Control': 'no-cache' }
         });
@@ -177,7 +174,6 @@ async function saveTicket() {
             dataCompletato: editTicketData.dataCompletato || ""
         };
 
-        // Aggiornamento date cambio stato
         const now = new Date().toLocaleDateString('it-IT');
         if(t.stato === "Segnalato" && !t.dataSegnalato) t.dataSegnalato = now;
         if(t.stato === "Preso in carico" && !t.dataPresoInCarico) t.dataPresoInCarico = now;
@@ -185,11 +181,9 @@ async function saveTicket() {
         if(t.stato === "In Test" && !t.dataInTest) t.dataInTest = now;
         if(t.stato === "Completato" && !t.dataCompletato) t.dataCompletato = now;
 
-        // Inserimento o aggiornamento
         const index = tickets.findIndex(tt => tt.nrTicket === nrTicket);
         if(index !== -1) tickets[index] = t; else tickets.push(t);
 
-        // 2. Codifica sicura e invio
         const content = encodeUTF8(JSON.stringify(tickets, null, 2));
         const putRes = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
             method: "PUT",
@@ -198,7 +192,9 @@ async function saveTicket() {
         });
 
         if(putRes.ok) { 
-            alert("Ticket salvato correttamente!"); 
+            alert("Ticket salvato correttamente!");
+            // Chiudi e prova a ricaricare la tabella madre
+            if (window.opener) { try { window.opener.loadTickets(); } catch(e){} }
             window.close(); 
         } else {
             throw new Error("Errore durante il salvataggio su GitHub");
@@ -210,6 +206,7 @@ async function saveTicket() {
     }
 }
 
+// Avvio caricamento
 loadData();
 </script>
 </body>
