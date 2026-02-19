@@ -30,10 +30,10 @@
             <div class="section-title">INFORMAZIONI GENERALI</div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div><label>Nr Ticket</label><input type="text" id="nrTicket" disabled></div>
-                <div><label>Stato</label><select id="stato"><option value="">In attesa...</option></select></div>
-                <div><label>Tipo</label><select id="tipo"><option value="">In attesa...</option></select></div>
-                <div><label>Bloccante</label><select id="bloccante"><option value="">In attesa...</option></select></div>
-                <div><label>Priorità</label><select id="priorita"><option value="">In attesa...</option></select></div>
+                <div><label>Stato</label><select id="stato"><option value="">Caricamento...</option></select></div>
+                <div><label>Tipo</label><select id="tipo"><option value="">Caricamento...</option></select></div>
+                <div><label>Bloccante</label><select id="bloccante"><option value="">Caricamento...</option></select></div>
+                <div><label>Priorità</label><select id="priorita"><option value="">Caricamento...</option></select></div>
                 <div><label>Data Inserimento</label><input type="date" id="dataInserimento" disabled></div>
             </div>
         </div>
@@ -41,8 +41,8 @@
         <div>
             <div class="section-title">DETTAGLIO TICKET</div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label>Ambito</label><select id="ambito"><option>FASE1</option><option>FASE2</option><option>FASE3</option></select></div>
-                <div><label>Menu</label><select id="menu"><option value="">In attesa...</option></select></div>
+                <div><label>Ambito</label><select id="ambito"><option value="FASE1">FASE1</option><option value="FASE2">FASE2</option><option value="FASE3">FASE3</option></select></div>
+                <div><label>Menu</label><select id="menu"><option value="">Caricamento...</option></select></div>
                 <div><label>Titolo</label><input type="text" id="titolo"></div>
                 <div><label>Descrizione</label><textarea id="descrizione" rows="4"></textarea></div>
                 <div><label>Inserito da</label><input type="text" id="inseritoDa"></div>
@@ -66,20 +66,8 @@
 </div>
 
 <script>
-// Tenta di recuperare la configurazione
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
-const editTicketData = JSON.parse(localStorage.getItem('edit_ticket')) || {};
-
-// Se config è nullo, prova a prenderlo dalla finestra che ha aperto questa
-if (!config && window.opener) {
-    try {
-        const parentConfig = window.opener.localStorage.getItem('gh_ticket_config');
-        if (parentConfig) {
-            config = JSON.parse(parentConfig);
-            localStorage.setItem('gh_ticket_config', parentConfig);
-        }
-    } catch(e) { console.error("Accesso parent negato"); }
-}
+let editTicketData = JSON.parse(localStorage.getItem('edit_ticket')) || {};
 
 function decodeUTF8(s) {
     try { return decodeURIComponent(escape(atob(s))); } catch (e) { return "Errore"; }
@@ -98,7 +86,8 @@ function populateSelect(id, dataArray, placeholder, currentValue) {
             const opt = document.createElement('option');
             opt.value = item;
             opt.textContent = item;
-            if(item === currentValue) opt.selected = true;
+            // Confronto case-insensitive per sicurezza
+            if(String(item).toLowerCase() === String(currentValue).toLowerCase()) opt.selected = true;
             sel.appendChild(opt);
         });
     }
@@ -106,19 +95,14 @@ function populateSelect(id, dataArray, placeholder, currentValue) {
 
 async function loadData() {
     if(!config || !config.repo || !config.token) {
-        alert("Configurazione mancante. Inserisci i dati nella tabella principale.");
+        alert("Configurazione mancante.");
         return;
     }
 
     try {
-        // PERCORSO IDENTICO A TICKET_TABLE
         const url = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`;
-        
         const res = await fetch(url, {
-            headers: { 
-                'Authorization': `token ${config.token}`,
-                'Accept': 'application/vnd.github.v3+json'
-            }
+            headers: { 'Authorization': `token ${config.token}`, 'Accept': 'application/vnd.github.v3+json' }
         });
         
         if(!res.ok) throw new Error("Errore GitHub: " + res.status);
@@ -126,21 +110,24 @@ async function loadData() {
         const json = await res.json();
         const lists = JSON.parse(decodeUTF8(json.content));
 
-        // Popolamento (Chiavi Maiuscole come nel tuo JSON)
+        // Popolamento select dai file delle liste
+        // NOTA: editTicketData.campo deve essere scritto esattamente come nel JSON del ticket
         populateSelect('stato', lists.Stato, "Stato", editTicketData.stato);
         populateSelect('tipo', lists.Tipo, "Tipo", editTicketData.tipo);
         populateSelect('bloccante', lists.Bloccante, "Bloccante", editTicketData.bloccante);
         populateSelect('priorita', lists.Priorita, "Priorità", editTicketData.priorita);
         populateSelect('menu', lists.Menu, "Menu", editTicketData.menu);
 
-        // Data inserimento
+        // Campi data e testo
         document.getElementById('dataInserimento').value = editTicketData.dataInserimento || new Date().toISOString().substr(0,10);
-
+        
         if(editTicketData.nrTicket) {
             document.getElementById('ticketTitle').innerText = "Modifica Ticket";
             document.getElementById('ticketNumberPreview').innerText = editTicketData.nrTicket;
+            document.getElementById('nrTicket').value = editTicketData.nrTicket;
             
-            const fields = ['nrTicket', 'titolo', 'descrizione', 'inseritoDa', 'inCaricoA', 
+            // Mappatura esatta campi testo
+            const fields = ['titolo', 'descrizione', 'inseritoDa', 'inCaricoA', 
                           'dataInizioPrevista', 'dataFinePrevista', 'dataRilascio', 'descrAttivita', 'ambito'];
             fields.forEach(f => {
                 let el = document.getElementById(f);
@@ -148,7 +135,7 @@ async function loadData() {
             });
         }
     } catch(e) {
-        alert("Errore nel caricamento dei dati da GitHub: " + e.message);
+        alert("Errore caricamento: " + e.message);
     }
 }
 
@@ -168,7 +155,7 @@ async function saveTicket() {
         let nrTicket = editTicketData.nrTicket || (tickets.length ? Math.max(...tickets.map(t=>t.nrTicket)) + 1 : 1);
         
         const t = {
-            nrTicket,
+            nrTicket: parseInt(nrTicket),
             stato: document.getElementById('stato').value,
             tipo: document.getElementById('tipo').value,
             bloccante: document.getElementById('bloccante').value,
@@ -184,6 +171,7 @@ async function saveTicket() {
             dataFinePrevista: document.getElementById('dataFinePrevista').value,
             dataRilascio: document.getElementById('dataRilascio').value,
             descrAttivita: document.getElementById('descrAttivita').value,
+            // Mantengo le date di log se esistenti
             dataSegnalato: editTicketData.dataSegnalato || "",
             dataPresoInCarico: editTicketData.dataPresoInCarico || "",
             dataRilasciato: editTicketData.dataRilasciato || "",
@@ -214,7 +202,7 @@ async function saveTicket() {
         if(putRes.ok) { 
             alert("Ticket salvato!"); 
             window.close(); 
-        } else { throw new Error("Errore PUT"); }
+        } else { throw new Error("Errore nel salvataggio GitHub"); }
     } catch(e) {
         alert("Errore: " + e.message);
         btn.disabled = false;
