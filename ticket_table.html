@@ -24,7 +24,6 @@
         .status-InTest { color: #6366f1; font-weight: bold; }
         .status-Completato { color: #10b981; font-weight: bold; }
         
-        /* Cella numero ticket scaduto */
         .expired-red { background-color: #ef4444 !important; color: white !important; font-weight: bold; text-align: center; border-radius: 4px; }
 
         .col-desc { width: 500px; } 
@@ -33,12 +32,7 @@
         .col-medium { width: 150px; }
         .col-date { width: 130px; }
 
-        td.wrap-text, td.wrap-text-act {
-            white-space: normal;
-            word-break: break-word;
-            font-size: 0.85rem;
-            color: #374151;
-        }
+        td.wrap-text, td.wrap-text-act { white-space: normal; word-break: break-word; font-size: 0.85rem; color: #374151; }
     </style>
 </head>
 <body class="p-6">
@@ -96,27 +90,40 @@ function decodeUTF8(s) {
 }
 
 function configureGitHub() {
-    const pin = prompt("PIN:");
+    const pin = prompt("PIN (1234):");
     if(pin === "1234"){
-        const repo = prompt("Repo (utente/repo):", config?.repo || "");
-        const token = prompt("Token:", config?.token || "");
+        const repo = prompt("Repo (es: utente/repository):", config?.repo || "");
+        const token = prompt("Token GitHub:", config?.token || "");
         if(repo && token) {
-            localStorage.setItem('gh_ticket_config', JSON.stringify({repo, token}));
+            localStorage.setItem('gh_ticket_config', JSON.stringify({repo: repo.trim(), token: token.trim()}));
             location.reload();
         }
     }
 }
 
 async function loadTickets() {
-    if(!config) return;
+    if(!config || !config.repo || !config.token) {
+        document.getElementById('ticketBody').innerHTML = `<tr><td colspan="15" class="p-4 text-orange-500 font-bold">⚠️ Configurazione mancante. Clicca sull'ingranaggio.</td></tr>`;
+        return;
+    }
+    
+    // PERCORSO FILE: Assicurati che su GitHub sia esattamente: ticket/2026/ticket2026.json
+    const filePath = `ticket/2026/ticket2026.json`;
+    const url = `https://api.github.com/repos/${config.repo}/contents/${filePath}`;
+
     try {
-        // Percorso esatto del file su GitHub
-        const url = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json?t=${Date.now()}`;
         const res = await fetch(url, {
-            headers: { 'Authorization': `token ${config.token}`, 'Cache-Control': 'no-cache' }
+            headers: { 
+                'Authorization': `token ${config.token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Cache-Control': 'no-cache'
+            }
         });
         
-        if(!res.ok) throw new Error("File non trovato o errore Token");
+        if(!res.ok) {
+            const errDetail = await res.json();
+            throw new Error(errDetail.message || "Errore sconosciuto");
+        }
         
         const data = await res.json();
         tickets = JSON.parse(decodeUTF8(data.content));
@@ -124,14 +131,21 @@ async function loadTickets() {
         populateFilterDropdowns();
         renderTable();
     } catch(e) {
-        console.error(e);
-        document.getElementById('ticketBody').innerHTML = `<tr><td colspan="15" class="p-4 text-red-500">Errore caricamento: ${e.message}. Verifica Repo e Token.</td></tr>`;
+        console.error("Errore Fetch:", e);
+        document.getElementById('ticketBody').innerHTML = `
+            <tr><td colspan="15" class="p-6 text-red-600 bg-red-50">
+                <p class="font-bold">❌ Errore caricamento ticket!</p>
+                <p class="text-xs mt-2"><b>Dettaglio:</b> ${e.message}</p>
+                <p class="text-xs"><b>URL tentato:</b> ${url}</p>
+                <p class="text-xs mt-2">Verifica che il file esista su GitHub nel percorso: <i>${filePath}</i></p>
+            </td></tr>`;
     }
 }
 
 function populateFilterDropdowns() {
     const fill = (id, key) => {
         const sel = document.getElementById(id);
+        sel.innerHTML = `<option value="">${id.replace('filter','').replace('Stato','Stati').replace('Tipo','Tipi').replace('Ambito','Ambiti')}: Tutti</option>`;
         const values = [...new Set(tickets.map(t => t[key]))].filter(Boolean);
         values.forEach(v => {
             const opt = document.createElement("option");
@@ -159,7 +173,6 @@ function renderTable() {
     });
 
     filtered.sort((a,b) => b.nrTicket - a.nrTicket).forEach((t) => {
-        // Controllo scadenza
         let expiredClass = "";
         if (t.dataFinePrevista && t.stato !== "Completato") {
             const d = new Date(t.dataFinePrevista);
@@ -169,7 +182,7 @@ function renderTable() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td class="text-center">
-                <button onclick='editTicket(${JSON.stringify(t).replace(/'/g, "&apos;")})' class="bg-yellow-400 px-2 py-1 rounded text-xs"><i class="fas fa-edit"></i></button>
+                <button onclick='editTicket(${JSON.stringify(t).replace(/'/g, "&apos;")})' class="bg-yellow-400 px-2 py-1 rounded text-xs hover:bg-yellow-500 transition"><i class="fas fa-edit"></i></button>
             </td>
             <td class="${expiredClass}"><b>${t.nrTicket}</b></td>
             <td class="status-${(t.stato||'').replace(/\s/g,'')}">${t.stato||''}</td>
@@ -180,7 +193,7 @@ function renderTable() {
             <td>${t.ambito||''}</td>
             <td>${t.menu||''}</td>
             <td>${t.titolo||''}</td>
-            <td class="wrap-text">${(t.descrizione||'').substring(0,100)}...</td>
+            <td class="wrap-text">${(t.descrizione||'').substring(0,150)}...</td>
             <td>${t.inCaricoA||''}</td>
             <td>${t.dataFinePrevista||''}</td>
             <td class="wrap-text-act">${(t.descrAttivita||'')}</td>
@@ -192,12 +205,12 @@ function renderTable() {
 
 function newTicket() {
     localStorage.removeItem('edit_ticket');
-    window.open("ticket_form.html", "_blank");
+    window.open("ticket_form.html", "_blank", "width=1200,height=900");
 }
 
 window.editTicket = function(ticketObj) {
     localStorage.setItem('edit_ticket', JSON.stringify(ticketObj));
-    window.open("ticket_form.html", "_blank");
+    window.open("ticket_form.html", "_blank", "width=1200,height=900");
 }
 
 loadTickets();
