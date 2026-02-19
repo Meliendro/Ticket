@@ -11,7 +11,6 @@
         h1 { font-weight: 700; }
         .table-container { overflow-x: auto; margin-top: 1rem; background: white; }
         
-        /* Cambiato table-layout in fixed per controllare le larghezze */
         table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 2500px; }
         
         th, td { padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; border-bottom: 1px solid #e5e7eb; }
@@ -33,14 +32,8 @@
         .filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
         .filter-bar select { padding: 0.25rem 0.5rem; border-radius: 0.5rem; border: 1px solid #d1d5db; background: #fff; color: #111827; font-size: 0.9rem; }
 
-        /* --- OTTIMIZZAZIONE COLONNE DESCRIZIONE --- */
-        
-        /* Colonna Descrizione (più larga) */
         .col-desc { width: 500px; } 
-        /* Colonna Descrizione Attività */
         .col-desc-act { width: 400px; }
-        
-        /* Altre colonne (larghezza fissa per evitare sovrapposizioni) */
         .col-small { width: 80px; }
         .col-medium { width: 150px; }
         .col-date { width: 130px; }
@@ -56,6 +49,9 @@
         }
 
         td, th { font-size: 0.875rem; }
+
+        /* Stile per Ticket Scaduto */
+        .expired-ticket { background-color: #ef4444 !important; color: white !important; font-weight: 800; text-align: center; border-radius: 4px; }
     </style>
 </head>
 <body class="p-6">
@@ -89,12 +85,14 @@
                 <th class="col-medium">Ambito</th>
                 <th class="col-medium">Menu</th>
                 <th class="col-medium">Titolo</th>
-                <th class="col-desc">Descrizione</th> <th class="col-medium">Inserito da</th>
+                <th class="col-desc">Descrizione</th> 
+                <th class="col-medium">Inserito da</th>
                 <th class="col-medium">In carico a</th>
                 <th class="col-date">Inizio Prev.</th>
                 <th class="col-date">Fine Prev.</th>
                 <th class="col-date">Data Rilascio</th>
-                <th class="col-desc-act">Descrizione Attività</th> <th class="col-date">Data Segnal.</th>
+                <th class="col-desc-act">Descrizione Attività</th> 
+                <th class="col-date">Data Segnal.</th>
                 <th class="col-date">Data Preso</th>
                 <th class="col-date">Data Rilasci.</th>
                 <th class="col-date">Data Test</th>
@@ -127,12 +125,12 @@ async function loadTickets() {
     if(!config) { alert("⚠️ Configurare GitHub per visualizzare i ticket"); return; }
     try {
         const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
-            headers: {Authorization:`token ${config.token}`}
+            headers: {Authorization:`token ${config.token}`, 'Cache-Control': 'no-cache'}
         });
         if(!res.ok) throw new Error("Errore caricamento ticket");
         const data = await res.json();
         fileSha = data.sha;
-        tickets = JSON.parse(atob(data.content));
+        tickets = JSON.parse(decodeURIComponent(escape(atob(data.content))));
         populateFilters();
         renderTable();
     } catch(e) { alert("Errore caricamento ticket: "+e.message); }
@@ -144,10 +142,13 @@ function populateFilters() {
     const selectBloccante = document.getElementById("filterBloccante");
     const selectAmbito = document.getElementById("filterAmbito");
 
-    [...new Set(tickets.map(t=>t.stato))].forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectStato.appendChild(opt); });
-    [...new Set(tickets.map(t=>t.tipo))].forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectTipo.appendChild(opt); });
-    [...new Set(tickets.map(t=>t.bloccante))].forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectBloccante.appendChild(opt); });
-    [...new Set(tickets.map(t=>t.ambito))].forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectAmbito.appendChild(opt); });
+    // Pulizia opzioni precedenti (tranne la prima)
+    [selectStato, selectTipo, selectBloccante, selectAmbito].forEach(s => s.innerHTML = s.options[0].outerHTML);
+
+    [...new Set(tickets.map(t=>t.stato))].filter(Boolean).forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectStato.appendChild(opt); });
+    [...new Set(tickets.map(t=>t.tipo))].filter(Boolean).forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectTipo.appendChild(opt); });
+    [...new Set(tickets.map(t=>t.bloccante))].filter(Boolean).forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectBloccante.appendChild(opt); });
+    [...new Set(tickets.map(t=>t.ambito))].filter(Boolean).forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectAmbito.appendChild(opt); });
 
     selectStato.onchange = ()=>{ filters.stato = selectStato.value; renderTable(); };
     selectTipo.onchange = ()=>{ filters.tipo = selectTipo.value; renderTable(); };
@@ -158,30 +159,49 @@ function populateFilters() {
 function renderTable() {
     const tbody = document.getElementById('ticketBody');
     tbody.innerHTML = "";
+    
+    // Data attuale (solo parte data per confronto preciso)
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
     tickets.sort((a,b)=>b.nrTicket - a.nrTicket).forEach((t,i)=>{
         if(filters.stato && t.stato!==filters.stato) return;
         if(filters.tipo && t.tipo!==filters.tipo) return;
         if(filters.bloccante && t.bloccante!==filters.bloccante) return;
         if(filters.ambito && t.ambito!==filters.ambito) return;
 
+        // Logica controllo scadenza
+        let isExpired = false;
+        if (t.dataFinePrevista && t.stato !== "Completato") {
+            const deadline = new Date(t.dataFinePrevista);
+            deadline.setHours(0,0,0,0);
+            if (today > deadline) {
+                isExpired = true;
+            }
+        }
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
-        <td class="text-center"><button onclick="editTicket(${i})" class="bg-yellow-400 p-2 rounded hover:bg-yellow-500 transition"><i class="fas fa-edit"></i></button></td>
-        <td><b>${t.nrTicket}</b></td>
-        <td class="status-${t.stato.replace(/\s/g,'')}">${t.stato}</td>
-        <td>${t.tipo}</td>
-        <td>${t.bloccante}</td>
-        <td class="priority-${t.priorita.toLowerCase()}">${t.priorita}</td>
-        <td>${t.dataInserimento}</td>
-        <td>${t.ambito}</td>
-        <td>${t.menu}</td>
-        <td>${t.titolo}</td>
-        <td class="wrap-text">${t.descrizione.replace(/\n/g,'<br>')}</td>
-        <td>${t.inseritoDa}</td>
-        <td>${t.inCaricoA}</td>
-        <td>${t.dataInizioPrevista}</td>
-        <td>${t.dataFinePrevista}</td>
-        <td>${t.dataRilascio}</td>
+        <td class="text-center">
+            <button onclick="editTicket(${i})" class="bg-yellow-400 p-2 rounded hover:bg-yellow-500 transition">
+                <i class="fas fa-edit"></i>
+            </button>
+        </td>
+        <td class="${isExpired ? 'expired-ticket' : ''}"><b>${t.nrTicket}</b></td>
+        <td class="status-${(t.stato || '').replace(/\s/g,'')}">${t.stato || ''}</td>
+        <td>${t.tipo || ''}</td>
+        <td>${t.bloccante || ''}</td>
+        <td class="priority-${(t.priorita || '').toLowerCase()}">${t.priorita || ''}</td>
+        <td>${t.dataInserimento || ''}</td>
+        <td>${t.ambito || ''}</td>
+        <td>${t.menu || ''}</td>
+        <td>${t.titolo || ''}</td>
+        <td class="wrap-text">${(t.descrizione || '').replace(/\n/g,'<br>')}</td>
+        <td>${t.inseritoDa || ''}</td>
+        <td>${t.inCaricoA || ''}</td>
+        <td>${t.dataInizioPrevista || ''}</td>
+        <td>${t.dataFinePrevista || ''}</td>
+        <td>${t.dataRilascio || ''}</td>
         <td class="wrap-text-act">${(t.descrAttivita || "").replace(/\n/g,'<br>')}</td>
         <td>${t.dataSegnalato||""}</td>
         <td>${t.dataPresoInCarico||""}</td>
@@ -195,12 +215,15 @@ function renderTable() {
 
 function newTicket() {
     localStorage.removeItem('edit_ticket');
-    window.open("ticket_form.html","_blank","width=800,height=900");
+    window.open("ticket_form.html","_blank","width=1100,height=900");
 }
 
 function editTicket(index){
-    localStorage.setItem('edit_ticket', JSON.stringify(tickets[index]));
-    window.open("ticket_form.html","_blank","width=800,height=900");
+    // Trovo l'oggetto ticket originale filtrando correttamente l'indice se necessario
+    // ma dato che renderTable usa l'indice del loop, passiamo l'oggetto direttamente
+    const sortedTickets = tickets.sort((a,b)=>b.nrTicket - a.nrTicket);
+    localStorage.setItem('edit_ticket', JSON.stringify(sortedTickets[index]));
+    window.open("ticket_form.html","_blank","width=1100,height=900");
 }
 
 loadTickets();
