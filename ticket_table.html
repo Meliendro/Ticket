@@ -208,12 +208,6 @@ function editTicket(index){
 }
 
 loadTickets();
-// Ricarica i dati quando la pagina torna visibile (es. dopo aver chiuso il form)
-document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'visible') {
-        console.log("Tabella tornata in primo piano: ricarico i dati...");
-        loadTickets(); // Chiama la tua funzione che scarica i dati da GitHub
-    }
 });    
 </script>
 </body>
