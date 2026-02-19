@@ -132,7 +132,11 @@ async function loadTickets() {
         if(!res.ok) throw new Error("Errore caricamento ticket");
         const data = await res.json();
         fileSha = data.sha;
-        tickets = JSON.parse(atob(data.content));
+ // sostituita        tickets = JSON.parse(atob(data.content));
+// Sostituisci: tickets = JSON.parse(atob(data.content));
+// Con questa versione sicura:
+tickets = JSON.parse(decodeURIComponent(escape(atob(data.content))));
+        
         populateFilters();
         renderTable();
     } catch(e) { alert("Errore caricamento ticket: "+e.message); }
