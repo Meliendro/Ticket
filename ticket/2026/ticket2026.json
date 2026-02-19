@@ -55,7 +55,7 @@
     "ambito": "FASE1",
     "menu": "Pianificazione Cantieri",
     "titolo": "Pianificazioni Sovrapposte",
-    "descrizione": "Quando pianifico due squadre in cui c'ÃÂ¨ uno stesso operatore su entrambe, e la pianificazione delle due squadre ÃÂ¨ sovrapposta non viene segnalata l'anomalia che l'operatore non puÃÂ² lavorare allo stesso tempo in due Squadre diverse",
+    "descrizione": "Quando pianifico due squadre in cui c'è uno stesso operatore su entrambe, e la pianificazione delle due squadre è sovrapposta non viene segnalata l'anomalia che l'operatore non puÃÂÃÂ² lavorare allo stesso tempo in due Squadre diverse",
     "inseritoDa": "Stefano Paoletto",
     "inCaricoA": "LEGUR",
     "dataInizioPrevista": "",
