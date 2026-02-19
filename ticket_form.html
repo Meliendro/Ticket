@@ -7,171 +7,58 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg,#1e293b,#0f172a);
-    min-height: 100vh;
-}
-.form-card{
-    background: rgba(255,255,255,0.95);
-    backdrop-filter: blur(10px);
-}
-input, select, textarea {
-    width: 100%;
-    padding: 0.6rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.6rem;
-    transition: all 0.2s ease;
-}
-input:focus, select:focus, textarea:focus{
-    border-color:#2563eb;
-    box-shadow:0 0 0 2px rgba(37,99,235,0.2);
-    outline:none;
-}
-input:disabled, select:disabled, textarea:disabled {
-    background: #e5e7eb;
-}
-label {
-    font-size: 0.70rem;
-    font-weight: 700;
-    margin-top: 0.25rem;
-    display:block;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color:#374151;
-}
-button { cursor: pointer; }
-.ticket-number-badge{
-    background:#2563eb;
-    color:white;
-    padding:6px 14px;
-    border-radius:999px;
-    font-weight:700;
-    font-size:0.9rem;
-}
-.section-title{
-    font-size:0.8rem;
-    font-weight:800;
-    letter-spacing:1px;
-    color:#1f2937;
-    border-bottom:2px solid #e5e7eb;
-    padding-bottom:4px;
-    margin-bottom:10px;
-}
+    body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg,#1e293b,#0f172a); min-height: 100vh; }
+    .form-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); }
+    input, select, textarea { width: 100%; padding: 0.6rem; border: 1px solid #d1d5db; border-radius: 0.6rem; transition: all 0.2s ease; }
+    input:focus, select:focus, textarea:focus { border-color:#2563eb; box-shadow:0 0 0 2px rgba(37,99,235,0.2); outline:none; }
+    input:disabled { background: #e5e7eb; }
+    label { font-size: 0.70rem; font-weight: 700; margin-top: 0.25rem; display:block; text-transform: uppercase; color:#374151; }
+    .ticket-number-badge { background:#2563eb; color:white; padding:6px 14px; border-radius:999px; font-weight:700; }
+    .section-title { font-size:0.8rem; font-weight:800; color:#1f2937; border-bottom:2px solid #e5e7eb; padding-bottom:4px; margin-bottom:10px; }
 </style>
 </head>
 <body class="p-6 flex justify-center">
 
 <div class="form-card w-full max-w-6xl rounded-2xl shadow-2xl p-8">
-
     <div class="flex justify-between items-center mb-6">
         <h1 id="ticketTitle" class="text-2xl font-extrabold text-gray-800">Nuovo Ticket</h1>
-        <div class="ticket-number-badge">
-            # <span id="ticketNumberPreview">--</span>
-        </div>
+        <div class="ticket-number-badge"># <span id="ticketNumberPreview">--</span></div>
     </div>
 
     <form id="ticketForm" class="space-y-6">
         <div>
             <div class="section-title">INFORMAZIONI GENERALI</div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label>Nr Ticket</label>
-                    <input type="text" id="nrTicket" disabled>
-                </div>
-                <div>
-                    <label>Stato</label>
-                    <select id="stato">
-                        <option value="">Caricamento...</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Tipo</label>
-                    <select id="tipo">
-                        <option value="">Caricamento...</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Bloccante</label>
-                    <select id="bloccante">
-                        <option value="">Caricamento...</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Priorità</label>
-                    <select id="priorita">
-                        <option value="">Caricamento...</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Data Inserimento</label>
-                    <input type="date" id="dataInserimento" disabled>
-                </div>
+                <div><label>Nr Ticket</label><input type="text" id="nrTicket" disabled></div>
+                <div><label>Stato</label><select id="stato"><option value="">Caricamento...</option></select></div>
+                <div><label>Tipo</label><select id="tipo"><option value="">Caricamento...</option></select></div>
+                <div><label>Bloccante</label><select id="bloccante"><option value="">Caricamento...</option></select></div>
+                <div><label>Priorità</label><select id="priorita"><option value="">Caricamento...</option></select></div>
+                <div><label>Data Inserimento</label><input type="date" id="dataInserimento" disabled></div>
             </div>
         </div>
 
         <div>
             <div class="section-title">DETTAGLIO TICKET</div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label>Ambito</label>
-                    <select id="ambito">
-                        <option>FASE1</option>
-                        <option>FASE2</option>
-                        <option>FASE3</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Menu</label>
-                    <select id="menu">
-                        <option value="">Caricamento...</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Titolo</label>
-                    <input type="text" id="titolo" placeholder="Titolo sintetico">
-                </div>
-                <div>
-                    <label>Descrizione</label>
-                    <textarea id="descrizione" rows="3" placeholder="Dettagli del ticket..."></textarea>
-                </div>
-                <div>
-                    <label>Inserito da</label>
-                    <input type="text" id="inseritoDa">
-                </div>
-                <div>
-                    <label>In carico a</label>
-                    <input type="text" id="inCaricoA">
-                </div>
-                <div>
-                    <label>Data Inizio Prevista</label>
-                    <input type="date" id="dataInizioPrevista">
-                </div>
-                <div>
-                    <label>Data Fine Prevista</label>
-                    <input type="date" id="dataFinePrevista">
-                </div>
-                <div>
-                    <label>Data Rilascio</label>
-                    <input type="date" id="dataRilascio">
-                </div>
-                <div>
-                    <label>Descrizione Attività</label>
-                    <textarea id="descrAttivita" rows="2"></textarea>
-                </div>
+                <div><label>Ambito</label><select id="ambito"><option>FASE1</option><option>FASE2</option><option>FASE3</option></select></div>
+                <div><label>Menu</label><select id="menu"><option value="">Caricamento...</option></select></div>
+                <div><label>Titolo</label><input type="text" id="titolo"></div>
+                <div><label>Descrizione</label><textarea id="descrizione" rows="3"></textarea></div>
+                <div><label>Inserito da</label><input type="text" id="inseritoDa"></div>
+                <div><label>In carico a</label><input type="text" id="inCaricoA"></div>
+                <div><label>Data Inizio Prevista</label><input type="date" id="dataInizioPrevista"></div>
+                <div><label>Data Fine Prevista</label><input type="date" id="dataFinePrevista"></div>
+                <div><label>Data Rilascio</label><input type="date" id="dataRilascio"></div>
+                <div><label>Descrizione Attività</label><textarea id="descrAttivita" rows="2"></textarea></div>
             </div>
         </div>
 
         <div class="flex justify-center gap-4 mt-6">
-            <button type="button" onclick="saveTicket()"
-                class="bg-gradient-to-r from-green-600 to-emerald-500 
-                text-white px-10 py-3 rounded-xl shadow-lg 
-                hover:scale-105 transition transform duration-200 font-bold">
+            <button type="button" onclick="saveTicket()" class="bg-gradient-to-r from-green-600 to-emerald-500 text-white px-10 py-3 rounded-xl shadow-lg hover:scale-105 transition font-bold">
                 <i class="fas fa-save"></i> Salva Ticket
             </button>
-            <button type="button" onclick="window.close()"
-                class="bg-gray-400 text-white px-10 py-3 rounded-xl shadow-lg 
-                hover:scale-105 transition transform duration-200 font-bold">
+            <button type="button" onclick="window.close()" class="bg-gray-400 text-white px-10 py-3 rounded-xl shadow-lg hover:scale-105 transition font-bold">
                 <i class="fas fa-times"></i> Annulla
             </button>
         </div>
@@ -182,18 +69,17 @@ button { cursor: pointer; }
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let editTicketData = JSON.parse(localStorage.getItem('edit_ticket')) || {};
 
-function b64DecodeUnicode(str) {
-    return decodeURIComponent(atob(str).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
+// Decodifica Base64 sicura per UTF-8 (essenziale per caratteri accentati)
+function decodeB64(str) {
+    return decodeURIComponent(atob(str).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
 }
 
-// Funzione universale per popolare una select
+// Popola le select con i dati dal JSON
 function populateSelect(id, dataArray, placeholder, currentValue) {
     const sel = document.getElementById(id);
     if(!sel) return;
     sel.innerHTML = `<option value="">-- ${placeholder} --</option>`;
-    if(dataArray && Array.isArray(dataArray)) {
+    if(dataArray) {
         dataArray.forEach(item => {
             const opt = document.createElement('option');
             opt.value = item;
@@ -204,85 +90,56 @@ function populateSelect(id, dataArray, placeholder, currentValue) {
     }
 }
 
-async function loadAllOptions() {
-    if(!config) return;
+async function loadData() {
+    if(!config) { alert("Configurazione GitHub mancante!"); return; }
+
     try {
-        const url = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`;
-        const res = await fetch(url, {
-            headers: { 'Authorization': `token ${config.token}`, 'Cache-Control': 'no-cache' }
+        // 1. Carica le liste dinamiche (Stato, Tipo, etc.)
+        const resLists = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`, {
+            headers: { Authorization: `token ${config.token}` }
         });
+        if(!resLists.ok) throw new Error("Impossibile trovare ticket/2026/liste.json");
         
-        if(!res.ok) throw new Error("File liste.json non trovato in ticket/2026/");
-        
-        const data = await res.json();
-        const lists = JSON.parse(b64DecodeUnicode(data.content));
-        
-        // Popolamento dinamico usando le chiavi ESATTE del tuo JSON
-        populateSelect('stato', lists.Stato, "Seleziona Stato", editTicketData.stato);
-        populateSelect('bloccante', lists.Bloccante, "Seleziona Bloccante", editTicketData.bloccante);
-        populateSelect('priorita', lists.Priorita, "Seleziona Priorità", editTicketData.priorita);
-        populateSelect('tipo', lists.Tipo, "Seleziona Tipo", editTicketData.tipo);
-        populateSelect('menu', lists.Menu, "Seleziona Menu", editTicketData.menu);
+        const dataLists = await resLists.json();
+        const lists = JSON.parse(decodeB64(dataLists.content));
 
+        // Usa le chiavi con la maiuscola come nel tuo JSON
+        populateSelect('stato', lists.Stato, "Stato", editTicketData.stato);
+        populateSelect('tipo', lists.Tipo, "Tipo", editTicketData.tipo);
+        populateSelect('bloccante', lists.Bloccante, "Bloccante", editTicketData.bloccante);
+        populateSelect('priorita', lists.Priorita, "Priorità", editTicketData.priorita);
+        populateSelect('menu', lists.Menu, "Menu", editTicketData.menu);
+
+        // 2. Inizializza campi data e numero ticket se nuovo
+        const today = new Date().toISOString().substr(0,10);
+        document.getElementById('dataInserimento').value = editTicketData.dataInserimento || today;
+
+        if(editTicketData.nrTicket) {
+            document.getElementById('ticketTitle').innerText = "Modifica Ticket";
+            document.getElementById('ticketNumberPreview').innerText = editTicketData.nrTicket;
+            for(let key in editTicketData) {
+                let el = document.getElementById(key);
+                if(el && key !== 'stato' && key !== 'tipo' && key !== 'bloccante' && key !== 'priorita' && key !== 'menu') {
+                    el.value = editTicketData[key];
+                }
+            }
+        }
     } catch(e) {
-        console.error(e);
-        alert("Errore caricamento liste: " + e.message);
+        alert("Errore caricamento dati: " + e.message);
     }
 }
 
-function initializeForm() {
-    const today = new Date().toISOString().substr(0,10);
-    document.getElementById('dataInserimento').value = today;
-
-    if(editTicketData && editTicketData.nrTicket){
-        document.getElementById('ticketTitle').innerText = "Modifica Ticket";
-        document.getElementById('ticketNumberPreview').innerText = editTicketData.nrTicket;
-        
-        // Carica dati testuali
-        const fields = ['nrTicket', 'titolo', 'descrizione', 'inseritoDa', 'inCaricoA', 
-                       'dataInizioPrevista', 'dataFinePrevista', 'dataRilascio', 'descrAttivita', 'ambito'];
-        fields.forEach(f => {
-            const el = document.getElementById(f);
-            if(el && editTicketData[f]) el.value = editTicketData[f];
-        });
-    }
-    
-    // Carica le opzioni dai menu a tendina
-    loadAllOptions();
-}
-
-document.getElementById('stato').addEventListener('change', function(){
-    const stato = this.value;
-    const now = new Date().toLocaleDateString('it-IT');
-    if(stato === "Segnalato" && !editTicketData.dataSegnalato) editTicketData.dataSegnalato = now;
-    if(stato === "Preso in carico" && !editTicketData.dataPresoInCarico) editTicketData.dataPresoInCarico = now;
-    if(stato === "Rilasciato" && !editTicketData.dataRilasciato) editTicketData.dataRilasciato = now;
-    if(stato === "In Test" && !editTicketData.dataInTest) editTicketData.dataInTest = now;
-    if(stato === "Completato" && !editTicketData.dataCompletato) editTicketData.dataCompletato = now;
-});
-
-async function saveTicket(){
-    if(!config){ alert("⚠️ Configura GitHub"); return; }
-    const saveBtn = document.querySelector('button[onclick="saveTicket()"]');
-    saveBtn.disabled = true;
-    saveBtn.innerText = "Salvataggio...";
-
+async function saveTicket() {
     try {
         const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
-            headers: {Authorization:`token ${config.token}`, 'Cache-Control': 'no-cache'}
+            headers: { Authorization: `token ${config.token}` }
         });
-        
-        let tickets = [];
-        let currentSha = "";
-        
-        if(res.ok) {
-            const data = await res.json();
-            currentSha = data.sha;
-            tickets = JSON.parse(b64DecodeUnicode(data.content));
-        }
+        const data = await res.json();
+        const tickets = JSON.parse(decodeB64(data.content));
+        const sha = data.sha;
 
         let nrTicket = editTicketData.nrTicket || (tickets.length ? Math.max(...tickets.map(t=>t.nrTicket)) + 1 : 1);
-
+        
         const t = {
             nrTicket,
             stato: document.getElementById('stato').value,
@@ -300,6 +157,7 @@ async function saveTicket(){
             dataFinePrevista: document.getElementById('dataFinePrevista').value,
             dataRilascio: document.getElementById('dataRilascio').value,
             descrAttivita: document.getElementById('descrAttivita').value,
+            // Mantieni le date di tracciamento se esistenti
             dataSegnalato: editTicketData.dataSegnalato || "",
             dataPresoInCarico: editTicketData.dataPresoInCarico || "",
             dataRilasciato: editTicketData.dataRilasciato || "",
@@ -307,36 +165,32 @@ async function saveTicket(){
             dataCompletato: editTicketData.dataCompletato || ""
         };
 
-        if(editTicketData.nrTicket){
-            const index = tickets.findIndex(tt => tt.nrTicket === editTicketData.nrTicket);
-            if(index !== -1) tickets[index] = t;
-            else tickets.push(t);
-        } else {
-            tickets.push(t);
-        }
+        // Aggiornamento date automatizzato al cambio stato (logica semplificata qui o nel trigger change)
+        const now = new Date().toLocaleDateString('it-IT');
+        if(t.stato === "Segnalato" && !t.dataSegnalato) t.dataSegnalato = now;
+        if(t.stato === "Preso in carico" && !t.dataPresoInCarico) t.dataPresoInCarico = now;
+        if(t.stato === "Rilasciato" && !t.dataRilasciato) t.dataRilasciato = now;
+        if(t.stato === "In Test" && !t.dataInTest) t.dataInTest = now;
+        if(t.stato === "Completato" && !t.dataCompletato) t.dataCompletato = now;
+
+        const index = tickets.findIndex(tt => tt.nrTicket === nrTicket);
+        if(index !== -1) tickets[index] = t; else tickets.push(t);
 
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(tickets, null, 2))));
-        const body = { message: `Ticket #${t.nrTicket}`, content: content, sha: currentSha };
-
         const putRes = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
             method: "PUT",
-            headers: { "Authorization": `token ${config.token}`, "Content-Type": "application/json" },
-            body: JSON.stringify(body)
+            headers: { Authorization: `token ${config.token}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ message: `Update Ticket #${nrTicket}`, content, sha })
         });
 
-        if(!putRes.ok) throw new Error("Errore durante l'invio");
-        
-        alert("Salvataggio completato!");
-        window.close();
-        
-    } catch(e){ 
-        alert("Errore: " + e.message); 
-        saveBtn.disabled = false;
-        saveBtn.innerText = "Salva Ticket";
+        if(putRes.ok) { alert("Ticket salvato!"); window.close(); }
+        else throw new Error("Errore durante il salvataggio su GitHub");
+    } catch(e) {
+        alert(e.message);
     }
 }
 
-initializeForm();
+loadData();
 </script>
 </body>
 </html>
