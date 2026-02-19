@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -66,8 +66,7 @@ label {
 <h1 class="text-2xl font-extrabold text-gray-800 mb-6">Gestione Liste Ticket</h1>
 
 <div id="listsContainer" class="space-y-6">
-    <!-- Liste saranno generate dinamicamente qui -->
-</div>
+    </div>
 
 <div class="flex justify-center gap-4 mt-6">
     <button onclick="saveLists()"
@@ -86,12 +85,14 @@ label {
 </div>
 
 <script>
+// Aggiunta la chiave Email qui
 let lists = {
     Bloccante: [],
     Stato: [],
     Priorita: [],
     Tipo: [],
-    Menu: []
+    Menu: [],
+    Email: [] 
 };
 
 // Genera la UI per ogni lista
@@ -177,7 +178,9 @@ async function loadLists(){
             headers:{Authorization:`token ${config.token}`}
         });
         const data = await res.json();
-        lists = JSON.parse(atob(data.content));
+        // Carica i dati e si assicura che la chiave Email esista anche se il file vecchio non l'aveva
+        const loadedData = JSON.parse(atob(data.content));
+        lists = { ...lists, ...loadedData }; 
         renderLists();
     }catch(e){ alert("Errore caricamento: "+e.message); }
 }
