@@ -10,40 +10,32 @@
         body { font-family: 'Segoe UI', sans-serif; background: #f4f4f5; }
         h1 { font-weight: 700; }
         .table-container { overflow-x: auto; margin-top: 1rem; background: white; }
-        
-        /* Cambiato table-layout in fixed per controllare le larghezze */
+
         table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 2500px; }
-        
+
         th, td { padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; border-bottom: 1px solid #e5e7eb; }
         th { background: #1f2937; color: #fff; position: sticky; top: 0; z-index: 1; }
         tr:nth-child(even) { background: #f9fafb; }
-        
-        /* Classi Priorità */
+
         .priority-alta { background: #dc2626 !important; color: #fff; font-weight: bold; text-align: center; }
         .priority-media { background: #f59e0b !important; color: #fff; font-weight: bold; text-align: center; }
         .priority-bassa { background: #10b981 !important; color: #fff; font-weight: bold; text-align: center; }
-        
-        /* Classi Stato */
+
         .status-Segnalato { color: #ef4444; font-weight: bold; }
         .status-Preso { color: #f59e0b; font-weight: bold; }
         .status-Rilasciato { color: #3b82f6; font-weight: bold; }
         .status-InTest { color: #6366f1; font-weight: bold; }
         .status-Completato { color: #10b981; font-weight: bold; }
-        
-        /* Classe per Scadenza Superata */
-        .scaduto { background-color: #ef4444 !important; color: white !important; font-weight: bold; }
-        
-        .filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
-        .filter-bar select { padding: 0.25rem 0.5rem; border-radius: 0.5rem; border: 1px solid #d1d5db; background: #fff; color: #111827; font-size: 0.9rem; }
 
-        /* --- OTTIMIZZAZIONE COLONNE DESCRIZIONE --- */
-        
-        /* Colonna Descrizione (più larga) */
-        .col-desc { width: 500px; } 
-        /* Colonna Descrizione Attività */
+        .scaduto { background-color: #ef4444 !important; color: white !important; font-weight: bold; }
+
+        .locked-row { background-color: #f3f4f6 !important; }
+
+        .filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .filter-bar select { padding: 0.25rem 0.5rem; border-radius: 0.5rem; border: 1px solid #d1d5db; background: #fff; font-size: 0.9rem; }
+
+        .col-desc { width: 500px; }
         .col-desc-act { width: 400px; }
-        
-        /* Altre colonne (larghezza fissa per evitare sovrapposizioni) */
         .col-small { width: 80px; }
         .col-medium { width: 150px; }
         .col-date { width: 130px; }
@@ -66,16 +58,26 @@
 <header class="flex justify-between items-center mb-2">
     <h1 class="text-2xl text-slate-800">Gestione Ticket</h1>
     <div class="flex gap-3">
-        <button onclick="newTicket()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"><i class="fas fa-plus"></i> Nuovo Ticket</button>
-        <button onclick="configureGitHub()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700 transition"><i class="fas fa-cog"></i> Config GitHub</button>
+        <button onclick="newTicket()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">
+            <i class="fas fa-plus"></i> Nuovo Ticket
+        </button>
+        <button onclick="configureGitHub()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700 transition">
+            <i class="fas fa-cog"></i> Config GitHub
+        </button>
     </div>
 </header>
 
-<div class="filter-bar" id="filterBar">
+<div class="filter-bar">
     <select id="filterStato"><option value="">Tutti gli Stati</option></select>
     <select id="filterTipo"><option value="">Tutti i Tipi</option></select>
     <select id="filterBloccante"><option value="">Bloccante / Non Bloccante</option></select>
     <select id="filterAmbito"><option value="">Tutti gli Ambiti</option></select>
+
+    <!-- NUOVO FILTRO -->
+    <select id="filterCompletati">
+        <option value="nascondi" selected>Nascondi ticket completati 🔒</option>
+        <option value="mostra">Mostra ticket completati 🔒</option>
+    </select>
 </div>
 
 <div class="table-container border rounded shadow-lg">
@@ -92,12 +94,14 @@
                 <th class="col-medium">Ambito</th>
                 <th class="col-medium">Menu</th>
                 <th class="col-medium">Titolo</th>
-                <th class="col-desc">Descrizione</th> <th class="col-medium">Inserito da</th>
+                <th class="col-desc">Descrizione</th>
+                <th class="col-medium">Inserito da</th>
                 <th class="col-medium">In carico a</th>
                 <th class="col-date">Inizio Prev.</th>
                 <th class="col-date">Fine Prev.</th>
                 <th class="col-date">Data Rilascio</th>
-                <th class="col-desc-act">Descrizione Attività</th> <th class="col-date">Data Segnal.</th>
+                <th class="col-desc-act">Descrizione Attività</th>
+                <th class="col-date">Data Segnal.</th>
                 <th class="col-date">Data Preso</th>
                 <th class="col-date">Data Rilasci.</th>
                 <th class="col-date">Data Test</th>
@@ -111,8 +115,7 @@
 <script>
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let tickets = [];
-let fileSha = "";
-let filters = { stato:"", tipo:"", bloccante:"", ambito:"" };
+let filters = { stato:"", tipo:"", bloccante:"", ambito:"", completati:"nascondi" };
 
 function configureGitHub() {
     const pin = prompt("Inserisci PIN per configurazione:");
@@ -120,91 +123,72 @@ function configureGitHub() {
         const repo = prompt("Repo GitHub (es: user/repo)");
         const token = prompt("Token GitHub");
         localStorage.setItem('gh_ticket_config', JSON.stringify({repo, token}));
-        config = {repo, token};
-        alert("Configurazione salvata!");
         location.reload();
     } else alert("PIN errato");
 }
 
 async function loadTickets() {
-    if(!config) { alert("⚠️ Configurare GitHub per visualizzare i ticket"); return; }
-    try {
-        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
-            headers: {Authorization:`token ${config.token}`}
-        });
-        if(!res.ok) throw new Error("Errore caricamento ticket");
-        const data = await res.json();
-        fileSha = data.sha;
-        tickets = JSON.parse(atob(data.content));
-        populateFilters();
-        renderTable();
-    } catch(e) { alert("Errore caricamento ticket: "+e.message); }
+    if(!config) { alert("⚠️ Configurare GitHub"); return; }
+
+    const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
+        headers: {Authorization:`token ${config.token}`}
+    });
+    const data = await res.json();
+    tickets = JSON.parse(atob(data.content));
+    populateFilters();
+    renderTable();
 }
 
-function populateFilters() {
-    const selectStato = document.getElementById("filterStato");
-    const selectTipo = document.getElementById("filterTipo");
-    const selectBloccante = document.getElementById("filterBloccante");
-    const selectAmbito = document.getElementById("filterAmbito");
-
-    [...new Set(tickets.map(t=>t.stato))].forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectStato.appendChild(opt); });
-    [...new Set(tickets.map(t=>t.tipo))].forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectTipo.appendChild(opt); });
-    [...new Set(tickets.map(t=>t.bloccante))].forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectBloccante.appendChild(opt); });
-    [...new Set(tickets.map(t=>t.ambito))].forEach(s=>{ const opt=document.createElement("option"); opt.value=s; opt.text=s; selectAmbito.appendChild(opt); });
-
-    selectStato.onchange = ()=>{ filters.stato = selectStato.value; renderTable(); };
-    selectTipo.onchange = ()=>{ filters.tipo = selectTipo.value; renderTable(); };
-    selectBloccante.onchange = ()=>{ filters.bloccante = selectBloccante.value; renderTable(); };
-    selectAmbito.onchange = ()=>{ filters.ambito = selectAmbito.value; renderTable(); };
+function populateFilters(){
+    document.getElementById("filterCompletati").onchange = (e)=>{
+        filters.completati = e.target.value;
+        renderTable();
+    };
 }
 
 function renderTable() {
     const tbody = document.getElementById('ticketBody');
     tbody.innerHTML = "";
-    
-    // Ottieni la data odierna senza orario per il confronto
-    const oggi = new Date();
-    oggi.setHours(0, 0, 0, 0);
 
     tickets.sort((a,b)=>b.nrTicket - a.nrTicket).forEach((t,i)=>{
-        if(filters.stato && t.stato!==filters.stato) return;
-        if(filters.tipo && t.tipo!==filters.tipo) return;
-        if(filters.bloccante && t.bloccante!==filters.bloccante) return;
-        if(filters.ambito && t.ambito!==filters.ambito) return;
 
-        // Logica controllo scadenza
-        let classeScadenza = "";
-        if (t.dataFinePrevista && t.stato !== "Completato") {
-            const scadenza = new Date(t.dataFinePrevista);
-            if (scadenza < oggi) {
-                classeScadenza = "scaduto";
-            }
-        }
+        if(filters.completati==="nascondi" && t.dataCompletamentoSviluppo) return;
+
+        const isLocked = !!t.dataCompletamentoSviluppo;
+        const lockIcon = isLocked ? '<i class="fas fa-lock text-red-600 ml-1"></i>' : '';
+        const disabledEdit = isLocked ? 'disabled class="bg-gray-300 p-2 rounded cursor-not-allowed"' :
+            'class="bg-yellow-400 p-2 rounded hover:bg-yellow-500 transition"';
 
         const tr = document.createElement('tr');
+        if(isLocked) tr.classList.add("locked-row");
+
         tr.innerHTML = `
-        <td class="text-center"><button onclick="editTicket(${i})" class="bg-yellow-400 p-2 rounded hover:bg-yellow-500 transition"><i class="fas fa-edit"></i></button></td>
-        <td class="${classeScadenza}"><b>${t.nrTicket}</b></td>
-        <td class="status-${t.stato.replace(/\s/g,'')}">${t.stato}</td>
+        <td class="text-center">
+            <button onclick="${isLocked ? '' : 'editTicket('+i+')'}" ${disabledEdit}>
+                <i class="fas fa-edit"></i>
+            </button>
+        </td>
+        <td><b>${t.nrTicket}</b> ${lockIcon}</td>
+        <td>${t.stato}</td>
         <td>${t.tipo}</td>
         <td>${t.bloccante}</td>
-        <td class="priority-${t.priorita.toLowerCase()}">${t.priorita}</td>
+        <td>${t.priorita}</td>
         <td>${t.dataInserimento}</td>
         <td>${t.ambito}</td>
         <td>${t.menu}</td>
         <td>${t.titolo}</td>
-        <td class="wrap-text">${t.descrizione.replace(/\n/g,'<br>')}</td>
+        <td class="wrap-text">${(t.descrizione||"").replace(/\n/g,'<br>')}</td>
         <td>${t.inseritoDa}</td>
         <td>${t.inCaricoA}</td>
         <td>${t.dataInizioPrevista}</td>
         <td>${t.dataFinePrevista}</td>
         <td>${t.dataRilascio}</td>
-        <td class="wrap-text-act">${(t.descrAttivita || "").replace(/\n/g,'<br>')}</td>
+        <td class="wrap-text-act">${(t.descrAttivita||"").replace(/\n/g,'<br>')}</td>
         <td>${t.dataSegnalato||""}</td>
         <td>${t.dataPresoInCarico||""}</td>
         <td>${t.dataRilasciato||""}</td>
         <td>${t.dataInTest||""}</td>
-        <td>${t.dataCompletato||""}</td>
+        <td>${t.dataCompletamentoSviluppo||""}</td>
         `;
         tbody.appendChild(tr);
     });
@@ -221,14 +205,6 @@ function editTicket(index){
 }
 
 loadTickets();
-// Resta in ascolto di segnali dal form
-const channel = new BroadcastChannel('ticket_updates');
-channel.onmessage = (event) => {
-    if (event.data === 'reload_table') {
-        console.log("Ricevuto segnale di aggiornamento, ricarico...");
-        loadTickets(); // Ricarica i dati senza refresh della pagina intera
-    }
-};
 </script>
 </body>
 </html>
