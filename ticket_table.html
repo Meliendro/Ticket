@@ -1,210 +1,221 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket Table</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f4f5; }
-        h1 { font-weight: 700; }
-        .table-container { overflow-x: auto; margin-top: 1rem; background: white; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket Table</title>
 
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 2500px; }
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        th, td { padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; border-bottom: 1px solid #e5e7eb; }
-        th { background: #1f2937; color: #fff; position: sticky; top: 0; z-index: 1; }
-        tr:nth-child(even) { background: #f9fafb; }
+<style>
+body { font-family: 'Segoe UI', sans-serif; background: #f4f4f5; }
+h1 { font-weight: 700; }
+.table-container { overflow-x: auto; margin-top: 1rem; background: white; }
 
-        .priority-alta { background: #dc2626 !important; color: #fff; font-weight: bold; text-align: center; }
-        .priority-media { background: #f59e0b !important; color: #fff; font-weight: bold; text-align: center; }
-        .priority-bassa { background: #10b981 !important; color: #fff; font-weight: bold; text-align: center; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 2500px; }
 
-        .status-Segnalato { color: #ef4444; font-weight: bold; }
-        .status-Preso { color: #f59e0b; font-weight: bold; }
-        .status-Rilasciato { color: #3b82f6; font-weight: bold; }
-        .status-InTest { color: #6366f1; font-weight: bold; }
-        .status-Completato { color: #10b981; font-weight: bold; }
+th, td { padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; border-bottom: 1px solid #e5e7eb; }
+th { background: #1f2937; color: #fff; position: sticky; top: 0; z-index: 1; }
+tr:nth-child(even) { background: #f9fafb; }
 
-        .scaduto { background-color: #ef4444 !important; color: white !important; font-weight: bold; }
+.priority-alta { background: #dc2626 !important; color: #fff; font-weight: bold; text-align: center; }
+.priority-media { background: #f59e0b !important; color: #fff; font-weight: bold; text-align: center; }
+.priority-bassa { background: #10b981 !important; color: #fff; font-weight: bold; text-align: center; }
 
-        .locked-row { background-color: #f3f4f6 !important; }
+.status-Segnalato { color: #ef4444; font-weight: bold; }
+.status-Preso { color: #f59e0b; font-weight: bold; }
+.status-Rilasciato { color: #3b82f6; font-weight: bold; }
+.status-InTest { color: #6366f1; font-weight: bold; }
+.status-Completato { color: #10b981; font-weight: bold; }
 
-        .filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
-        .filter-bar select { padding: 0.25rem 0.5rem; border-radius: 0.5rem; border: 1px solid #d1d5db; background: #fff; font-size: 0.9rem; }
+/* NUOVO STILE RITARDO */
+.ritardo-row {
+    background-color: rgba(239,68,68,0.12) !important;
+    border-left: 4px solid #ef4444;
+}
 
-        .col-desc { width: 500px; }
-        .col-desc-act { width: 400px; }
-        .col-small { width: 80px; }
-        .col-medium { width: 150px; }
-        .col-date { width: 130px; }
+/* Ticket bloccato */
+.locked-row {
+    background-color: #f3f4f6 !important;
+}
 
-        td.wrap-text, td.wrap-text-act {
-            white-space: normal;
-            word-break: break-word;
-            line-height: 1.5;
-            max-height: 150px;
-            overflow-y: auto;
-            font-size: 0.85rem;
-            color: #374151;
-        }
+.filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
+.filter-bar select { padding: 0.25rem 0.5rem; border-radius: 0.5rem; border: 1px solid #d1d5db; background: #fff; font-size: 0.9rem; }
 
-        td, th { font-size: 0.875rem; }
-    </style>
+.col-desc { width: 500px; }
+.col-desc-act { width: 400px; }
+.col-small { width: 80px; }
+.col-medium { width: 150px; }
+.col-date { width: 130px; }
+
+td.wrap-text, td.wrap-text-act {
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.5;
+    max-height: 150px;
+    overflow-y: auto;
+    font-size: 0.85rem;
+    color: #374151;
+}
+
+td, th { font-size: 0.875rem; }
+</style>
 </head>
+
 <body class="p-6">
 
 <header class="flex justify-between items-center mb-2">
-    <h1 class="text-2xl text-slate-800">Gestione Ticket</h1>
-    <div class="flex gap-3">
-        <button onclick="newTicket()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">
-            <i class="fas fa-plus"></i> Nuovo Ticket
-        </button>
-        <button onclick="configureGitHub()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700 transition">
-            <i class="fas fa-cog"></i> Config GitHub
-        </button>
-    </div>
+<h1 class="text-2xl text-slate-800">Gestione Ticket</h1>
+<div class="flex gap-3">
+<button onclick="newTicket()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">
+<i class="fas fa-plus"></i> Nuovo Ticket
+</button>
+<button onclick="configureGitHub()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700 transition">
+<i class="fas fa-cog"></i> Config GitHub
+</button>
+</div>
 </header>
 
 <div class="filter-bar">
-    <select id="filterStato"><option value="">Tutti gli Stati</option></select>
-    <select id="filterTipo"><option value="">Tutti i Tipi</option></select>
-    <select id="filterBloccante"><option value="">Bloccante / Non Bloccante</option></select>
-    <select id="filterAmbito"><option value="">Tutti gli Ambiti</option></select>
+<select id="filterStato"><option value="">Tutti gli Stati</option></select>
+<select id="filterTipo"><option value="">Tutti i Tipi</option></select>
+<select id="filterBloccante"><option value="">Bloccante / Non Bloccante</option></select>
+<select id="filterAmbito"><option value="">Tutti gli Ambiti</option></select>
 
-    <!-- NUOVO FILTRO -->
-    <select id="filterCompletati">
-        <option value="nascondi" selected>Nascondi ticket completati 🔒</option>
-        <option value="mostra">Mostra ticket completati 🔒</option>
-    </select>
+<select id="filterCompletati">
+<option value="nascondi" selected>Nascondi ticket completati 🔒</option>
+<option value="mostra">Mostra ticket completati 🔒</option>
+</select>
 </div>
 
 <div class="table-container border rounded shadow-lg">
-    <table id="ticketTable">
-        <thead>
-            <tr>
-                <th class="col-small">Modifica</th>
-                <th class="col-small">Nr Ticket</th>
-                <th class="col-medium">Stato</th>
-                <th class="col-medium">Tipo</th>
-                <th class="col-medium">Bloccante</th>
-                <th class="col-small">Priorità</th>
-                <th class="col-date">Data Inser.</th>
-                <th class="col-medium">Ambito</th>
-                <th class="col-medium">Menu</th>
-                <th class="col-medium">Titolo</th>
-                <th class="col-desc">Descrizione</th>
-                <th class="col-medium">Inserito da</th>
-                <th class="col-medium">In carico a</th>
-                <th class="col-date">Inizio Prev.</th>
-                <th class="col-date">Fine Prev.</th>
-                <th class="col-date">Data Rilascio</th>
-                <th class="col-desc-act">Descrizione Attività</th>
-                <th class="col-date">Data Segnal.</th>
-                <th class="col-date">Data Preso</th>
-                <th class="col-date">Data Rilasci.</th>
-                <th class="col-date">Data Test</th>
-                <th class="col-date">Data Compl.</th>
-            </tr>
-        </thead>
-        <tbody id="ticketBody"></tbody>
-    </table>
+<table id="ticketTable">
+<thead>
+<tr>
+<th class="col-small">Modifica</th>
+<th class="col-small">Nr Ticket</th>
+<th class="col-medium">Stato</th>
+<th class="col-medium">Tipo</th>
+<th class="col-medium">Bloccante</th>
+<th class="col-small">Priorità</th>
+<th class="col-date">Data Inser.</th>
+<th class="col-medium">Ambito</th>
+<th class="col-medium">Menu</th>
+<th class="col-medium">Titolo</th>
+<th class="col-desc">Descrizione</th>
+<th class="col-medium">Inserito da</th>
+<th class="col-medium">In carico a</th>
+<th class="col-date">Inizio Prev.</th>
+<th class="col-date">Fine Prev.</th>
+<th class="col-date">Data Rilascio</th>
+<th class="col-desc-act">Descrizione Attività</th>
+<th class="col-date">Data Segnal.</th>
+<th class="col-date">Data Preso</th>
+<th class="col-date">Data Rilasci.</th>
+<th class="col-date">Data Test</th>
+<th class="col-date">Data Compl.</th>
+</tr>
+</thead>
+<tbody id="ticketBody"></tbody>
+</table>
 </div>
 
 <script>
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let tickets = [];
-let filters = { stato:"", tipo:"", bloccante:"", ambito:"", completati:"nascondi" };
-
-function configureGitHub() {
-    const pin = prompt("Inserisci PIN per configurazione:");
-    if(pin === "1234"){
-        const repo = prompt("Repo GitHub (es: user/repo)");
-        const token = prompt("Token GitHub");
-        localStorage.setItem('gh_ticket_config', JSON.stringify({repo, token}));
-        location.reload();
-    } else alert("PIN errato");
-}
+let filters = { completati:"nascondi" };
 
 async function loadTickets() {
-    if(!config) { alert("⚠️ Configurare GitHub"); return; }
+if(!config) { alert("⚠️ Configurare GitHub"); return; }
 
-    const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
-        headers: {Authorization:`token ${config.token}`}
-    });
-    const data = await res.json();
-    tickets = JSON.parse(atob(data.content));
-    populateFilters();
-    renderTable();
+const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
+headers: {Authorization:`token ${config.token}`}
+});
+const data = await res.json();
+tickets = JSON.parse(atob(data.content));
+renderTable();
 }
 
-function populateFilters(){
-    document.getElementById("filterCompletati").onchange = (e)=>{
-        filters.completati = e.target.value;
-        renderTable();
-    };
-}
+document.getElementById("filterCompletati").onchange = (e)=>{
+filters.completati = e.target.value;
+renderTable();
+};
 
 function renderTable() {
-    const tbody = document.getElementById('ticketBody');
-    tbody.innerHTML = "";
 
-    tickets.sort((a,b)=>b.nrTicket - a.nrTicket).forEach((t,i)=>{
+const tbody = document.getElementById('ticketBody');
+tbody.innerHTML = "";
 
-        if(filters.completati==="nascondi" && t.dataCompletamentoSviluppo) return;
+const oggi = new Date();
+oggi.setHours(0,0,0,0);
 
-        const isLocked = !!t.dataCompletamentoSviluppo;
-        const lockIcon = isLocked ? '<i class="fas fa-lock text-red-600 ml-1"></i>' : '';
-        const disabledEdit = isLocked ? 'disabled class="bg-gray-300 p-2 rounded cursor-not-allowed"' :
-            'class="bg-yellow-400 p-2 rounded hover:bg-yellow-500 transition"';
+tickets.sort((a,b)=>b.nrTicket - a.nrTicket).forEach((t,i)=>{
 
-        const tr = document.createElement('tr');
-        if(isLocked) tr.classList.add("locked-row");
+if(filters.completati==="nascondi" && t.dataCompletamentoSviluppo) return;
 
-        tr.innerHTML = `
-        <td class="text-center">
-            <button onclick="${isLocked ? '' : 'editTicket('+i+')'}" ${disabledEdit}>
-                <i class="fas fa-edit"></i>
-            </button>
-        </td>
-        <td><b>${t.nrTicket}</b> ${lockIcon}</td>
-        <td>${t.stato}</td>
-        <td>${t.tipo}</td>
-        <td>${t.bloccante}</td>
-        <td>${t.priorita}</td>
-        <td>${t.dataInserimento}</td>
-        <td>${t.ambito}</td>
-        <td>${t.menu}</td>
-        <td>${t.titolo}</td>
-        <td class="wrap-text">${(t.descrizione||"").replace(/\n/g,'<br>')}</td>
-        <td>${t.inseritoDa}</td>
-        <td>${t.inCaricoA}</td>
-        <td>${t.dataInizioPrevista}</td>
-        <td>${t.dataFinePrevista}</td>
-        <td>${t.dataRilascio}</td>
-        <td class="wrap-text-act">${(t.descrAttivita||"").replace(/\n/g,'<br>')}</td>
-        <td>${t.dataSegnalato||""}</td>
-        <td>${t.dataPresoInCarico||""}</td>
-        <td>${t.dataRilasciato||""}</td>
-        <td>${t.dataInTest||""}</td>
-        <td>${t.dataCompletamentoSviluppo||""}</td>
-        `;
-        tbody.appendChild(tr);
-    });
+const isLocked = !!t.dataCompletamentoSviluppo;
+
+let isInRitardo = false;
+if (t.dataFinePrevista && t.stato !== "Completato") {
+const scadenza = new Date(t.dataFinePrevista);
+if (scadenza < oggi) isInRitardo = true;
+}
+
+const tr = document.createElement('tr');
+
+if(isLocked) tr.classList.add("locked-row");
+if(isInRitardo) tr.classList.add("ritardo-row");
+
+const lockIcon = isLocked ? '<i class="fas fa-lock text-red-600 ml-1"></i>' : '';
+const disabledEdit = isLocked ? 'disabled class="bg-gray-300 p-2 rounded cursor-not-allowed"' :
+'class="bg-yellow-400 p-2 rounded hover:bg-yellow-500 transition"';
+
+tr.innerHTML = `
+<td class="text-center">
+<button onclick="${isLocked ? '' : 'editTicket('+i+')'}" ${disabledEdit}>
+<i class="fas fa-edit"></i>
+</button>
+</td>
+<td><b>${t.nrTicket}</b> ${lockIcon}</td>
+<td>${t.stato}</td>
+<td>${t.tipo}</td>
+<td>${t.bloccante}</td>
+<td class="priority-${(t.priorita||'').toLowerCase()}">${t.priorita||''}</td>
+<td>${t.dataInserimento||''}</td>
+<td>${t.ambito||''}</td>
+<td>${t.menu||''}</td>
+<td>${t.titolo||''}</td>
+<td class="wrap-text">${(t.descrizione||"").replace(/\n/g,'<br>')}</td>
+<td>${t.inseritoDa||''}</td>
+<td>${t.inCaricoA||''}</td>
+<td>${t.dataInizioPrevista||''}</td>
+<td>${t.dataFinePrevista||''}</td>
+<td>${t.dataRilascio||''}</td>
+<td class="wrap-text-act">${(t.descrAttivita||"").replace(/\n/g,'<br>')}</td>
+<td>${t.dataSegnalato||""}</td>
+<td>${t.dataPresoInCarico||""}</td>
+<td>${t.dataRilasciato||""}</td>
+<td>${t.dataInTest||""}</td>
+<td>${t.dataCompletamentoSviluppo||""}</td>
+`;
+
+tbody.appendChild(tr);
+});
 }
 
 function newTicket() {
-    localStorage.removeItem('edit_ticket');
-    window.open("ticket_form.html","_blank","width=800,height=900");
+localStorage.removeItem('edit_ticket');
+window.open("ticket_form.html","_blank","width=800,height=900");
 }
 
 function editTicket(index){
-    localStorage.setItem('edit_ticket', JSON.stringify(tickets[index]));
-    window.open("ticket_form.html","_blank","width=800,height=900");
+localStorage.setItem('edit_ticket', JSON.stringify(tickets[index]));
+window.open("ticket_form.html","_blank","width=800,height=900");
 }
 
 loadTickets();
 </script>
+
 </body>
 </html>
