@@ -124,7 +124,7 @@
     "ambito": "FASE1",
     "menu": "Pianificazione Cantieri",
     "titolo": "Scorrimento Gantt",
-    "descrizione": "Lo scorrimento del gantt non prosegue sulle tempistiche. Se la selezione è per mese, quando il gantt arriva al 31 Gennaio, per esempio, questo non scorre piÃÂÃÂ¹, si deve cambiare mese in alto a sinistra e poi proseguire. Questo a livello operativo ÃÂÃÂ¨ molto onoeroso e non rende la visione temporale immediatamente comprensibile  ",
+    "descrizione": "Lo scorrimento del gantt non prosegue sulle tempistiche. Se la selezione è per mese, quando il gantt arriva al 31 Gennaio, per esempio, questo non scorre più, si deve cambiare mese in alto a sinistra e poi proseguire. Questo a livello operativo è molto oneroso e non rende la visione temporale immediatamente comprensibile  ",
     "inseritoDa": "",
     "inCaricoA": "",
     "dataInizioPrevista": "",
