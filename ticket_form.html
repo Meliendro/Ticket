@@ -77,119 +77,118 @@
 <script>
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let editTicketData = JSON.parse(localStorage.getItem('edit_ticket')) || {};
-
 const updateChannel = new BroadcastChannel('ticket_updates');
-const tableChannel = new BroadcastChannel('ticket_ytable'); // Nuovo canale per ricaricare la tabella
+const tableChannel = new BroadcastChannel('ticket_ytable'); // Aggiorna ticket_table
 
-function decodeUTF8(s) {
-    try { return decodeURIComponent(escape(atob(s))); } catch (e) { return "Errore"; }
-}
-function encodeUTF8(s) { return btoa(unescape(encodeURIComponent(s))); }
+function decodeUTF8(s){ try{ return decodeURIComponent(escape(atob(s))); } catch(e){ return "Errore"; } }
+function encodeUTF8(s){ return btoa(unescape(encodeURIComponent(s))); }
 
-function populateSelect(id, dataArray, placeholder, currentValue) {
-    const sel = document.getElementById(id);
+function populateSelect(id,dataArray,placeholder,currentValue){
+    const sel=document.getElementById(id);
     if(!sel) return;
-    sel.innerHTML = `<option value="">-- ${placeholder} --</option>`;
-    if(dataArray && Array.isArray(dataArray)) {
-        dataArray.forEach(item => {
-            const opt = document.createElement('option');
-            opt.value = item;
-            opt.textContent = item;
-            if(currentValue && String(item).trim() === String(currentValue).trim()) opt.selected = true;
+    sel.innerHTML=`<option value="">-- ${placeholder} --</option>`;
+    if(Array.isArray(dataArray)){
+        dataArray.forEach(item=>{
+            const opt=document.createElement('option');
+            opt.value=item; opt.textContent=item;
+            if(currentValue && String(item).trim()===String(currentValue).trim()) opt.selected=true;
             sel.appendChild(opt);
         });
     }
 }
 
-async function loadData() {
+async function loadData(){
     if(!config) return;
-    try {
-        const urlLists = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`;
-        const resLists = await fetch(urlLists, { headers: { 'Authorization': `token ${config.token}` } });
-        if(resLists.ok) {
-            const jsonLists = await resLists.json();
-            const lists = JSON.parse(decodeUTF8(jsonLists.content));
-            populateSelect('stato', lists.Stato, "Stato", editTicketData.stato);
-            populateSelect('tipo', lists.Tipo, "Tipo", editTicketData.tipo);
-            populateSelect('bloccante', lists.Bloccante, "Bloccante", editTicketData.bloccante);
-            populateSelect('priorita', lists.Priorita, "Priorità", editTicketData.priorita);
-            populateSelect('menu', lists.Menu, "Menu", editTicketData.menu);
-            populateSelect('ambito', lists.Ambito, "Ambito", editTicketData.ambito);
+    try{
+        const urlLists=`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`;
+        const resLists=await fetch(urlLists,{ headers:{ 'Authorization': `token ${config.token}` }});
+        if(resLists.ok){
+            const jsonLists=await resLists.json();
+            const lists=JSON.parse(decodeUTF8(jsonLists.content));
+            populateSelect('stato',lists.Stato,"Stato",editTicketData.stato);
+            populateSelect('tipo',lists.Tipo,"Tipo",editTicketData.tipo);
+            populateSelect('bloccante',lists.Bloccante,"Bloccante",editTicketData.bloccante);
+            populateSelect('priorita',lists.Priorita,"Priorità",editTicketData.priorita);
+            populateSelect('menu',lists.Menu,"Menu",editTicketData.menu);
+            populateSelect('ambito',lists.Ambito,"Ambito",editTicketData.ambito);
         }
 
-        if(editTicketData.nrTicket) {
-            document.getElementById('ticketTitle').innerText = "Modifica Ticket";
-            document.getElementById('ticketNumberPreview').innerText = editTicketData.nrTicket;
-            document.getElementById('nrTicket').value = editTicketData.nrTicket;
-            document.getElementById('dataInserimento').value = editTicketData.dataInserimento || "";
-        } else {
-            document.getElementById('dataInserimento').value = new Date().toISOString().split('T')[0];
+        if(editTicketData.nrTicket){
+            document.getElementById('ticketTitle').innerText="Modifica Ticket";
+            document.getElementById('ticketNumberPreview').innerText=editTicketData.nrTicket;
+            document.getElementById('nrTicket').value=editTicketData.nrTicket;
+            document.getElementById('dataInserimento').value=editTicketData.dataInserimento||"";
+            document.getElementById('titolo').value=editTicketData.titolo||"";
+            document.getElementById('descrizione').value=editTicketData.descrizione||"";
+        } else{
+            document.getElementById('dataInserimento').value=new Date().toISOString().split('T')[0];
         }
 
-        originalDataInserimento = document.getElementById('dataInserimento').value;
-        document.getElementById('originalData').innerText = `(Orig: ${originalDataInserimento})`;
-
-    } catch(e) { console.error("Errore caricamento liste:", e); }
+        originalDataInserimento=document.getElementById('dataInserimento').value;
+        document.getElementById('originalData').innerText=`(Orig: ${originalDataInserimento})`;
+    } catch(e){ console.error("Errore caricamento liste:",e); }
 }
 
-let originalDataInserimento = "";
-document.getElementById('editDateBtn').addEventListener('click', function() {
-    document.getElementById('dataInserimento').disabled = false;
+let originalDataInserimento="";
+document.getElementById('editDateBtn').addEventListener('click',function(){
+    document.getElementById('dataInserimento').disabled=false;
 });
 
-// Al salvataggio invia messaggio alla tabella per ricaricare
-async function saveTicket() {
-    const btn = document.getElementById('btnSave');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvataggio...';
+async function saveTicket(){
+    const btn=document.getElementById('btnSave');
+    btn.disabled=true;
+    btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Salvataggio...';
 
-    try {
-        const urlFile = `https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`;
-        const res = await fetch(urlFile, { headers: { Authorization: `token ${config.token}` } });
-        const data = await res.json();
-        const tickets = JSON.parse(decodeUTF8(data.content));
-        let nrTicket = editTicketData.nrTicket || (tickets.length ? Math.max(...tickets.map(t=>t.nrTicket)) + 1 : 1);
-        const t = {
-            nrTicket: parseInt(nrTicket),
-            stato: document.getElementById('stato').value,
-            tipo: document.getElementById('tipo').value,
-            bloccante: document.getElementById('bloccante').value,
-            priorita: document.getElementById('priorita').value,
-            dataInserimento: document.getElementById('dataInserimento').value,
-            ambito: document.getElementById('ambito').value,
-            menu: document.getElementById('menu').value,
-            titolo: document.getElementById('titolo').value,
-            descrizione: document.getElementById('descrizione').value,
-            inseritoDa: document.getElementById('inseritoDa').value,
-            inCaricoA: document.getElementById('inCaricoA').value,
-            dataInizioPrevista: document.getElementById('dataInizioPrevista').value,
-            dataFinePrevista: document.getElementById('dataFinePrevista').value,
-            dataRilascio: document.getElementById('dataRilascio').value,
-            descrAttivita: document.getElementById('descrAttivita').value,
-            dataSegnalato: editTicketData.dataSegnalato || "",
-            dataPresoInCarico: editTicketData.dataPresoInCarico || "",
-            dataRilasciato: editTicketData.dataRilasciato || "",
-            dataInTest: editTicketData.dataInTest || "",
-            dataCompletato: editTicketData.dataCompletato || ""
+    try{
+        const urlFile=`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`;
+        const res=await fetch(urlFile,{ headers:{ Authorization:`token ${config.token}` }});
+        const data=await res.json();
+        const tickets=JSON.parse(decodeUTF8(data.content));
+        let nrTicket=editTicketData.nrTicket||(tickets.length?Math.max(...tickets.map(t=>t.nrTicket))+1:1);
+
+        // Legge tutti i campi del form **al momento del salvataggio**
+        const t={
+            nrTicket:parseInt(nrTicket),
+            stato:document.getElementById('stato').value,
+            tipo:document.getElementById('tipo').value,
+            bloccante:document.getElementById('bloccante').value,
+            priorita:document.getElementById('priorita').value,
+            dataInserimento:document.getElementById('dataInserimento').value,
+            ambito:document.getElementById('ambito').value,
+            menu:document.getElementById('menu').value,
+            titolo:document.getElementById('titolo').value,
+            descrizione:document.getElementById('descrizione').value,
+            inseritoDa:document.getElementById('inseritoDa').value,
+            inCaricoA:document.getElementById('inCaricoA').value,
+            dataInizioPrevista:document.getElementById('dataInizioPrevista').value,
+            dataFinePrevista:document.getElementById('dataFinePrevista').value,
+            dataRilascio:document.getElementById('dataRilascio').value,
+            descrAttivita:document.getElementById('descrAttivita').value,
+            dataSegnalato:editTicketData.dataSegnalato||"",
+            dataPresoInCarico:editTicketData.dataPresoInCarico||"",
+            dataRilasciato:editTicketData.dataRilasciato||"",
+            dataInTest:editTicketData.dataInTest||"",
+            dataCompletato:editTicketData.dataCompletato||""
         };
-        const index = tickets.findIndex(tt => tt.nrTicket === nrTicket);
-        if(index !== -1) tickets[index] = t; else tickets.push(t);
 
-        const putRes = await fetch(urlFile, {
-            method: "PUT",
-            headers: { Authorization: `token ${config.token}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ message: `Update Ticket #${nrTicket}`, content: encodeUTF8(JSON.stringify(tickets, null, 2)), sha: data.sha })
+        const index=tickets.findIndex(tt=>tt.nrTicket===nrTicket);
+        if(index!==-1) tickets[index]=t; else tickets.push(t);
+
+        const putRes=await fetch(urlFile,{
+            method:"PUT",
+            headers:{ Authorization:`token ${config.token}`, "Content-Type":"application/json" },
+            body:JSON.stringify({ message:`Update Ticket #${nrTicket}`, content:encodeUTF8(JSON.stringify(tickets,null,2)), sha:data.sha })
         });
 
-        if(putRes.ok) { 
-            alert("Ticket salvato con successo!"); 
-            tableChannel.postMessage('refresh_table'); // Ricarica ticket_table.html
-            window.close(); 
-        } else { throw new Error("Errore GitHub"); }
-    } catch(e) { 
-        alert("Errore: " + e.message);
-        btn.disabled = false;
-        btn.innerHTML = 'Salva Ticket';
+        if(putRes.ok){
+            alert("Ticket salvato con successo!");
+            tableChannel.postMessage('refresh_table'); // Ricarica ticket_table.html automaticamente
+            window.close();
+        } else throw new Error("Errore GitHub");
+    } catch(e){
+        alert("Errore: "+e.message);
+        btn.disabled=false;
+        btn.innerHTML='Salva Ticket';
     }
 }
 
