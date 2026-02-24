@@ -15,7 +15,7 @@
         label { font-size: 0.70rem; font-weight: 700; margin-top: 0.25rem; display:block; text-transform: uppercase; color:#374151; letter-spacing: 0.5px; }
         .ticket-number-badge { background:#2563eb; color:white; padding:6px 14px; border-radius:999px; font-weight:700; }
         .section-title { font-size:0.8rem; font-weight:800; color:#1f2937; border-bottom:2px solid #e5e7eb; padding-bottom:4px; margin-bottom:10px; margin-top: 10px; }
-        .original-date { font-size:0.75rem; color:#6b7280; margin-left:0.5rem; }
+        .original-date { font-size:0.75rem; color:#6b7280; margin-top:2px; display:block; }
         .edit-date-btn { background:#2563eb; color:white; padding:2px 6px; border-radius:4px; font-size:0.75rem; margin-left:0.5rem; cursor:pointer; }
     </style>
 </head>
@@ -38,11 +38,11 @@
                 <div><label>Priorità</label><select id="priorita"><option value="">Caricamento...</option></select></div>
                 <div>
                     <label>Data Inserimento</label>
-                    <div class="flex items-center">
+                    <div class="flex items-center gap-2">
                         <input type="date" id="dataInserimento" disabled>
-                        <span id="originalData" class="original-date"></span>
                         <button type="button" id="editDateBtn" class="edit-date-btn">Modifica</button>
                     </div>
+                    <span id="originalData" class="original-date"></span>
                 </div>
             </div>
         </div>
@@ -79,6 +79,7 @@ let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let editTicketData = JSON.parse(localStorage.getItem('edit_ticket')) || {};
 
 const updateChannel = new BroadcastChannel('ticket_updates');
+const tableChannel = new BroadcastChannel('ticket_ytable');
 
 function decodeUTF8(s) {
     try { return decodeURIComponent(escape(atob(s))); } catch (e) { return "Errore"; }
@@ -124,38 +125,34 @@ async function loadData() {
             populateSelect('ambito', lists.Ambito, "Ambito", editTicketData.ambito);
         }
 
-        // Se siamo in modifica, riempiamo i campi di testo
         if(editTicketData.nrTicket) {
             document.getElementById('ticketTitle').innerText = "Modifica Ticket";
             document.getElementById('ticketNumberPreview').innerText = editTicketData.nrTicket;
             document.getElementById('nrTicket').value = editTicketData.nrTicket;
             document.getElementById('dataInserimento').value = editTicketData.dataInserimento || "";
-            
-            const textFields = ['titolo', 'descrizione', 'inseritoDa', 'inCaricoA', 'dataInizioPrevista', 'dataFinePrevista', 'dataRilascio', 'descrAttivita'];
-            textFields.forEach(f => {
-                const el = document.getElementById(f);
-                if(el && editTicketData[f] !== undefined) el.value = editTicketData[f];
-            });
         } else {
-            // Nuovo Ticket: data odierna
             document.getElementById('dataInserimento').value = new Date().toISOString().split('T')[0];
         }
 
-        // Salva la data originale per il pulsante modifica
+        // Memorizza data originale e mostrala sempre sotto
         originalDataInserimento = document.getElementById('dataInserimento').value;
+        document.getElementById('originalData').innerText = `(Orig: ${originalDataInserimento})`;
 
     } catch(e) {
         console.error("Errore caricamento liste:", e);
     }
 }
 
-// Funzionalità nuovo pulsante: rendi modificabile Data Inserimento
+// Pulsante per rendere modificabile il campo Data Inserimento
 let originalDataInserimento = "";
-
 document.getElementById('editDateBtn').addEventListener('click', function() {
     const input = document.getElementById('dataInserimento');
     input.disabled = false;
-    document.getElementById('originalData').innerText = `(Orig: ${originalDataInserimento})`;
+});
+
+// Aggiorna la tabella ticket_ytable alla chiusura
+window.addEventListener('beforeunload', function() {
+    tableChannel.postMessage('refresh_table');
 });
 
 async function saveTicket() {
