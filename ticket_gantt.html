@@ -3,137 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Gantt 2026</title>
-
+<title>Gantt Ticket 2026</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 
 <style>
-body {
+body{
     font-family: 'Segoe UI', sans-serif;
     background: linear-gradient(135deg,#0f172a,#1e293b);
 }
-.card {
+.card{
     background: rgba(255,255,255,0.95);
     backdrop-filter: blur(10px);
+}
+.gantt-row{
+    display:flex;
+    align-items:center;
+    margin-bottom:8px;
+}
+.gantt-label{
+    width:120px;
+    font-weight:600;
+    font-size:0.8rem;
+}
+.gantt-bar-container{
+    flex:1;
+    position:relative;
+    height:22px;
+    background:#e5e7eb;
+    border-radius:6px;
+}
+.gantt-bar{
+    position:absolute;
+    height:100%;
+    border-radius:6px;
+}
+.today-line{
+    position:absolute;
+    top:0;
+    bottom:0;
+    width:2px;
+    background:red;
 }
 </style>
 </head>
 
 <body class="p-6">
 
-<div class="card rounded-2xl shadow-2xl p-6 max-w-7xl mx-auto">
+<div class="card p-6 rounded-2xl shadow-2xl max-w-7xl mx-auto">
 
-<div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold text-slate-800">📊 Gantt Ticket 2026</h1>
-    <button onclick="loadData()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-        🔄 Aggiorna
-    </button>
+<div class="flex justify-between mb-6">
+<h1 class="text-2xl font-bold text-slate-800">📊 Gantt Ticket 2026</h1>
+<button onclick="loadData()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+Aggiorna
+</button>
 </div>
 
-<canvas id="ganttChart" height="120"></canvas>
+<div id="ganttContainer"></div>
 
 </div>
 
 <script>
+
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let tickets = [];
-let chart;
 
-/* 🔥 FUNZIONE CONVERSIONE DATE */
-function parseDate(value) {
+function parseDate(value){
     if(!value) return null;
 
-    // formato DD/MM/YYYY
     if(value.includes("/")){
-        const parts = value.split("/");
-        return new Date(parts[2], parts[1]-1, parts[0]);
+        const p = value.split("/");
+        return new Date(p[2], p[1]-1, p[0]);
     }
-
-    // formato YYYY-MM-DD
     return new Date(value);
 }
 
-async function loadData() {
+async function loadData(){
 
     if(!config){
         alert("Configurare GitHub prima.");
         return;
     }
 
-    const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
-        headers: { Authorization: `token ${config.token}` }
+    const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`,{
+        headers:{ Authorization:`token ${config.token}` }
     });
 
     const data = await res.json();
     tickets = JSON.parse(atob(data.content));
 
-    renderChart();
+    renderGantt();
 }
 
-function renderChart(){
+function renderGantt(){
 
-    const oggi = new Date();
-    oggi.setHours(0,0,0,0);
+    const container = document.getElementById("ganttContainer");
+    container.innerHTML = "";
 
-    const dataset = [];
+    const validTickets = tickets.filter(t => t.dataInizioPrevista && t.dataFinePrevista);
 
-    tickets
+    if(validTickets.length === 0){
+        container.innerHTML = "<p class='text-red-600'>Nessun ticket con date valide.</p>";
+        return;
+    }
+
+    // calcolo range totale
+    const allDates = validTickets.flatMap(t => [
+        parseDate(t.dataInizioPrevista),
+        parseDate(t.dataFinePrevista)
+    ]);
+
+    const minDate = new Date(Math.min(...allDates));
+    const maxDate = new Date(Math.max(...allDates));
+    const totalDays = (maxDate - minDate) / (1000*60*60*24);
+
+    const today = new Date();
+    const todayOffset = ((today - minDate) / (1000*60*60*24)) / totalDays * 100;
+
+    validTickets
     .sort((a,b)=>a.nrTicket - b.nrTicket)
     .forEach(t=>{
-
-        if(!t.dataInizioPrevista || !t.dataFinePrevista) return;
 
         const start = parseDate(t.dataInizioPrevista);
         const end = parseDate(t.dataFinePrevista);
 
-        if(!start || !end) return;
+        const offsetStart = ((start - minDate)/(1000*60*60*24)) / totalDays * 100;
+        const width = ((end - start)/(1000*60*60*24)) / totalDays * 100;
 
         let color = "#3b82f6";
 
         if(t.dataCompletamentoSviluppo){
             color = "#10b981";
-        } else if(end < oggi){
+        } else if(end < today){
             color = "#ef4444";
         }
 
-        dataset.push({
-            x: [start, end],
-            y: "Ticket #" + t.nrTicket,
-            backgroundColor: color
-        });
+        const row = document.createElement("div");
+        row.className = "gantt-row";
+
+        row.innerHTML = `
+            <div class="gantt-label">#${t.nrTicket}</div>
+            <div class="gantt-bar-container">
+                <div class="gantt-bar" style="
+                    left:${offsetStart}%;
+                    width:${width}%;
+                    background:${color};
+                "></div>
+                <div class="today-line" style="left:${todayOffset}%"></div>
+            </div>
+        `;
+
+        container.appendChild(row);
     });
-
-    if(chart) chart.destroy();
-
-    chart = new Chart(
-        document.getElementById('ganttChart'),
-        {
-            type: 'bar',
-            data: {
-                datasets: [{
-                    data: dataset,
-                    borderSkipped: false,
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                plugins: { legend: { display: false }},
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: { unit: 'week' }
-                    }
-                }
-            }
-        }
-    );
 }
 
 loadData();
+
 </script>
 
 </body>
