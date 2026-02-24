@@ -3,154 +3,213 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestione Liste Ticket</title>
+<title>Configurazione Liste | TicketHub</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg,#1e293b,#0f172a);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 2rem;
-}
-.card {
-    background: rgba(255,255,255,0.2);
-    backdrop-filter: blur(15px);
-    border-radius: 2rem;
-    padding: 2rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    width: 100%;
-    max-width: 5xl;
-    color: #1f2937;
-}
-input, select, textarea {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease;
-    background: rgba(255,255,255,0.5);
-    backdrop-filter: blur(5px);
-}
-input:focus, select:focus, textarea:focus{
-    border-color:#2563eb;
-    box-shadow:0 0 0 2px rgba(37,99,235,0.2);
-    outline:none;
-}
-label {
-    font-weight: 600;
-    font-size: 0.75rem;
-    color: #374151;
-    text-transform: uppercase;
-    margin-bottom: 0.2rem;
-    display:block;
-}
-.section-title{
-    font-size:0.95rem;
-    font-weight:800;
-    color:#111827;
-    border-bottom:2px solid rgba(255,255,255,0.3);
-    padding-bottom:6px;
-    margin-bottom:10px;
-}
-.list-item{
-    background: rgba(255,255,255,0.3);
-    backdrop-filter: blur(5px);
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    display:flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom:0.3rem;
-    transition: background 0.2s;
-}
-.list-item:hover {
-    background: rgba(255,255,255,0.5);
-}
-.list-item button{
-    background: transparent;
-    color: #ef4444;
-    font-size: 0.9rem;
-}
-button:hover {
-    cursor: pointer;
-}
+    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;600;700&display=swap');
+
+    body {
+        font-family: 'SF Pro Display', -apple-system, sans-serif;
+        background-color: #f5f5f7;
+        color: #1d1d1f;
+        margin: 0;
+        padding: 2rem;
+        display: flex;
+        justify-content: center;
+    }
+
+    .main-card {
+        background: white;
+        border-radius: 24px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+        border: 1px solid rgba(0,0,0,0.05);
+        width: 100%;
+        max-width: 1000px;
+    }
+
+    .section-container {
+        background: #fbfbfd;
+        border-radius: 18px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid #f2f2f2;
+    }
+
+    .section-title {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: #86868b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .section-title i { margin-right: 8px; color: #007aff; }
+
+    input, select {
+        padding: 0.6rem 0.8rem;
+        border: 1px solid #d2d2d7;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        background: white;
+        transition: all 0.2s ease;
+    }
+
+    input:focus {
+        border-color: #007aff;
+        box-shadow: 0 0 0 4px rgba(0,122,255,0.1);
+        outline: none;
+    }
+
+    .list-item {
+        background: white;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        border: 1px solid #f2f2f2;
+        transition: transform 0.1s;
+    }
+
+    .list-item:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+
+    .btn-apple-primary {
+        background: #007aff;
+        color: white;
+        font-weight: 600;
+        padding: 0.8rem 2rem;
+        border-radius: 12px;
+        transition: all 0.2s;
+    }
+
+    .btn-apple-primary:hover { background: #0071e3; transform: scale(1.02); }
+
+    .btn-trash {
+        color: #ff3b30;
+        padding: 8px;
+        border-radius: 8px;
+        transition: background 0.2s;
+    }
+
+    .btn-trash:hover { background: #fff1f0; }
+
+    .status-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr 1fr auto;
+        gap: 10px;
+        align-items: center;
+    }
 </style>
 </head>
 <body>
 
-<div class="card">
+<div class="main-card">
+    <header class="mb-8">
+        <h1 class="text-3xl font-bold tracking-tight">Impostazioni Liste</h1>
+        <p class="text-gray-500 font-medium">Configura i valori dei menu a tendina per il sistema Ticket</p>
+    </header>
 
-<h1 class="text-2xl font-extrabold text-gray-800 mb-6">Gestione Liste Ticket</h1>
+    <div id="listsContainer"></div>
 
-<div id="listsContainer" class="space-y-6"></div>
-
-<div class="flex justify-center gap-4 mt-6">
-    <button onclick="saveLists()"
-        class="bg-gradient-to-r from-green-600 to-emerald-500 
-        text-white px-10 py-3 rounded-xl shadow-lg 
-        hover:scale-105 transition transform duration-200 font-bold">
-        <i class="fas fa-save"></i> Salva Liste
-    </button>
-    <button onclick="loadLists()"
-        class="bg-blue-600 text-white px-10 py-3 rounded-xl shadow-lg 
-        hover:scale-105 transition transform duration-200 font-bold">
-        <i class="fas fa-download"></i> Carica Liste
-    </button>
-</div>
-
+    <div class="flex justify-center gap-4 mt-10 pt-6 border-t border-gray-100">
+        <button onclick="loadLists()" class="px-8 py-3 rounded-xl border border-gray-200 font-semibold hover:bg-gray-50 transition">
+            <i class="fas fa-sync-alt mr-2"></i> Ricarica
+        </button>
+        <button onclick="saveLists()" class="btn-apple-primary shadow-lg shadow-blue-200">
+            <i class="fas fa-cloud-upload-alt mr-2"></i> Salva Configurazione su GitHub
+        </button>
+    </div>
 </div>
 
 <script>
-// Liste iniziali, aggiunta "Ambito"
 let lists = {
     Bloccante: [],
-    Stato: [],
+    Stato: [], // Struttura: { val: "", desc: "", tempo: "" }
     Priorita: [],
     Tipo: [],
     Menu: [],
     Email: [],
-    Ambito: [] // Nuova lista aggiunta
+    Ambito: []
 };
 
-// Genera la UI per ogni lista
 function renderLists() {
     const container = document.getElementById('listsContainer');
     container.innerHTML = "";
+    
     for(const listName in lists){
         const section = document.createElement('div');
+        section.className = "section-container";
+        
+        let addControls = "";
+        
+        if(listName === "Stato") {
+            // Layout speciale per STATO con i nuovi campi richiesti
+            addControls = `
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mt-4">
+                    <input type="text" placeholder="Nome Stato" id="input-${listName}-val">
+                    <input type="text" placeholder="Descrizione" id="input-${listName}-desc">
+                    <input type="text" placeholder="Tempo Presa (es. 2h)" id="input-${listName}-tempo">
+                    <button onclick="addStatusItem()" class="bg-gray-900 text-white rounded-xl hover:bg-black transition">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            `;
+        } else {
+            // Layout standard per le altre liste
+            addControls = `
+                <div class="flex gap-2 mt-4">
+                    <input type="text" placeholder="Nuovo valore per ${listName}" id="input-${listName}" class="flex-1">
+                    <button onclick="addItem('${listName}')" class="bg-gray-900 text-white px-5 rounded-xl hover:bg-black">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            `;
+        }
+
         section.innerHTML = `
-            <div class="section-title">${listName}</div>
-            <div class="space-y-1" id="list-${listName}"></div>
-            <div class="flex gap-2 mt-2">
-                <input type="text" placeholder="Nuovo ${listName}" id="input-${listName}" class="border p-2 rounded w-full">
-                <button onclick="addItem('${listName}')" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"><i class="fas fa-plus"></i></button>
-            </div>
+            <div class="section-title"><i class="fas fa-tag"></i> ${listName}</div>
+            <div class="space-y-2" id="list-${listName}"></div>
+            ${addControls}
         `;
         container.appendChild(section);
         renderListItems(listName);
     }
 }
 
-// Renderizza le voci di una lista
 function renderListItems(listName){
     const listDiv = document.getElementById(`list-${listName}`);
     listDiv.innerHTML = "";
+    
     lists[listName].forEach((item, i)=>{
         const div = document.createElement('div');
-        div.className = "list-item";
-        div.innerHTML = `
-            <span>${item}</span>
-            <button onclick="removeItem('${listName}', ${i})"><i class="fas fa-trash"></i></button>
-        `;
+        div.className = "list-item shadow-sm";
+        
+        if(listName === "Stato") {
+            // Visualizzazione avanzata per Stato
+            div.innerHTML = `
+                <div class="status-grid w-full">
+                    <span class="font-bold text-blue-600">${item.val}</span>
+                    <span class="text-gray-500 text-sm italic">${item.desc || '-'}</span>
+                    <span class="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-center">${item.tempo || '-'}</span>
+                    <button onclick="removeItem('${listName}', ${i})" class="btn-trash"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            `;
+        } else {
+            div.innerHTML = `
+                <span class="font-medium">${item}</span>
+                <button onclick="removeItem('${listName}', ${i})" class="btn-trash"><i class="fas fa-trash-alt"></i></button>
+            `;
+        }
         listDiv.appendChild(div);
     });
 }
 
-// Aggiunge un elemento alla lista
 function addItem(listName){
     const input = document.getElementById(`input-${listName}`);
     const value = input.value.trim();
@@ -161,13 +220,27 @@ function addItem(listName){
     }
 }
 
-// Rimuove un elemento dalla lista
+function addStatusItem() {
+    const valInput = document.getElementById('input-Stato-val');
+    const descInput = document.getElementById('input-Stato-desc');
+    const tempoInput = document.getElementById('input-Stato-tempo');
+    
+    if(valInput.value.trim()){
+        lists.Stato.push({
+            val: valInput.value.trim(),
+            desc: descInput.value.trim(),
+            tempo: tempoInput.value.trim()
+        });
+        valInput.value = ""; descInput.value = ""; tempoInput.value = "";
+        renderListItems('Stato');
+    }
+}
+
 function removeItem(listName, index){
     lists[listName].splice(index,1);
     renderListItems(listName);
 }
 
-// Salva le liste su file (GitHub)
 async function saveLists(){
     let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
     if(!config){ alert("⚠️ Configura GitHub prima di salvare"); return; }
@@ -178,34 +251,33 @@ async function saveLists(){
         const data = await res.json();
         const sha = data.sha;
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(lists,null,2))));
-        const body = {message:"Aggiornamento liste", content, sha};
+        const body = {message:"Aggiornamento liste avanzato", content, sha};
         const putRes = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`,{
             method:"PUT",
             headers: {"Authorization":`token ${config.token}`, "Content-Type":"application/json"},
             body: JSON.stringify(body)
         });
         if(!putRes.ok) throw new Error("Errore salvataggio");
-        alert("Liste salvate con successo!");
+        alert("Configurazione salvata con successo!");
     }catch(e){ alert("Errore: "+e.message); }
 }
 
-// Carica le liste dal file
 async function loadLists(){
     let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
-    if(!config){ alert("⚠️ Configura GitHub prima di caricare"); return; }
+    if(!config){ alert("⚠️ Configura GitHub"); return; }
     try{
-        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`,{
+        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json?v=${Date.now()}`,{
             headers:{Authorization:`token ${config.token}`}
         });
+        if(!res.ok) return;
         const data = await res.json();
-        const loadedData = JSON.parse(atob(data.content));
+        const loadedData = JSON.parse(decodeURIComponent(escape(atob(data.content))));
         lists = { ...lists, ...loadedData };
         renderLists();
-    }catch(e){ alert("Errore caricamento: "+e.message); }
+    }catch(e){ console.log("Caricamento: file nuovo o mancante."); renderLists(); }
 }
 
-// Inizializza form
-renderLists();
+loadLists();
 </script>
 </body>
 </html>
