@@ -253,7 +253,7 @@
     "dataCompletato": ""
   },
   {
-    "stato": "Nuovo/Aperto",
+    "stato": "In lavorazione / In corso",
     "priorita": "Bassa",
     "tipo": "Nuova Richiesta",
     "ambito": "FASE1",
@@ -266,7 +266,7 @@
     "dataInizioPrevista": "",
     "dataFinePrevista": "",
     "dataRilascio": "",
-    "descrAttivita": "",
+    "descrAttivita": "Nessuna nota presente.",
     "nrTicket": 12,
     "dataInserimento": "24/02/2026"
   }
