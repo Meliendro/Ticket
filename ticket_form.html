@@ -141,7 +141,7 @@
         <div class="grid-3">
             <div class="input-group">
                 <label><i class="fas fa-tasks"></i> Stato</label>
-                <select id="stato" required onchange="updateStatusInfo()"></select>
+                <select id="stato" required onchange="handleStatusChange()"></select>
                 <div id="statusDesc" class="status-badge-info"></div>
             </div>
             <div class="input-group">
@@ -210,7 +210,7 @@
         
         <div class="input-group">
             <label>Aggiungi Nuovo Aggiornamento</label>
-            <textarea id="tempNote" rows="2" placeholder="Scrivi qui i dettagli tecnici dell'attività..."></textarea>
+            <textarea id="tempNote" rows="2" placeholder="Scrivi qui l'avanzamento..."></textarea>
             <button type="button" onclick="appendNote()" class="btn-add-note">
                 <i class="fas fa-plus"></i> Applica Nota con Data
             </button>
@@ -267,53 +267,69 @@ function populateSelect(id, arr, isObj = false) {
         const opt = document.createElement('option');
         opt.value = isObj ? i.val : i;
         opt.innerText = isObj ? i.val : i;
-        if(isObj) { opt.dataset.desc = i.desc || ""; opt.dataset.tempo = i.tempo || ""; }
+        if(isObj) { 
+            opt.dataset.desc = i.desc || ""; 
+            opt.dataset.tempo = i.tempo || 0; // Usiamo 0 come default
+        }
         sel.appendChild(opt);
     });
 }
 
-function updateStatusInfo() {
+// GESTIONE CAMBIO STATO CON AUTOMAZIONE DATE
+function handleStatusChange() {
     const sel = document.getElementById('stato');
     const opt = sel.options[sel.selectedIndex];
     const info = document.getElementById('statusDesc');
+    
+    // 1. Mostra info stato
     if(opt && opt.dataset.desc) {
         info.style.display = "block";
-        info.innerHTML = `<b>Info:</b> ${opt.dataset.desc} | <b>Tempo:</b> ${opt.dataset.tempo}`;
-    } else { info.style.display = "none"; }
+        info.innerHTML = `<b>Info:</b> ${opt.dataset.desc} | <b>Tempo stimato:</b> ${opt.dataset.tempo} gg`;
+        
+        // 2. Automazione Date (Solo per "In Corso" o "In Lavorazione")
+        const val = opt.value.toLowerCase();
+        if(val.includes("corso") || val.includes("lavorazione")) {
+            const dataInizioField = document.getElementById('dataInizioPrevista');
+            const dataFineField = document.getElementById('dataFinePrevista');
+
+            const oggi = new Date();
+            
+            // Imposta Data Inizio (se vuota)
+            if(!dataInizioField.value) {
+                dataInizioField.value = oggi.toISOString().split('T')[0];
+            }
+
+            // Calcola Data Fine in base ai giorni della lista (se vuota)
+            if(!dataFineField.value) {
+                const giorniDaAggiungere = parseInt(opt.dataset.tempo) || 0;
+                const dataFine = new Date();
+                dataFine.setDate(oggi.getDate() + giorniDaAggiungere);
+                dataFineField.value = dataFine.toISOString().split('T')[0];
+            }
+        }
+    } else { 
+        info.style.display = "none"; 
+    }
 }
 
-// FUNZIONE PER AGGIUNGERE LA NOTA CON DATA
 function appendNote() {
     const tempNote = document.getElementById('tempNote');
     const historyDiv = document.getElementById('descrAttivita');
     const hiddenInput = document.getElementById('descrAttivitaHidden');
-    
     if (tempNote.value.trim() === "") return;
-
     const now = new Date();
     const timestamp = now.toLocaleDateString('it-IT') + ' ' + now.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
-    
-    // Crea la nuova stringa: [DATA] NOTA
     const newEntry = `[${timestamp}] ${tempNote.value.trim()}\n`;
-    
-    // Recupera lo storico esistente (se "Nessuna nota..." lo puliamo)
     let currentHistory = hiddenInput.value || "";
     if (currentHistory === "Nessuna nota presente.") currentHistory = "";
-
-    // Aggiungiamo la nuova nota in alto (cronologia decrescente)
     const updatedHistory = newEntry + currentHistory;
-
-    // Aggiorniamo sia la visualizzazione che il campo nascosto per il salvataggio
     historyDiv.innerText = updatedHistory;
     hiddenInput.value = updatedHistory;
-
-    // Puliamo il campo di inserimento
     tempNote.value = "";
 }
 
 function fillForm(t) {
     Object.keys(t).forEach(k => {
-        // Gestione speciale per lo storico note
         if (k === 'descrAttivita') {
             const content = t[k] || "Nessuna nota presente.";
             document.getElementById('descrAttivita').innerText = content;
@@ -323,7 +339,13 @@ function fillForm(t) {
             if(el) el.value = t[k] || "";
         }
     });
-    updateStatusInfo();
+    // Chiamiamo handleStatusChange ma senza forzare le date se carichiamo un ticket esistente
+    const sel = document.getElementById('stato');
+    const opt = sel.options[sel.selectedIndex];
+    if(opt && opt.dataset.desc) {
+        document.getElementById('statusDesc').style.display = "block";
+        document.getElementById('statusDesc').innerHTML = `<b>Info:</b> ${opt.dataset.desc} | <b>Tempo stimato:</b> ${opt.dataset.tempo} gg`;
+    }
 }
 
 document.getElementById('ticketForm').onsubmit = async (e) => {
@@ -335,39 +357,26 @@ document.getElementById('ticketForm').onsubmit = async (e) => {
         const data = await res.json();
         let tickets = JSON.parse(decodeUTF8(data.content));
         const sha = data.sha;
-
         const formData = editingTicket ? { ...editingTicket } : {};
-        
-        // Mappiamo tutti i campi tranne descrAttivita (che prendiamo dal campo hidden)
         const inputs = e.target.querySelectorAll('input, select, textarea');
         inputs.forEach(el => { 
             if(el.id && el.id !== 'tempNote' && el.id !== 'descrAttivitaHidden') {
                 formData[el.id] = el.value; 
             }
         });
-        
-        // Salviamo lo storico corretto
         formData['descrAttivita'] = document.getElementById('descrAttivitaHidden').value;
-
         if(!editingTicket) {
             formData.nrTicket = tickets.length > 0 ? Math.max(...tickets.map(t=>t.nrTicket)) + 1 : 1;
             formData.dataInserimento = new Date().toLocaleDateString('it-IT');
         }
-
         const idx = tickets.findIndex(t => t.nrTicket === formData.nrTicket);
         if(idx !== -1) tickets[idx] = formData;
         else tickets.push(formData);
-
         const saveRes = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
             method: "PUT",
             headers: {Authorization:`token ${config.token}`, "Content-Type":"application/json"},
-            body: JSON.stringify({ 
-                message: "Update ticket #" + formData.nrTicket, 
-                content: encodeUTF8(JSON.stringify(tickets, null, 2)), 
-                sha: sha 
-            })
+            body: JSON.stringify({ message: "Update ticket #" + formData.nrTicket, content: encodeUTF8(JSON.stringify(tickets, null, 2)), sha: sha })
         });
-
         if(saveRes.ok) {
             new BroadcastChannel('ticket_ytable').postMessage({action: 'reload'});
             window.close();
