@@ -145,23 +145,23 @@
 
         <div class="input-group">
             <label><i class="fas fa-heading"></i> Titolo Ticket</label>
-            <input type="text" id="titolo" required>
+            <input type="text" id="titolo" required placeholder="Inserisci il titolo...">
         </div>
 
         <div class="input-group">
             <label><i class="fas fa-align-left"></i> Descrizione</label>
-            <textarea id="descrizione" rows="3"></textarea>
+            <textarea id="descrizione" rows="3" placeholder="Dettagli della segnalazione..."></textarea>
         </div>
 
         <div class="section-header"><i class="fas fa-user-clock text-blue-500"></i> Pianificazione</div>
         <div class="grid-2">
             <div class="input-group">
                 <label><i class="fas fa-user-check"></i> In Carico A</label>
-                <select id="inCaricoA"></select>
+                <input type="text" id="inCaricoA" placeholder="Nome sviluppatore...">
             </div>
             <div class="input-group">
                 <label><i class="fas fa-user-edit"></i> Inserito Da</label>
-                <input type="text" id="inseritoDa">
+                <input type="text" id="inseritoDa" placeholder="Tuo nome...">
             </div>
         </div>
 
@@ -181,10 +181,10 @@
         </div>
 
         <div class="section-header"><i class="fas fa-code text-blue-500"></i> Dev Notes</div>
-        <textarea id="descrAttivita" rows="2" class="mb-6"></textarea>
+        <textarea id="descrAttivita" rows="2" class="mb-6" placeholder="Note tecniche..."></textarea>
 
         <div class="flex justify-end gap-4 border-t pt-6">
-            <button type="button" onclick="window.close()" class="font-bold text-gray-400 hover:text-gray-600">ANNULLA</button>
+            <button type="button" onclick="window.close()" class="font-bold text-gray-400 hover:text-gray-600 transition">ANNULLA</button>
             <button type="submit" class="btn-save">SALVA TICKET</button>
         </div>
     </form>
@@ -194,12 +194,10 @@
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let editingTicket = JSON.parse(localStorage.getItem('edit_ticket'));
 
-// Utility per decodificare Base64 UTF-8
 function decodeUTF8(s){
     return decodeURIComponent(escape(atob(s)));
 }
 
-// Utility per codificare Base64 UTF-8
 function encodeUTF8(s){
     return btoa(unescape(encodeURIComponent(s)));
 }
@@ -208,8 +206,7 @@ async function init() {
     if(!config) return alert("GitHub non configurato!");
     
     try {
-        // Carica liste
-        const resL = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`, {
+        const resL = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json?v=${Date.now()}`, {
             headers: {Authorization:`token ${config.token}`}
         });
         const dataL = await resL.json();
@@ -221,18 +218,18 @@ async function init() {
         populateSelect("ambito", lists.Ambito);
         populateSelect("menu", lists.Menu);
         populateSelect("bloccante", lists.Bloccante);
-        populateSelect("inCaricoA", lists.Email);
 
         if(editingTicket) {
             document.getElementById('formTitle').innerText = "Modifica #" + editingTicket.nrTicket;
             document.getElementById('ticketNrDisp').innerText = "TKN: " + editingTicket.nrTicket;
             fillForm(editingTicket);
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Errore init:", e); }
 }
 
 function populateSelect(id, arr, isObj = false) {
     const sel = document.getElementById(id);
+    if(!sel) return;
     sel.innerHTML = '<option value="">-- Seleziona --</option>';
     arr.forEach(i => {
         const opt = document.createElement('option');
@@ -268,7 +265,6 @@ document.getElementById('ticketForm').onsubmit = async (e) => {
     e.preventDefault();
     
     try {
-        // 1. Scarica la versione più recente assoluta del file prima di salvare
         const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json?nocache=${Date.now()}`, {
             headers: {Authorization:`token ${config.token}`}
         });
@@ -276,7 +272,6 @@ document.getElementById('ticketForm').onsubmit = async (e) => {
         let tickets = JSON.parse(decodeUTF8(data.content));
         const sha = data.sha;
 
-        // 2. Prepara dati form
         const formData = editingTicket ? { ...editingTicket } : {};
         const elements = e.target.querySelectorAll('input, select, textarea');
         elements.forEach(el => { if(el.id) formData[el.id] = el.value; });
@@ -286,12 +281,10 @@ document.getElementById('ticketForm').onsubmit = async (e) => {
             formData.dataInserimento = new Date().toLocaleDateString('it-IT');
         }
 
-        // 3. Aggiorna array
         const idx = tickets.findIndex(t => t.nrTicket === formData.nrTicket);
         if(idx !== -1) tickets[idx] = formData;
         else tickets.push(formData);
 
-        // 4. Invia a GitHub
         const saveRes = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
             method: "PUT",
             headers: {Authorization:`token ${config.token}`, "Content-Type":"application/json"},
