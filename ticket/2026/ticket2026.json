@@ -231,7 +231,7 @@
   },
   {
     "nrTicket": 11,
-    "stato": "Segnalato",
+    "stato": "Nuovo/Aperto",
     "tipo": "Miglioria",
     "bloccante": "Non Bloccante",
     "priorita": "Media",
@@ -239,7 +239,7 @@
     "ambito": "FASE1",
     "menu": "Pianificazione Cantieri",
     "titolo": "Modifica layout calendario",
-    "descrizione": "Nel calendario, nei Gantt di pianificazione le colonne possono essere piÃ¹ strette, possono essere larghe tanto quanto l'intestazione. All'interno delle celle non sarÃ  mai scritto niente. La visuazlizzazone cosÃ¬ diventa migliore ",
+    "descrizione": "Nel calendario, nei Gantt di pianificazione le colonne possono essere più strette, possono essere larghe tanto quanto l'intestazione. All'interno delle celle non sarà  mai scritto niente. La visuazlizzazone così diventa migliore ",
     "inseritoDa": "",
     "inCaricoA": "",
     "dataInizioPrevista": "",
