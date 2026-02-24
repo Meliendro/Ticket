@@ -159,5 +159,28 @@
     "dataRilasciato": "",
     "dataInTest": "",
     "dataCompletato": ""
+  },
+  {
+    "nrTicket": 8,
+    "stato": "Segnalato",
+    "tipo": "Miglioria",
+    "bloccante": "Non Bloccante",
+    "priorita": "Media",
+    "dataInserimento": "2026-02-24",
+    "ambito": "FASE1",
+    "menu": "Pianificazione Cantieri",
+    "titolo": "Zoom In temporale",
+    "descrizione": "Come per la vista Pianificazione squadre ancche questa dovrebbe avere lo zoom temporale",
+    "inseritoDa": "Stefano Paoletto",
+    "inCaricoA": "LEGUR",
+    "dataInizioPrevista": "",
+    "dataFinePrevista": "",
+    "dataRilascio": "",
+    "descrAttivita": "",
+    "dataSegnalato": "",
+    "dataPresoInCarico": "",
+    "dataRilasciato": "",
+    "dataInTest": "",
+    "dataCompletato": ""
   }
 ]
