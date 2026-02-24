@@ -47,7 +47,7 @@
   },
   {
     "nrTicket": 3,
-    "stato": "Nuovo/Aperto",
+    "stato": "In lavorazione / In corso",
     "tipo": "Bug",
     "bloccante": "Bloccante",
     "priorita": "Alta",
@@ -66,7 +66,8 @@
     "dataPresoInCarico": "24/02/2026",
     "dataRilasciato": "",
     "dataInTest": "",
-    "dataCompletato": ""
+    "dataCompletato": "",
+    "dataCompletamentoSviluppo": ""
   },
   {
     "nrTicket": 4,
