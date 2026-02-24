@@ -126,6 +126,11 @@ let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let tickets = [];
 let filters = { completati:"nascondi" };
 
+// --- funzione sicura UTF-8 per decodificare correttamente accenti ---
+function decodeUTF8(s){
+    try { return decodeURIComponent(escape(atob(s))); } catch(e){ return "Errore"; }
+}
+
 async function loadTickets() {
 if(!config) { alert("⚠️ Configurare GitHub"); return; }
 
@@ -133,7 +138,9 @@ const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ti
 headers: {Authorization:`token ${config.token}`}
 });
 const data = await res.json();
-tickets = JSON.parse(atob(data.content));
+
+// usa decodeUTF8 invece di atob per mantenere accenti
+tickets = JSON.parse(decodeUTF8(data.content));
 renderTable();
 }
 
@@ -214,7 +221,7 @@ localStorage.setItem('edit_ticket', JSON.stringify(tickets[index]));
 window.open("ticket_form.html","_blank","width=800,height=900");
 }
 
-// --- AGGIUNTA: BroadcastChannel per aggiornare automaticamente quando ticket_form viene chiuso ---
+// --- BroadcastChannel per aggiornamento automatico da ticket_form ---
 const tableChannel = new BroadcastChannel('ticket_ytable');
 tableChannel.onmessage = (e)=>{
     if(e.data && e.data.action==='reload'){
