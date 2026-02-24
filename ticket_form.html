@@ -59,6 +59,12 @@
             box-shadow: 0 0 0 4px rgba(0,122,255,0.15);
         }
 
+        input[readonly] {
+            background-color: #fbfbfd;
+            color: #86868b;
+            cursor: not-allowed;
+        }
+
         .section-header {
             font-size: 1.1rem;
             font-weight: 700;
@@ -123,20 +129,37 @@
 
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
         .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        
+        .header-badge {
+            background: #007aff;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 12px rgba(0,122,255,0.2);
+        }
     </style>
 </head>
 <body>
 
 <div class="form-card">
-    <header class="flex justify-between items-end mb-8">
+    <header class="flex justify-between items-start mb-8">
         <div>
             <h1 id="formTitle" class="text-3xl font-extrabold tracking-tight">Nuovo Ticket</h1>
             <p class="text-gray-400 text-sm mt-1">Gestione flussi e rilasci 2026</p>
         </div>
-        <div class="bg-blue-600 text-white px-4 py-2 rounded-2xl font-mono text-sm shadow-lg" id="ticketNrDisp">TKN: --</div>
+        <div class="flex flex-col items-end gap-2">
+            <div class="header-badge" id="ticketNrDisp">TKN: --</div>
+            <div id="dateDisplayContainer" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden">
+                Inserito il: <span id="dataInserimentoTesto" class="text-gray-600">--/--/----</span>
+            </div>
+        </div>
     </header>
 
     <form id="ticketForm">
+        <input type="hidden" id="dataInserimento">
+
         <div class="section-header"><i class="fas fa-info-circle text-blue-500"></i> Informazioni Base</div>
         <div class="grid-3">
             <div class="input-group">
@@ -256,6 +279,10 @@ async function init() {
             document.getElementById('formTitle').innerText = "Modifica #" + editingTicket.nrTicket;
             document.getElementById('ticketNrDisp').innerText = "TKN: " + editingTicket.nrTicket;
             fillForm(editingTicket);
+        } else {
+            // Se è un nuovo ticket, prepariamo la data ma la mostriamo solo se lo stato è Nuovo/Aperto
+            const oggi = new Date().toLocaleDateString('it-IT');
+            document.getElementById('dataInserimento').value = oggi;
         }
     } catch (e) { console.error(e); }
 }
@@ -267,49 +294,47 @@ function populateSelect(id, arr, isObj = false) {
         const opt = document.createElement('option');
         opt.value = isObj ? i.val : i;
         opt.innerText = isObj ? i.val : i;
-        if(isObj) { 
-            opt.dataset.desc = i.desc || ""; 
-            opt.dataset.tempo = i.tempo || 0; // Usiamo 0 come default
-        }
+        if(isObj) { opt.dataset.desc = i.desc || ""; opt.dataset.tempo = i.tempo || 0; }
         sel.appendChild(opt);
     });
 }
 
-// GESTIONE CAMBIO STATO CON AUTOMAZIONE DATE
 function handleStatusChange() {
     const sel = document.getElementById('stato');
     const opt = sel.options[sel.selectedIndex];
     const info = document.getElementById('statusDesc');
-    
-    // 1. Mostra info stato
+    const dateDisplay = document.getElementById('dateDisplayContainer');
+    const dataVal = document.getElementById('dataInserimento').value;
+
     if(opt && opt.dataset.desc) {
         info.style.display = "block";
         info.innerHTML = `<b>Info:</b> ${opt.dataset.desc} | <b>Tempo stimato:</b> ${opt.dataset.tempo} gg`;
         
-        // 2. Automazione Date (Solo per "In Corso" o "In Lavorazione")
-        const val = opt.value.toLowerCase();
-        if(val.includes("corso") || val.includes("lavorazione")) {
+        // MOSTRA DATA SOLO SE STATO È NUOVO O APERTO
+        const statusVal = opt.value.toLowerCase();
+        if(statusVal.includes("nuovo") || statusVal.includes("apert")) {
+            dateDisplay.classList.remove('hidden');
+            document.getElementById('dataInserimentoTesto').innerText = dataVal || new Date().toLocaleDateString('it-IT');
+        } else {
+            // Se non siamo in quegli stati, ma la data esiste già (ticket vecchio), la mostriamo comunque? 
+            // La richiesta dice "scrivi questo campo solo se lo stato è Nuovo/Apert", quindi lo nascondiamo negli altri casi.
+            dateDisplay.classList.add('hidden');
+        }
+
+        // Automazione Date Inizio/Fine
+        if(statusVal.includes("corso") || statusVal.includes("lavorazione")) {
             const dataInizioField = document.getElementById('dataInizioPrevista');
             const dataFineField = document.getElementById('dataFinePrevista');
-
             const oggi = new Date();
-            
-            // Imposta Data Inizio (se vuota)
-            if(!dataInizioField.value) {
-                dataInizioField.value = oggi.toISOString().split('T')[0];
-            }
-
-            // Calcola Data Fine in base ai giorni della lista (se vuota)
+            if(!dataInizioField.value) dataInizioField.value = oggi.toISOString().split('T')[0];
             if(!dataFineField.value) {
-                const giorniDaAggiungere = parseInt(opt.dataset.tempo) || 0;
+                const giorni = parseInt(opt.dataset.tempo) || 0;
                 const dataFine = new Date();
-                dataFine.setDate(oggi.getDate() + giorniDaAggiungere);
+                dataFine.setDate(oggi.getDate() + giorni);
                 dataFineField.value = dataFine.toISOString().split('T')[0];
             }
         }
-    } else { 
-        info.style.display = "none"; 
-    }
+    } else { info.style.display = "none"; }
 }
 
 function appendNote() {
@@ -339,13 +364,14 @@ function fillForm(t) {
             if(el) el.value = t[k] || "";
         }
     });
-    // Chiamiamo handleStatusChange ma senza forzare le date se carichiamo un ticket esistente
-    const sel = document.getElementById('stato');
-    const opt = sel.options[sel.selectedIndex];
-    if(opt && opt.dataset.desc) {
-        document.getElementById('statusDesc').style.display = "block";
-        document.getElementById('statusDesc').innerHTML = `<b>Info:</b> ${opt.dataset.desc} | <b>Tempo stimato:</b> ${opt.dataset.tempo} gg`;
+
+    // Gestione visualizzazione data salvata
+    if(t.dataInserimento) {
+        document.getElementById('dataInserimentoTesto').innerText = t.dataInserimento;
+        // La logica di handleStatusChange deciderà se mostrarla o meno in base allo stato
     }
+    
+    handleStatusChange();
 }
 
 document.getElementById('ticketForm').onsubmit = async (e) => {
@@ -359,19 +385,24 @@ document.getElementById('ticketForm').onsubmit = async (e) => {
         const sha = data.sha;
         const formData = editingTicket ? { ...editingTicket } : {};
         const inputs = e.target.querySelectorAll('input, select, textarea');
+        
         inputs.forEach(el => { 
             if(el.id && el.id !== 'tempNote' && el.id !== 'descrAttivitaHidden') {
                 formData[el.id] = el.value; 
             }
         });
+        
         formData['descrAttivita'] = document.getElementById('descrAttivitaHidden').value;
+
         if(!editingTicket) {
             formData.nrTicket = tickets.length > 0 ? Math.max(...tickets.map(t=>t.nrTicket)) + 1 : 1;
-            formData.dataInserimento = new Date().toLocaleDateString('it-IT');
+            // Se è nuovo, la data è già nell'hidden field impostata dall'init
         }
+
         const idx = tickets.findIndex(t => t.nrTicket === formData.nrTicket);
         if(idx !== -1) tickets[idx] = formData;
         else tickets.push(formData);
+
         const saveRes = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
             method: "PUT",
             headers: {Authorization:`token ${config.token}`, "Content-Type":"application/json"},
