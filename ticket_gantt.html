@@ -32,12 +32,6 @@ body {
     </button>
 </div>
 
-<div class="mb-4">
-    <select id="filterStato" class="border p-2 rounded">
-        <option value="">Tutti gli stati</option>
-    </select>
-</div>
-
 <canvas id="ganttChart" height="120"></canvas>
 
 </div>
@@ -46,6 +40,20 @@ body {
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let tickets = [];
 let chart;
+
+/* 🔥 FUNZIONE CONVERSIONE DATE */
+function parseDate(value) {
+    if(!value) return null;
+
+    // formato DD/MM/YYYY
+    if(value.includes("/")){
+        const parts = value.split("/");
+        return new Date(parts[2], parts[1]-1, parts[0]);
+    }
+
+    // formato YYYY-MM-DD
+    return new Date(value);
+}
 
 async function loadData() {
 
@@ -61,27 +69,10 @@ async function loadData() {
     const data = await res.json();
     tickets = JSON.parse(atob(data.content));
 
-    populateFilter();
     renderChart();
 }
 
-function populateFilter(){
-    const select = document.getElementById("filterStato");
-    select.innerHTML = '<option value="">Tutti gli stati</option>';
-
-    [...new Set(tickets.map(t=>t.stato))].forEach(s=>{
-        const opt = document.createElement("option");
-        opt.value = s;
-        opt.text = s;
-        select.appendChild(opt);
-    });
-
-    select.onchange = renderChart;
-}
-
 function renderChart(){
-
-    const statoFiltro = document.getElementById("filterStato").value;
 
     const oggi = new Date();
     oggi.setHours(0,0,0,0);
@@ -89,21 +80,22 @@ function renderChart(){
     const dataset = [];
 
     tickets
-    .filter(t => !statoFiltro || t.stato === statoFiltro)
     .sort((a,b)=>a.nrTicket - b.nrTicket)
     .forEach(t=>{
 
         if(!t.dataInizioPrevista || !t.dataFinePrevista) return;
 
-        const start = new Date(t.dataInizioPrevista);
-        const end = new Date(t.dataFinePrevista);
+        const start = parseDate(t.dataInizioPrevista);
+        const end = parseDate(t.dataFinePrevista);
 
-        let color = "#3b82f6"; // default blu
+        if(!start || !end) return;
+
+        let color = "#3b82f6";
 
         if(t.dataCompletamentoSviluppo){
-            color = "#10b981"; // verde completato
+            color = "#10b981";
         } else if(end < oggi){
-            color = "#ef4444"; // rosso ritardo
+            color = "#ef4444";
         }
 
         dataset.push({
@@ -121,7 +113,6 @@ function renderChart(){
             type: 'bar',
             data: {
                 datasets: [{
-                    label: 'Timeline Ticket',
                     data: dataset,
                     borderSkipped: false,
                     borderRadius: 6
@@ -130,25 +121,11 @@ function renderChart(){
             options: {
                 indexAxis: 'y',
                 responsive: true,
-                plugins: {
-                    legend: { display: false }
-                },
+                plugins: { legend: { display: false }},
                 scales: {
                     x: {
                         type: 'time',
-                        time: {
-                            unit: 'week'
-                        },
-                        title: {
-                            display: true,
-                            text: 'Timeline'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Ticket'
-                        }
+                        time: { unit: 'week' }
                     }
                 }
             }
