@@ -204,28 +204,31 @@ function handleStatusChange() {
     
     if(!opt || opt.value === "") { info.style.display = 'none'; return; }
 
-    // Visualizza Descrizione e Tempo
     info.style.display = 'block';
     info.innerHTML = `<strong>Descrizione:</strong> ${opt.dataset.desc} | <strong>Tempo stimato:</strong> ${opt.dataset.tempo}gg`;
 
     const val = opt.value.toLowerCase();
     
-    // Gestione visualizzazione Data Inserimento
     if(val.includes("nuovo") || val.includes("apert")) {
         dateDisp.classList.remove('hidden');
         document.getElementById('dataInserimentoTesto').innerText = document.getElementById('dataInserimento').value;
     } else dateDisp.classList.add('hidden');
 
-    // Automazione Date
+    // LOGICA CALCOLO DATA FINE PREVISTA
     if(val.includes("corso") || val.includes("lavorazione")) {
         const fInizio = document.getElementById('dataInizioPrevista');
         const fFine = document.getElementById('dataFinePrevista');
         const oggi = new Date();
+        
+        // Imposta inizio se vuoto
         if(!fInizio.value) fInizio.value = oggi.toISOString().split('T')[0];
+        
+        // Calcola fine SOLO se il campo è vuoto (non sovrascrive inserimenti manuali)
         if(!fFine.value) {
             const gg = parseInt(opt.dataset.tempo) || 0;
-            const dataF = new Date();
-            dataF.setDate(oggi.getDate() + gg);
+            const baseDate = fInizio.value ? new Date(fInizio.value) : oggi;
+            const dataF = new Date(baseDate);
+            dataF.setDate(baseDate.getDate() + gg);
             fFine.value = dataF.toISOString().split('T')[0];
         }
     }
