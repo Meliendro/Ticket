@@ -1,1 +1,25 @@
-[]
+[
+  {
+    "nrTicket": 1,
+    "stato": "",
+    "tipo": "Bug",
+    "bloccante": "Bloccante",
+    "priorita": "Media",
+    "dataInserimento": "2026-02-24",
+    "ambito": "",
+    "menu": "Pianificazione Materiali",
+    "titolo": "",
+    "descrizione": "",
+    "inseritoDa": "",
+    "inCaricoA": "",
+    "dataInizioPrevista": "",
+    "dataFinePrevista": "",
+    "dataRilascio": "",
+    "descrAttivita": "",
+    "dataSegnalato": "",
+    "dataPresoInCarico": "",
+    "dataRilasciato": "",
+    "dataInTest": "",
+    "dataCompletato": ""
+  }
+]
