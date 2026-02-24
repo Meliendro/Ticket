@@ -21,5 +21,28 @@
     "dataRilasciato": "",
     "dataInTest": "",
     "dataCompletato": ""
+  },
+  {
+    "nrTicket": 2,
+    "stato": "Segnalato",
+    "tipo": "Bug",
+    "bloccante": "Non Bloccante",
+    "priorita": "Bassa",
+    "dataInserimento": "2026-02-24",
+    "ambito": "FASE1",
+    "menu": "Pianificazione Cantieri",
+    "titolo": "Modifica Pianificazione",
+    "descrizione": "Dopo aver pianificato una squadra selezionando il cantiere, si è provato a dividere la pianificazione. Posizionandosi sopra la barra compare un popup che permette la divisione. Premi \"dividi evento\", selezioni la data e compare un errore in alto a destra",
+    "inseritoDa": "Stefano Paoletto",
+    "inCaricoA": "LEGUR",
+    "dataInizioPrevista": "",
+    "dataFinePrevista": "",
+    "dataRilascio": "",
+    "descrAttivita": "",
+    "dataSegnalato": "24/02/2026",
+    "dataPresoInCarico": "",
+    "dataRilasciato": "",
+    "dataInTest": "",
+    "dataCompletato": ""
   }
 ]
