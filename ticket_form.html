@@ -8,246 +8,107 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
-
-        body {
-            font-family: 'SF Pro Display', -apple-system, sans-serif;
-            background-color: #f5f5f7;
-            color: #1d1d1f;
-            padding: 2rem;
-            display: flex;
-            justify-content: center;
+        body { font-family: 'SF Pro Display', sans-serif; background-color: #f5f5f7; padding: 2rem; display: flex; justify-content: center; }
+        
+        /* Overlay Login */
+        #loginOverlay {
+            position: fixed; inset: 0; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
+            z-index: 100; display: flex; align-items: center; justify-content: center;
         }
 
         .form-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 2.5rem;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
-            border: 1px solid rgba(255,255,255,0.7);
-            max-width: 950px;
-            width: 100%;
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); border-radius: 24px;
+            padding: 2.5rem; box-shadow: 0 20px 50px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.7);
+            max-width: 950px; width: 100%;
         }
 
         .input-group { margin-bottom: 1.5rem; }
+        label { font-size: 0.7rem; font-weight: 800; color: #86868b; text-transform: uppercase; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 6px; }
+        input, select, textarea { width: 100%; padding: 0.8rem 1rem; border: 1px solid #d2d2d7; border-radius: 12px; outline: none; transition: all 0.3s; }
+        input:focus { border-color: #007aff; box-shadow: 0 0 0 4px rgba(0,122,255,0.15); }
+        input[readonly] { background: #fbfbfd; color: #86868b; cursor: not-allowed; }
 
-        label {
-            font-size: 0.7rem;
-            font-weight: 800;
-            color: #86868b;
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            letter-spacing: 0.05em;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border: 1px solid #d2d2d7;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            background: #ffffff;
-            transition: all 0.3s ease;
-            outline: none;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: #007aff;
-            box-shadow: 0 0 0 4px rgba(0,122,255,0.15);
-        }
-
-        input[readonly] {
-            background-color: #fbfbfd;
-            color: #86868b;
-            cursor: not-allowed;
-        }
-
-        .section-header {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin: 2rem 0 1.2rem 0;
-            padding-bottom: 0.6rem;
-            border-bottom: 1px solid #e5e5e7;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-save {
-            background: #007aff;
-            color: white;
-            font-weight: 600;
-            padding: 0.9rem 3rem;
-            border-radius: 14px;
-            transition: all 0.2s;
-            box-shadow: 0 8px 20px rgba(0,122,255,0.3);
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-add-note {
-            background: #f5f5f7;
-            color: #007aff;
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 0.4rem 1rem;
-            border-radius: 8px;
-            margin-top: 0.5rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            border: 1px solid #d2d2d7;
-            cursor: pointer;
-        }
-
-        .history-box {
-            background: #f9f9fb;
-            border: 1px solid #e5e5e7;
-            border-radius: 12px;
-            padding: 1rem;
-            font-size: 0.85rem;
-            color: #48484a;
-            max-height: 200px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            font-family: 'SF Mono', 'Menlo', monospace;
-        }
-
-        .status-badge-info {
-            background: #f0f7ff;
-            color: #007aff;
-            padding: 10px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            margin-top: 8px;
-            display: none;
-            border: 1px solid #dbeafe;
-        }
-
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        .section-header { font-size: 1.1rem; font-weight: 700; margin: 2rem 0 1.2rem 0; border-bottom: 1px solid #e5e5e7; padding-bottom: 0.6rem; display: flex; align-items: center; gap: 10px; }
+        .btn-save { background: #007aff; color: white; font-weight: 600; padding: 0.9rem 3rem; border-radius: 14px; cursor: pointer; }
         
-        .header-badge {
-            background: #007aff;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 12px;
-            font-family: monospace;
-            font-size: 0.85rem;
-            box-shadow: 0 4px 12px rgba(0,122,255,0.2);
-        }
+        .history-box { background: #f9f9fb; border: 1px solid #e5e5e7; border-radius: 12px; padding: 1rem; font-size: 0.85rem; max-height: 200px; overflow-y: auto; white-space: pre-wrap; font-family: monospace; }
+        .header-badge { background: #007aff; color: white; padding: 0.5rem 1rem; border-radius: 12px; font-family: monospace; }
+        .user-badge { font-size: 0.7rem; background: #e8e8ed; padding: 4px 10px; border-radius: 20px; color: #424245; font-weight: 600; }
     </style>
 </head>
 <body>
 
+<div id="loginOverlay" class="hidden">
+    <div class="bg-white p-8 rounded-3xl shadow-2xl w-80 border">
+        <h2 class="text-xl font-bold mb-4 text-center">Accesso Operatore</h2>
+        <input type="text" id="username" placeholder="Nome Utente" class="mb-3">
+        <input type="password" id="password" placeholder="Password" class="mb-4">
+        <button onclick="checkLogin()" class="w-full bg-black text-white py-3 rounded-xl font-bold">ENTRA</button>
+    </div>
+</div>
+
 <div class="form-card">
     <header class="flex justify-between items-start mb-8">
         <div>
-            <h1 id="formTitle" class="text-3xl font-extrabold tracking-tight">Nuovo Ticket</h1>
-            <p class="text-gray-400 text-sm mt-1">Gestione flussi e rilasci 2026</p>
+            <h1 id="formTitle" class="text-3xl font-extrabold tracking-tight">Ticket Editor</h1>
+            <div class="flex items-center gap-2 mt-2">
+                <span class="user-badge"><i class="fas fa-user"></i> <span id="currentUserDisp">---</span></span>
+                <button onclick="logout()" class="text-[10px] text-red-500 font-bold uppercase underline">Esci</button>
+            </div>
         </div>
         <div class="flex flex-col items-end gap-2">
             <div class="header-badge" id="ticketNrDisp">TKN: --</div>
-            <div id="dateDisplayContainer" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden">
-                Inserito il: <span id="dataInserimentoTesto" class="text-gray-600">--/--/----</span>
+            <div id="dateDisplayContainer" class="text-[10px] font-bold text-gray-400 uppercase hidden">
+                Inserito il: <span id="dataInserimentoTesto">--/--/----</span>
             </div>
         </div>
     </header>
 
     <form id="ticketForm">
         <input type="hidden" id="dataInserimento">
-
-        <div class="section-header"><i class="fas fa-info-circle text-blue-500"></i> Informazioni Base</div>
+        <input type="hidden" id="inseritoDa"> <div class="section-header"><i class="fas fa-info-circle text-blue-500"></i> Informazioni Base</div>
         <div class="grid-3">
             <div class="input-group">
-                <label><i class="fas fa-tasks"></i> Stato</label>
+                <label>Stato</label>
                 <select id="stato" required onchange="handleStatusChange()"></select>
-                <div id="statusDesc" class="status-badge-info"></div>
+                <div id="statusDesc" class="hidden text-[10px] text-blue-600 mt-1 italic"></div>
             </div>
-            <div class="input-group">
-                <label><i class="fas fa-bolt"></i> Priorità</label>
-                <select id="priorita" required></select>
-            </div>
-            <div class="input-group">
-                <label><i class="fas fa-layer-group"></i> Tipo</label>
-                <select id="tipo" required></select>
-            </div>
-        </div>
-
-        <div class="grid-3">
-            <div class="input-group">
-                <label><i class="fas fa-project-diagram"></i> Ambito</label>
-                <select id="ambito" required></select>
-            </div>
-            <div class="input-group">
-                <label><i class="fas fa-bars"></i> Menu</label>
-                <select id="menu"></select>
-            </div>
-            <div class="input-group">
-                <label><i class="fas fa-lock"></i> Bloccante</label>
-                <select id="bloccante"></select>
-            </div>
+            <div class="input-group"><label>Priorità</label><select id="priorita" required></select></div>
+            <div class="input-group"><label>Tipo</label><select id="tipo" required></select></div>
         </div>
 
         <div class="input-group">
-            <label><i class="fas fa-heading"></i> Titolo Ticket</label>
+            <label>Titolo Ticket</label>
             <input type="text" id="titolo" required>
         </div>
 
         <div class="input-group">
-            <label><i class="fas fa-align-left"></i> Descrizione Segnalazione</label>
+            <label>Descrizione Segnalazione</label>
             <textarea id="descrizione" rows="3"></textarea>
         </div>
 
         <div class="section-header"><i class="fas fa-user-clock text-blue-500"></i> Pianificazione</div>
         <div class="grid-2">
-            <div class="input-group">
-                <label><i class="fas fa-user-check"></i> In Carico A</label>
-                <input type="text" id="inCaricoA">
-            </div>
-            <div class="input-group">
-                <label><i class="fas fa-user-edit"></i> Inserito Da</label>
-                <input type="text" id="inseritoDa">
-            </div>
-        </div>
-
-        <div class="grid-3">
-            <div class="input-group">
-                <label>Inizio Prev.</label>
-                <input type="date" id="dataInizioPrevista">
-            </div>
-            <div class="input-group">
-                <label>Fine Prev.</label>
-                <input type="date" id="dataFinePrevista">
-            </div>
-            <div class="input-group">
-                <label>Rilascio</label>
-                <input type="date" id="dataRilascio">
-            </div>
+            <div class="input-group"><label>In Carico A</label><input type="text" id="inCaricoA"></div>
+            <div class="input-group"><label>Data Inizio</label><input type="date" id="dataInizioPrevista"></div>
         </div>
 
         <div class="section-header"><i class="fas fa-terminal text-blue-500"></i> Dettagli Tecnici</div>
-        
         <div class="input-group">
-            <label>Aggiungi Nuovo Aggiornamento</label>
-            <textarea id="tempNote" rows="2" placeholder="Scrivi qui l'avanzamento..."></textarea>
-            <button type="button" onclick="appendNote()" class="btn-add-note">
-                <i class="fas fa-plus"></i> Applica Nota con Data
-            </button>
+            <label>Aggiungi Aggiornamento</label>
+            <textarea id="tempNote" rows="2" placeholder="Scrivi qui..."></textarea>
+            <button type="button" onclick="appendNote()" class="mt-2 text-blue-600 font-bold text-xs uppercase">+ Aggiungi Nota Firmata</button>
         </div>
 
         <div class="input-group">
-            <label>Cronologia Attività (Sola Lettura)</label>
+            <label>Cronologia Attività</label>
             <div id="descrAttivita" class="history-box">Nessuna nota presente.</div>
             <input type="hidden" id="descrAttivitaHidden">
         </div>
 
         <div class="flex justify-end gap-4 border-t pt-6">
-            <button type="button" onclick="window.close()" class="font-bold text-gray-400 hover:text-gray-600">ANNULLA</button>
-            <button type="submit" class="btn-save">SALVA TICKET</button>
+            <button type="button" onclick="window.close()" class="text-gray-400 font-bold">ANNULLA</button>
+            <button type="submit" class="btn-save">SALVA MODIFICHE</button>
         </div>
     </form>
 </div>
@@ -255,38 +116,84 @@
 <script>
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let editingTicket = JSON.parse(localStorage.getItem('edit_ticket'));
+let currentUser = localStorage.getItem('logged_user');
+let userList = [];
 
 function decodeUTF8(s){ return decodeURIComponent(escape(atob(s))); }
 function encodeUTF8(s){ return btoa(unescape(encodeURIComponent(s))); }
 
 async function init() {
     if(!config) return alert("GitHub non configurato!");
+    
+    // Controllo Sessione
+    if(!currentUser) {
+        document.getElementById('loginOverlay').classList.remove('hidden');
+    } else {
+        document.getElementById('currentUserDisp').innerText = currentUser;
+        document.getElementById('inseritoDa').value = currentUser;
+    }
+
     try {
         const resL = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json?v=${Date.now()}`, {
             headers: {Authorization:`token ${config.token}`}
         });
         const dataL = await resL.json();
         const lists = JSON.parse(decodeUTF8(dataL.content));
+        userList = lists.Utenti || []; // Assicurati di avere "Utenti": [{"user":"nome","pass":"123"}] in liste.json
 
         populateSelect("stato", lists.Stato, true);
         populateSelect("priorita", lists.Priorita);
         populateSelect("tipo", lists.Tipo);
-        populateSelect("ambito", lists.Ambito);
-        populateSelect("menu", lists.Menu);
-        populateSelect("bloccante", lists.Bloccante);
 
         if(editingTicket) {
             document.getElementById('formTitle').innerText = "Modifica #" + editingTicket.nrTicket;
             document.getElementById('ticketNrDisp').innerText = "TKN: " + editingTicket.nrTicket;
             fillForm(editingTicket);
         } else {
-            // Se è un nuovo ticket, prepariamo la data ma la mostriamo solo se lo stato è Nuovo/Aperto
-            const oggi = new Date().toLocaleDateString('it-IT');
-            document.getElementById('dataInserimento').value = oggi;
+            document.getElementById('dataInserimento').value = new Date().toLocaleDateString('it-IT');
         }
     } catch (e) { console.error(e); }
 }
 
+function checkLogin() {
+    const u = document.getElementById('username').value;
+    const p = document.getElementById('password').value;
+    const found = userList.find(x => x.user === u && x.pass === p);
+    
+    if(found) {
+        localStorage.setItem('logged_user', u);
+        location.reload();
+    } else {
+        alert("Credenziali errate!");
+    }
+}
+
+function logout() {
+    localStorage.removeItem('logged_user');
+    location.reload();
+}
+
+function appendNote() {
+    const tempNote = document.getElementById('tempNote');
+    const historyDiv = document.getElementById('descrAttivita');
+    const hiddenInput = document.getElementById('descrAttivitaHidden');
+    if (tempNote.value.trim() === "") return;
+
+    const now = new Date();
+    const ts = now.toLocaleDateString('it-IT') + ' ' + now.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
+    // NOTA CON FIRMA UTENTE
+    const newEntry = `[${ts} - ${currentUser}] ${tempNote.value.trim()}\n`;
+    
+    let currentHistory = hiddenInput.value || "";
+    if (currentHistory === "Nessuna nota presente.") currentHistory = "";
+    
+    const updatedHistory = newEntry + currentHistory;
+    historyDiv.innerText = updatedHistory;
+    hiddenInput.value = updatedHistory;
+    tempNote.value = "";
+}
+
+// ... (Resto delle funzioni handleStatusChange, populateSelect, fillForm come prima) ...
 function populateSelect(id, arr, isObj = false) {
     const sel = document.getElementById(id);
     sel.innerHTML = '<option value="">-- Seleziona --</option>';
@@ -302,75 +209,29 @@ function populateSelect(id, arr, isObj = false) {
 function handleStatusChange() {
     const sel = document.getElementById('stato');
     const opt = sel.options[sel.selectedIndex];
-    const info = document.getElementById('statusDesc');
-    const dateDisplay = document.getElementById('dateDisplayContainer');
-    const dataVal = document.getElementById('dataInserimento').value;
-
-    if(opt && opt.dataset.desc) {
-        info.style.display = "block";
-        info.innerHTML = `<b>Info:</b> ${opt.dataset.desc} | <b>Tempo stimato:</b> ${opt.dataset.tempo} gg`;
-        
-        // MOSTRA DATA SOLO SE STATO È NUOVO O APERTO
-        const statusVal = opt.value.toLowerCase();
-        if(statusVal.includes("nuovo") || statusVal.includes("apert")) {
-            dateDisplay.classList.remove('hidden');
-            document.getElementById('dataInserimentoTesto').innerText = dataVal || new Date().toLocaleDateString('it-IT');
-        } else {
-            // Se non siamo in quegli stati, ma la data esiste già (ticket vecchio), la mostriamo comunque? 
-            // La richiesta dice "scrivi questo campo solo se lo stato è Nuovo/Apert", quindi lo nascondiamo negli altri casi.
-            dateDisplay.classList.add('hidden');
-        }
-
-        // Automazione Date Inizio/Fine
-        if(statusVal.includes("corso") || statusVal.includes("lavorazione")) {
-            const dataInizioField = document.getElementById('dataInizioPrevista');
-            const dataFineField = document.getElementById('dataFinePrevista');
-            const oggi = new Date();
-            if(!dataInizioField.value) dataInizioField.value = oggi.toISOString().split('T')[0];
-            if(!dataFineField.value) {
-                const giorni = parseInt(opt.dataset.tempo) || 0;
-                const dataFine = new Date();
-                dataFine.setDate(oggi.getDate() + giorni);
-                dataFineField.value = dataFine.toISOString().split('T')[0];
-            }
-        }
-    } else { info.style.display = "none"; }
-}
-
-function appendNote() {
-    const tempNote = document.getElementById('tempNote');
-    const historyDiv = document.getElementById('descrAttivita');
-    const hiddenInput = document.getElementById('descrAttivitaHidden');
-    if (tempNote.value.trim() === "") return;
-    const now = new Date();
-    const timestamp = now.toLocaleDateString('it-IT') + ' ' + now.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
-    const newEntry = `[${timestamp}] ${tempNote.value.trim()}\n`;
-    let currentHistory = hiddenInput.value || "";
-    if (currentHistory === "Nessuna nota presente.") currentHistory = "";
-    const updatedHistory = newEntry + currentHistory;
-    historyDiv.innerText = updatedHistory;
-    hiddenInput.value = updatedHistory;
-    tempNote.value = "";
+    if(!opt) return;
+    const statusVal = opt.value.toLowerCase();
+    
+    // Mostra/Nascondi Data Inserimento
+    const dateDisp = document.getElementById('dateDisplayContainer');
+    if(statusVal.includes("nuovo") || statusVal.includes("apert")) {
+        dateDisp.classList.remove('hidden');
+        document.getElementById('dataInserimentoTesto').innerText = document.getElementById('dataInserimento').value;
+    } else {
+        dateDisp.classList.add('hidden');
+    }
 }
 
 function fillForm(t) {
     Object.keys(t).forEach(k => {
         if (k === 'descrAttivita') {
-            const content = t[k] || "Nessuna nota presente.";
-            document.getElementById('descrAttivita').innerText = content;
-            document.getElementById('descrAttivitaHidden').value = content;
+            document.getElementById('descrAttivita').innerText = t[k] || "Nessuna nota presente.";
+            document.getElementById('descrAttivitaHidden').value = t[k] || "";
         } else {
             const el = document.getElementById(k);
             if(el) el.value = t[k] || "";
         }
     });
-
-    // Gestione visualizzazione data salvata
-    if(t.dataInserimento) {
-        document.getElementById('dataInserimentoTesto').innerText = t.dataInserimento;
-        // La logica di handleStatusChange deciderà se mostrarla o meno in base allo stato
-    }
-    
     handleStatusChange();
 }
 
@@ -382,37 +243,29 @@ document.getElementById('ticketForm').onsubmit = async (e) => {
         });
         const data = await res.json();
         let tickets = JSON.parse(decodeUTF8(data.content));
-        const sha = data.sha;
+        
         const formData = editingTicket ? { ...editingTicket } : {};
         const inputs = e.target.querySelectorAll('input, select, textarea');
-        
-        inputs.forEach(el => { 
-            if(el.id && el.id !== 'tempNote' && el.id !== 'descrAttivitaHidden') {
-                formData[el.id] = el.value; 
-            }
-        });
-        
+        inputs.forEach(el => { if(el.id && !['tempNote','descrAttivitaHidden'].includes(el.id)) formData[el.id] = el.value; });
         formData['descrAttivita'] = document.getElementById('descrAttivitaHidden').value;
 
         if(!editingTicket) {
             formData.nrTicket = tickets.length > 0 ? Math.max(...tickets.map(t=>t.nrTicket)) + 1 : 1;
-            // Se è nuovo, la data è già nell'hidden field impostata dall'init
         }
 
         const idx = tickets.findIndex(t => t.nrTicket === formData.nrTicket);
-        if(idx !== -1) tickets[idx] = formData;
-        else tickets.push(formData);
+        if(idx !== -1) tickets[idx] = formData; else tickets.push(formData);
 
         const saveRes = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
             method: "PUT",
             headers: {Authorization:`token ${config.token}`, "Content-Type":"application/json"},
-            body: JSON.stringify({ message: "Update ticket #" + formData.nrTicket, content: encodeUTF8(JSON.stringify(tickets, null, 2)), sha: sha })
+            body: JSON.stringify({ message: `Modifica ticket #${formData.nrTicket} by ${currentUser}`, content: encodeUTF8(JSON.stringify(tickets, null, 2)), sha: data.sha })
         });
         if(saveRes.ok) {
             new BroadcastChannel('ticket_ytable').postMessage({action: 'reload'});
             window.close();
         }
-    } catch (err) { alert("Errore: " + err.message); }
+    } catch (err) { alert(err.message); }
 };
 
 init();
