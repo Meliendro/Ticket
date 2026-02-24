@@ -4,11 +4,46 @@
     "Non Bloccante"
   ],
   "Stato": [
-    "Segnalato",
-    "Preso in carico",
-    "Rilasciato",
-    "In Test",
-    "Completato"
+    {
+      "val": "Nuovo/Aperto",
+      "desc": "Il ticket è stato appena creato e non è ancora stato preso in carico.",
+      "tempo": "5"
+    },
+    {
+      "val": "In lavorazione / In corso",
+      "desc": "Il team sta lavorando sul ticket.",
+      "tempo": ""
+    },
+    {
+      "val": "Risolto",
+      "desc": "Il problema è stato risolto dal team, in attesa della verifica del cliente o QA.",
+      "tempo": ""
+    },
+    {
+      "val": "Verificato",
+      "desc": "Il cliente o QA ha testato il ticket e confermato che la soluzione è corretta.",
+      "tempo": "5"
+    },
+    {
+      "val": "Accettato / Approvato",
+      "desc": "Il cliente ha approvato ufficialmente la soluzione.",
+      "tempo": "5"
+    },
+    {
+      "val": "Chiuso",
+      "desc": "Il ticket è definitivamente chiuso, nessuna azione aggiuntiva richiesta.",
+      "tempo": ""
+    },
+    {
+      "val": "Rifiutato / Non accettato",
+      "desc": "Il cliente non approva la soluzione, occorrono correzioni.",
+      "tempo": "5"
+    },
+    {
+      "val": "In attesa / Sospeso",
+      "desc": "Il ticket è temporaneamente sospeso, ad esempio in attesa di informazioni o decisioni.",
+      "tempo": "5"
+    }
   ],
   "Priorita": [
     "Alta",
