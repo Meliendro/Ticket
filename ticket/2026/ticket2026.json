@@ -251,5 +251,23 @@
     "dataRilasciato": "",
     "dataInTest": "",
     "dataCompletato": ""
+  },
+  {
+    "stato": "Nuovo/Aperto",
+    "priorita": "Bassa",
+    "tipo": "Nuova Richiesta",
+    "ambito": "FASE1",
+    "menu": "Pianificazione Squadre",
+    "bloccante": "Non Bloccante",
+    "titolo": "test",
+    "descrizione": "test da cancellare ",
+    "inCaricoA": "",
+    "inseritoDa": "Stefano Paoletto",
+    "dataInizioPrevista": "",
+    "dataFinePrevista": "",
+    "dataRilascio": "",
+    "descrAttivita": "",
+    "nrTicket": 12,
+    "dataInserimento": "24/02/2026"
   }
 ]
