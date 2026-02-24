@@ -251,19 +251,5 @@
     "dataRilasciato": "",
     "dataInTest": "",
     "dataCompletato": ""
-  },
-  {
-    "dataInserimento": "24/02/2026",
-    "inseritoDa": "Stefano Paoletto",
-    "stato": "Nuovo/Aperto",
-    "priorita": "Alta",
-    "tipo": "Nuova Richiesta",
-    "titolo": "test ",
-    "descrizione": "test ",
-    "inCaricoA": "me stesso ",
-    "dataInizioPrevista": "",
-    "descrAttivitaHidden": "",
-    "descrAttivita": "",
-    "nrTicket": 12
   }
 ]
