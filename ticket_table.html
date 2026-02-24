@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Hub 2026 | Professional Management</title>
+<title>Ticket Hub 2026 | Apple Style</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -100,64 +100,79 @@
         border-collapse: separate; 
         border-spacing: 0; 
         table-layout: fixed; 
-        min-width: 2500px; /* Ripristinato larghezza originale */
+        min-width: 2600px; 
     }
 
     th { 
         position: sticky; top: 0; z-index: 10;
-        background: #1f2937; /* Colore scuro originale per le testate */
-        color: #fff;
+        background: #fbfbfd; 
+        color: #86868b;
         font-size: 0.75rem;
         text-transform: uppercase;
-        padding: 0.8rem;
-        border-bottom: 1px solid #374151;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        padding: 1rem 0.8rem;
+        border-bottom: 1px solid #f2f2f2;
         text-align: left;
     }
 
     td { 
-        padding: 0.8rem; 
+        padding: 1rem 0.8rem; 
         border-bottom: 1px solid #f5f5f7;
-        font-size: 0.875rem;
-        vertical-align: top;
+        font-size: 0.85rem;
+        vertical-align: middle;
+        transition: background 0.2s;
     }
 
     tr:hover td { background-color: #f9f9fb; }
 
-    /* Classi Logiche Originali */
-    .ritardo-row { background-color: rgba(239,68,68,0.08) !important; border-left: 4px solid #ef4444; }
-    .locked-row { background-color: #f3f4f6 !important; opacity: 0.7; }
-
-    .priority-alta { background: #dc2626 !important; color: #fff; font-weight: bold; text-align: center; border-radius: 4px; }
-    .priority-media { background: #f59e0b !important; color: #fff; font-weight: bold; text-align: center; border-radius: 4px; }
-    .priority-bassa { background: #10b981 !important; color: #fff; font-weight: bold; text-align: center; border-radius: 4px; }
-
-    .status-Segnalato { color: #ef4444; font-weight: bold; }
-    .status-Preso { color: #f59e0b; font-weight: bold; }
-    .status-Rilasciato { color: #3b82f6; font-weight: bold; }
-    .status-InTest { color: #6366f1; font-weight: bold; }
-    .status-Completato { color: #10b981; font-weight: bold; }
-
-    /* Column Widths (Ripristinate) */
+    /* Layout Colonne */
     .col-desc { width: 500px; }
     .col-desc-act { width: 400px; }
-    .col-small { width: 80px; }
-    .col-medium { width: 150px; }
-    .col-date { width: 130px; }
+    .col-small { width: 90px; }
+    .col-medium { width: 160px; }
+    .col-date { width: 135px; }
+
+    /* Classi Logiche & Apple Badges */
+    .ritardo-row td { background-color: rgba(255, 59, 48, 0.05) !important; }
+    .ritardo-row td:first-child { border-left: 4px solid var(--apple-red); }
+    .locked-row { opacity: 0.6; filter: grayscale(0.3); }
+
+    .priority-badge {
+        padding: 0.3rem 0.7rem;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+    }
+    .priority-alta { background: #ff3b30; color: #fff; }
+    .priority-media { background: #ff9500; color: #fff; }
+    .priority-bassa { background: #34c759; color: #fff; }
+
+    .status-Segnalato { color: var(--apple-red); font-weight: 700; }
+    .status-Preso { color: #ff9500; font-weight: 700; }
+    .status-Rilasciato { color: var(--apple-blue); font-weight: 700; }
+    .status-InTest { color: #5856d6; font-weight: 700; }
+    .status-Completato { color: var(--apple-green); font-weight: 700; }
 
     .wrap-text, .wrap-text-act {
         white-space: normal;
         word-break: break-word;
-        line-height: 1.5;
-        font-size: 0.85rem;
-        color: #374151;
+        line-height: 1.6;
+        color: #424245;
+        font-size: 0.82rem;
     }
 
     .apple-select {
-        background: white;
-        border: 1px solid #d1d5db;
+        background: rgba(0,0,0,0.04);
+        border: none;
         border-radius: 10px;
-        padding: 0.4rem 0.8rem;
+        padding: 0.5rem 1.2rem;
         font-size: 0.85rem;
+        font-weight: 500;
         outline: none;
         cursor: pointer;
     }
@@ -169,8 +184,9 @@
         border-radius: 12px;
         font-weight: 600;
         transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
     }
-    .btn-add:hover { transform: scale(1.02); background: #0071e3; }
+    .btn-add:hover { transform: scale(1.03); background: #0071e3; }
 
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-thumb { background: #d2d2d7; border-radius: 10px; }
@@ -191,8 +207,8 @@
     </nav>
 
     <div class="mt-auto px-2">
-        <button onclick="configureGitHub()" class="text-[10px] text-gray-400 hover:text-gray-600 transition uppercase font-bold tracking-tighter">
-            <i class="fas fa-cog mr-1"></i> Config GitHub
+        <button onclick="configureGitHub()" class="text-[10px] text-gray-400 hover:text-gray-600 transition uppercase font-bold tracking-widest">
+            <i class="fas fa-cog mr-1"></i> GitHub Config
         </button>
     </div>
 </aside>
@@ -202,11 +218,11 @@
     <header class="top-bar">
         <div class="flex gap-4">
             <div class="stat-card">
-                <p class="text-[9px] text-gray-400 uppercase font-black">Ticket Totali</p>
+                <p class="text-[9px] text-gray-400 uppercase font-black">Totali</p>
                 <h3 id="statTotal" class="text-xl font-bold">--</h3>
             </div>
             <div class="stat-card">
-                <p class="text-[9px] text-red-400 uppercase font-black">In Ritardo</p>
+                <p class="text-[9px] text-red-400 uppercase font-black">Ritardi</p>
                 <h3 id="statDelay" class="text-xl font-bold text-red-500">--</h3>
             </div>
             <div class="stat-card">
@@ -220,11 +236,11 @@
         </button>
     </header>
 
-    <div class="px-10 py-4 flex flex-wrap gap-2 items-center">
-        <select id="filterStato" class="apple-select"><option value="">Tutti gli Stati</option></select>
-        <select id="filterTipo" class="apple-select"><option value="">Tutti i Tipi</option></select>
+    <div class="px-10 py-4 flex flex-wrap gap-3 items-center">
+        <select id="filterStato" class="apple-select"><option value="">Stati</option></select>
+        <select id="filterTipo" class="apple-select"><option value="">Tipi</option></select>
         <select id="filterBloccante" class="apple-select"><option value="">Bloccante</option></select>
-        <select id="filterAmbito" class="apple-select"><option value="">Tutti gli Ambiti</option></select>
+        <select id="filterAmbito" class="apple-select"><option value="">Ambiti</option></select>
         <div class="flex-1"></div>
         <select id="filterCompletati" class="apple-select">
             <option value="nascondi" selected>Nascondi completati 🔒</option>
@@ -237,12 +253,12 @@
             <table id="ticketTable">
                 <thead>
                     <tr>
-                        <th class="col-small">Modifica</th>
+                        <th class="col-small" style="text-align: center;">Azioni</th>
                         <th class="col-small">Nr Ticket</th>
                         <th class="col-medium">Stato</th>
                         <th class="col-medium">Tipo</th>
                         <th class="col-medium">Bloccante</th>
-                        <th class="col-small">Priorità</th>
+                        <th class="col-small" style="text-align: center;">Priorità</th>
                         <th class="col-date">Data Inser.</th>
                         <th class="col-medium">Ambito</th>
                         <th class="col-medium">Menu</th>
@@ -325,30 +341,27 @@ function renderTable() {
         if(isLocked) tr.classList.add("locked-row");
         if(isInRitardo) tr.classList.add("ritardo-row");
 
-        const lockIcon = isLocked ? '<i class="fas fa-lock text-red-600 ml-1"></i>' : '';
-        const disabledEdit = isLocked ? 'disabled class="bg-gray-200 p-2 rounded opacity-50 cursor-not-allowed"' :
-        'class="bg-yellow-400 p-2 rounded hover:bg-yellow-500 transition shadow-sm text-xs"';
+        const lockIcon = isLocked ? '<i class="fas fa-lock text-red-500 opacity-70 ml-1"></i>' : '';
+        const btnStyle = isLocked ? 'opacity-20 cursor-not-allowed' : 'text-blue-600 hover:scale-125 transition-transform cursor-pointer';
 
         tr.innerHTML = `
             <td class="text-center">
-                <button onclick="${isLocked ? '' : 'editTicket('+i+')'}" ${disabledEdit}>
-                    <i class="fas fa-edit"></i>
-                </button>
+                <i onclick="${isLocked ? '' : 'editTicket('+i+')'}" class="fas fa-edit text-lg ${btnStyle}"></i>
             </td>
-            <td><b>${t.nrTicket}</b> ${lockIcon}</td>
-            <td class="status-${(t.stato||"").replace(/\s/g,'')}">${t.stato||""}</td>
-            <td>${t.tipo||""}</td>
+            <td><span class="font-bold text-slate-900">${t.nrTicket}</span> ${lockIcon}</td>
+            <td><span class="status-${(t.stato||"").replace(/\s/g,'')}">${t.stato||""}</span></td>
+            <td><span class="text-[10px] bg-gray-100 px-2 py-1 rounded text-gray-500 font-bold uppercase">${t.tipo||""}</span></td>
             <td>${t.bloccante||""}</td>
-            <td class="priority-${(t.priorita||'').toLowerCase()}">${t.priorita||''}</td>
-            <td>${t.dataInserimento||''}</td>
-            <td>${t.ambito||''}</td>
+            <td class="text-center"><span class="priority-badge priority-${(t.priorita||'').toLowerCase()}">${t.priorita||''}</span></td>
+            <td class="text-gray-400 text-xs">${t.dataInserimento||''}</td>
+            <td><span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-[11px] font-semibold">${t.ambito||''}</span></td>
             <td>${t.menu||''}</td>
-            <td>${t.titolo||''}</td>
+            <td class="font-semibold text-slate-800">${t.titolo||''}</td>
             <td class="wrap-text">${(t.descrizione||"").replace(/\n/g,'<br>')}</td>
             <td>${t.inseritoDa||''}</td>
-            <td>${t.inCaricoA||''}</td>
+            <td class="font-medium text-blue-600">${t.inCaricoA||''}</td>
             <td>${t.dataInizioPrevista||''}</td>
-            <td>${t.dataFinePrevista||''}</td>
+            <td class="${isInRitardo ? 'text-red-500 font-bold' : ''}">${t.dataFinePrevista||''}</td>
             <td>${t.dataRilascio||''}</td>
             <td class="wrap-text-act">${(t.descrAttivita||"").replace(/\n/g,'<br>')}</td>
             <td>${t.dataSegnalato||""}</td>
