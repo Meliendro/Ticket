@@ -119,6 +119,12 @@ async function loadData(){
             document.getElementById('dataInserimento').value=editTicketData.dataInserimento||"";
             document.getElementById('titolo').value=editTicketData.titolo||"";
             document.getElementById('descrizione').value=editTicketData.descrizione||"";
+            document.getElementById('inseritoDa').value=editTicketData.inseritoDa||"";
+            document.getElementById('inCaricoA').value=editTicketData.inCaricoA||"";
+            document.getElementById('dataInizioPrevista').value=editTicketData.dataInizioPrevista||"";
+            document.getElementById('dataFinePrevista').value=editTicketData.dataFinePrevista||"";
+            document.getElementById('dataRilascio').value=editTicketData.dataRilascio||"";
+            document.getElementById('descrAttivita').value=editTicketData.descrAttivita||"";
         } else {
             document.getElementById('dataInserimento').value=new Date().toISOString().split('T')[0];
         }
@@ -144,7 +150,7 @@ async function saveTicket(){
         const tickets=JSON.parse(decodeUTF8(data.content));
         let nrTicket=editTicketData.nrTicket||(tickets.length?Math.max(...tickets.map(t=>t.nrTicket))+1:1);
 
-        // Legge sempre tutti i campi aggiornati
+        // Legge tutti i campi del form
         const t={
             nrTicket:parseInt(nrTicket),
             stato:document.getElementById('stato').value,
@@ -180,7 +186,6 @@ async function saveTicket(){
 
         if(putRes.ok){
             alert("Ticket salvato con successo!");
-            // invia messaggio al channel per ricaricare ticket_table
             tableChannel.postMessage({ action: 'reload' });
             window.close();
         } else throw new Error("Errore GitHub");
