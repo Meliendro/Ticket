@@ -162,7 +162,7 @@
   },
   {
     "nrTicket": 8,
-    "stato": "Segnalato",
+    "stato": "Nuovo/Aperto",
     "tipo": "Miglioria",
     "bloccante": "Non Bloccante",
     "priorita": "Media",
