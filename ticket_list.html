@@ -10,10 +10,21 @@
 body {
     font-family: 'Segoe UI', sans-serif;
     background: linear-gradient(135deg,#1e293b,#0f172a);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
 }
-.card{
-    background: rgba(255,255,255,0.95);
-    backdrop-filter: blur(10px);
+.card {
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(15px);
+    border-radius: 2rem;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 5xl;
+    color: #1f2937;
 }
 input, select, textarea {
     width: 100%;
@@ -21,6 +32,8 @@ input, select, textarea {
     border: 1px solid #d1d5db;
     border-radius: 0.5rem;
     transition: all 0.2s ease;
+    background: rgba(255,255,255,0.5);
+    backdrop-filter: blur(5px);
 }
 input:focus, select:focus, textarea:focus{
     border-color:#2563eb;
@@ -36,37 +49,44 @@ label {
     display:block;
 }
 .section-title{
-    font-size:0.9rem;
+    font-size:0.95rem;
     font-weight:800;
-    color:#1f2937;
-    border-bottom:2px solid #e5e7eb;
-    padding-bottom:4px;
+    color:#111827;
+    border-bottom:2px solid rgba(255,255,255,0.3);
+    padding-bottom:6px;
     margin-bottom:10px;
 }
 .list-item{
-    background: #f3f4f6;
+    background: rgba(255,255,255,0.3);
+    backdrop-filter: blur(5px);
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     display:flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom:0.3rem;
+    transition: background 0.2s;
+}
+.list-item:hover {
+    background: rgba(255,255,255,0.5);
 }
 .list-item button{
     background: transparent;
     color: #ef4444;
     font-size: 0.9rem;
 }
+button:hover {
+    cursor: pointer;
+}
 </style>
 </head>
-<body class="p-6 flex justify-center">
+<body>
 
-<div class="card w-full max-w-5xl rounded-2xl shadow-2xl p-8">
+<div class="card">
 
 <h1 class="text-2xl font-extrabold text-gray-800 mb-6">Gestione Liste Ticket</h1>
 
-<div id="listsContainer" class="space-y-6">
-    </div>
+<div id="listsContainer" class="space-y-6"></div>
 
 <div class="flex justify-center gap-4 mt-6">
     <button onclick="saveLists()"
@@ -85,14 +105,15 @@ label {
 </div>
 
 <script>
-// Aggiunta la chiave Email qui
+// Liste iniziali, aggiunta "Ambito"
 let lists = {
     Bloccante: [],
     Stato: [],
     Priorita: [],
     Tipo: [],
     Menu: [],
-    Email: [] 
+    Email: [],
+    Ambito: [] // Nuova lista aggiunta
 };
 
 // Genera la UI per ogni lista
@@ -103,8 +124,7 @@ function renderLists() {
         const section = document.createElement('div');
         section.innerHTML = `
             <div class="section-title">${listName}</div>
-            <div class="space-y-1" id="list-${listName}">
-            </div>
+            <div class="space-y-1" id="list-${listName}"></div>
             <div class="flex gap-2 mt-2">
                 <input type="text" placeholder="Nuovo ${listName}" id="input-${listName}" class="border p-2 rounded w-full">
                 <button onclick="addItem('${listName}')" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"><i class="fas fa-plus"></i></button>
@@ -178,9 +198,8 @@ async function loadLists(){
             headers:{Authorization:`token ${config.token}`}
         });
         const data = await res.json();
-        // Carica i dati e si assicura che la chiave Email esista anche se il file vecchio non l'aveva
         const loadedData = JSON.parse(atob(data.content));
-        lists = { ...lists, ...loadedData }; 
+        lists = { ...lists, ...loadedData };
         renderLists();
     }catch(e){ alert("Errore caricamento: "+e.message); }
 }
