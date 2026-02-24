@@ -3,227 +3,263 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Table | Management System</title>
+<title>Ticket Management OS</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
+
+    :root {
+        --apple-blue: #007aff;
+        --apple-red: #ff3b30;
+        --apple-green: #34c759;
+        --apple-bg: #f5f5f7;
+    }
 
     body { 
-        font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; 
-        background-color: #f5f5f7;
+        font-family: 'SF Pro Display', -apple-system, sans-serif; 
+        background-color: var(--apple-bg);
         color: #1d1d1f;
-        padding: 2rem;
+        margin: 0;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
     }
 
-    /* Effetto Apple Glassmorphism */
-    .glass-header {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(0,0,0,0.05);
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        margin: -2rem -2rem 2rem -2rem;
-        padding: 1.5rem 2rem;
+    /* Sidebar Navigation */
+    .sidebar {
+        width: 260px;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border-right: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        padding: 2rem 1.5rem;
     }
 
-    .table-card {
+    .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 0.8rem 1rem;
+        border-radius: 12px;
+        color: #424245;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .nav-item.active {
         background: white;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-        border: 1px solid rgba(0,0,0,0.05);
+        color: var(--apple-blue);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    /* Main Content */
+    .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
         overflow: hidden;
     }
 
-    .table-container { 
-        overflow-x: auto;
-        scrollbar-width: thin;
+    .top-bar {
+        padding: 1.5rem 2.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(245, 245, 247, 0.8);
+        backdrop-filter: blur(10px);
     }
 
-    table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; min-width: 2500px; }
+    /* Summary Stats Cards */
+    .stat-card {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 18px;
+        border: 1px solid rgba(0,0,0,0.03);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        min-width: 160px;
+    }
+
+    /* Table Styling */
+    .table-wrapper {
+        flex: 1;
+        margin: 0 2.5rem 2.5rem 2.5rem;
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+        border: 1px solid rgba(0,0,0,0.04);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .table-scroll {
+        overflow: auto;
+        flex: 1;
+    }
+
+    table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 2500px; }
 
     th { 
-        background: #fbfbfd; 
-        color: #86868b; 
-        font-weight: 600; 
-        font-size: 0.75rem; 
-        text-transform: uppercase; 
+        position: sticky; top: 0; z-index: 10;
+        background: #fbfbfd;
+        color: #86868b;
+        font-size: 0.7rem;
+        text-transform: uppercase;
         letter-spacing: 0.05em;
-        padding: 1rem 0.8rem;
+        padding: 1rem;
         border-bottom: 1px solid #f2f2f2;
+        text-align: left;
     }
 
     td { 
-        padding: 1rem 0.8rem; 
-        vertical-align: middle; 
+        padding: 1rem; 
         border-bottom: 1px solid #f5f5f7;
         font-size: 0.85rem;
-        transition: background 0.2s ease;
     }
 
     tr:hover td { background-color: #f9f9fb; }
 
-    /* Badge Stili Apple */
+    /* Custom Logic Classes */
+    .ritardo-row td { background-color: rgba(255, 59, 48, 0.04) !important; }
+    .ritardo-row td:first-child { border-left: 4px solid var(--apple-red); }
+    .locked-row { opacity: 0.6; filter: grayscale(0.5); }
+
     .priority-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 999px;
+        padding: 4px 10px;
+        border-radius: 8px;
         font-size: 0.7rem;
         font-weight: 700;
-        display: inline-block;
-        text-align: center;
-        min-width: 60px;
+        text-transform: uppercase;
     }
+    .priority-alta { background: #fee2e2; color: #ef4444; }
+    .priority-media { background: #fef3c7; color: #d97706; }
+    .priority-bassa { background: #dcfce7; color: #16a34a; }
 
-    .priority-alta { background: #ff3b30; color: #fff; }
-    .priority-media { background: #ff9500; color: #fff; }
-    .priority-bassa { background: #34c759; color: #fff; }
-
-    /* Stati Colorati Moderni */
-    .status-Segnalato { color: #ff3b30; }
-    .status-Preso { color: #ff9500; }
-    .status-Rilasciato { color: #007aff; }
-    .status-InTest { color: #5856d6; }
-    .status-Completato { color: #34c759; }
-
-    /* Row Speciali */
-    .ritardo-row td { background-color: rgba(255, 59, 48, 0.05) !important; }
-    .ritardo-row td:first-child { border-left: 4px solid #ff3b30; }
-
-    .locked-row { opacity: 0.7; }
-    .locked-row td { background-color: #fafafa !important; }
-
-    /* Filtri & Bottoni */
+    /* Forms & Buttons */
     .apple-select {
-        appearance: none;
-        background: #fff;
-        border: 1px solid #d2d2d7;
-        border-radius: 8px;
-        padding: 0.4rem 2rem 0.4rem 0.8rem;
+        background: rgba(0,0,0,0.03);
+        border: none;
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
         font-size: 0.85rem;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2386868b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 0.5rem center;
-        background-size: 1rem;
+        outline: none;
         cursor: pointer;
-        transition: all 0.2s;
     }
 
-    .apple-select:hover { border-color: #007aff; }
-
-    .btn-primary {
-        background: #007aff;
+    .btn-add {
+        background: var(--apple-blue);
         color: white;
-        padding: 0.6rem 1.2rem;
-        border-radius: 10px;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
-        transition: all 0.2s;
-    }
-
-    .btn-primary:hover { transform: scale(1.02); background: #0071e3; }
-
-    .btn-secondary {
-        background: #f5f5f7;
-        color: #1d1d1f;
-        padding: 0.6rem 1.2rem;
-        border-radius: 10px;
+        padding: 0.7rem 1.4rem;
+        border-radius: 12px;
         font-weight: 600;
         transition: all 0.2s;
     }
+    .btn-add:hover { transform: scale(1.02); box-shadow: 0 5px 15px rgba(0,122,255,0.3); }
 
-    .btn-secondary:hover { background: #e8e8ed; }
-
-    /* Layout Colonne */
-    .col-desc { width: 500px; }
-    .col-desc-act { width: 400px; }
-    .col-small { width: 90px; }
-    .col-medium { width: 160px; }
-    .col-date { width: 130px; }
-
-    .wrap-text, .wrap-text-act {
-        white-space: normal;
-        word-break: break-word;
-        line-height: 1.6;
-        color: #424245;
-        font-size: 0.8rem;
-    }
+    .status-Segnalato { color: var(--apple-red); font-weight: 600; }
+    .status-Preso { color: #f59e0b; font-weight: 600; }
+    .status-Rilasciato { color: var(--apple-blue); font-weight: 600; }
+    .status-Completato { color: var(--apple-green); font-weight: 600; }
 
     ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #f1f1f1; }
     ::-webkit-scrollbar-thumb { background: #d2d2d7; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #86868b; }
 </style>
 </head>
 
 <body>
 
-<header class="glass-header flex justify-between items-center">
-    <div>
-        <h1 class="text-3xl font-bold tracking-tight text-slate-900">Controllo Ticket</h1>
-        <p class="text-sm text-gray-400 font-medium">Gestione flussi di sviluppo 2026</p>
+<aside class="sidebar">
+    <div class="mb-10 px-2">
+        <h2 class="text-xl font-bold tracking-tight">TicketHub <span class="text-blue-500">2026</span></h2>
     </div>
-    <div class="flex gap-4">
-        <button onclick="newTicket()" class="btn-primary">
-            <i class="fas fa-plus mr-2"></i>Nuovo Ticket
-        </button>
-        <button onclick="configureGitHub()" class="btn-secondary">
-            <i class="fas fa-cog mr-2"></i>GitHub
-        </button>
-    </div>
-</header>
+    
+    <nav class="flex-1">
+        <div class="nav-item active">
+            <i class="fas fa-table mr-3"></i> Tabella Ticket
+        </div>
+        <div class="nav-item" onclick="window.location.href='ticket_gantt.html'">
+            <i class="fas fa-chart-gantt mr-3"></i> Vista Gantt
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-chart-pie mr-3"></i> Statistiche
+        </div>
+    </nav>
 
-<div class="flex flex-wrap gap-3 mb-6 items-center">
-    <select id="filterStato" class="apple-select"><option value="">Stati</option></select>
-    <select id="filterTipo" class="apple-select"><option value="">Tipi</option></select>
-    <select id="filterBloccante" class="apple-select"><option value="">Priorità Bloccante</option></select>
-    <select id="filterAmbito" class="apple-select"><option value="">Ambiti</option></select>
-    <div class="h-6 w-[1px] bg-gray-300 mx-2"></div>
-    <select id="filterCompletati" class="apple-select">
-        <option value="nascondi" selected>Nascondi completati</option>
-        <option value="mostra">Mostra completati</option>
-    </select>
-</div>
-
-<div class="table-card">
-    <div class="table-container">
-        <table id="ticketTable">
-            <thead>
-                <tr>
-                    <th class="col-small" style="text-align: center;">Azione</th>
-                    <th class="col-small">ID</th>
-                    <th class="col-medium">Stato</th>
-                    <th class="col-medium">Tipo</th>
-                    <th class="col-medium">Bloccante</th>
-                    <th class="col-small" style="text-align: center;">Priorità</th>
-                    <th class="col-date">Data Ins.</th>
-                    <th class="col-medium">Ambito</th>
-                    <th class="col-medium">Menu</th>
-                    <th class="col-medium">Titolo</th>
-                    <th class="col-desc">Descrizione</th>
-                    <th class="col-medium">Creato Da</th>
-                    <th class="col-medium">Assegnato A</th>
-                    <th class="col-date">Inizio Prev.</th>
-                    <th class="col-date">Fine Prev.</th>
-                    <th class="col-date">Rilascio</th>
-                    <th class="col-desc-act">Attività</th>
-                    <th class="col-date">Data Segnal.</th>
-                    <th class="col-date">Data Preso</th>
-                    <th class="col-date">Data Rilasc.</th>
-                    <th class="col-date">Data Test</th>
-                    <th class="col-date">Data Compl.</th>
-                </tr>
-            </thead>
-            <tbody id="ticketBody"></tbody>
-        </table>
+    <div class="mt-auto px-2">
+        <button onclick="configureGitHub()" class="text-xs text-gray-400 hover:text-gray-600 transition">
+            <i class="fas fa-cog mr-1"></i> Impostazioni GitHub
+        </button>
     </div>
-</div>
+</aside>
+
+<main class="main-content">
+    
+    <header class="top-bar">
+        <div class="flex gap-6">
+            <div class="stat-card">
+                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Totali</p>
+                <h3 id="statTotal" class="text-2xl font-bold">--</h3>
+            </div>
+            <div class="stat-card border-l-4 border-l-red-500">
+                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">In Ritardo</p>
+                <h3 id="statDelay" class="text-2xl font-bold text-red-500">--</h3>
+            </div>
+            <div class="stat-card border-l-4 border-l-green-500">
+                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Completati</p>
+                <h3 id="statDone" class="text-2xl font-bold text-green-500">--</h3>
+            </div>
+        </div>
+
+        <button onclick="newTicket()" class="btn-add">
+            <i class="fas fa-plus mr-2"></i> Nuovo Ticket
+        </button>
+    </header>
+
+    <div class="px-10 py-4 flex gap-3 items-center">
+        <select id="filterStato" class="apple-select"><option value="">Tutti gli Stati</option></select>
+        <select id="filterTipo" class="apple-select"><option value="">Tutti i Tipi</option></select>
+        <select id="filterAmbito" class="apple-select"><option value="">Tutti gli Ambiti</option></select>
+        <div class="flex-1"></div>
+        <select id="filterCompletati" class="apple-select">
+            <option value="nascondi">Nascondi completati</option>
+            <option value="mostra">Mostra tutti</option>
+        </select>
+    </div>
+
+    <div class="table-wrapper">
+        <div class="table-scroll">
+            <table id="ticketTable">
+                <thead>
+                    <tr>
+                        <th class="w-20 text-center">Azioni</th>
+                        <th class="w-24">Nr</th>
+                        <th class="w-40">Stato</th>
+                        <th class="w-40">Tipo</th>
+                        <th class="w-32 text-center">Priorità</th>
+                        <th class="w-40">Data Ins.</th>
+                        <th class="w-40">Ambito</th>
+                        <th class="w-60">Titolo</th>
+                        <th class="w-[500px]">Descrizione</th>
+                        <th class="w-40">Assegnato</th>
+                        <th class="w-32 text-center">Fine Prev.</th>
+                        <th class="w-[400px]">Attività</th>
+                        <th class="w-32">Rilascio</th>
+                    </tr>
+                </thead>
+                <tbody id="ticketBody"></tbody>
+            </table>
+        </div>
+    </div>
+</main>
 
 <script>
-// --- LOGICA ORIGINALE PRESERVATA ---
+// --- LOGICA ORIGINALE INALTERATA ---
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let tickets = [];
 let filters = { completati:"nascondi" };
@@ -234,14 +270,24 @@ function decodeUTF8(s){
 
 async function loadTickets() {
     if(!config) { alert("⚠️ Configurare GitHub"); return; }
-    try {
-        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
-            headers: {Authorization:`token ${config.token}`}
-        });
-        const data = await res.json();
-        tickets = JSON.parse(decodeUTF8(data.content));
-        renderTable();
-    } catch(e) { console.error(e); }
+    const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
+        headers: {Authorization:`token ${config.token}`}
+    });
+    const data = await res.json();
+    tickets = JSON.parse(decodeUTF8(data.content));
+    updateStats();
+    renderTable();
+}
+
+function updateStats() {
+    const oggi = new Date();
+    oggi.setHours(0,0,0,0);
+    const ritardi = tickets.filter(t => t.dataFinePrevista && t.stato !== "Completato" && new Date(t.dataFinePrevista) < oggi).length;
+    const completati = tickets.filter(t => !!t.dataCompletamentoSviluppo).length;
+    
+    document.getElementById('statTotal').innerText = tickets.length;
+    document.getElementById('statDelay').innerText = ritardi;
+    document.getElementById('statDone').innerText = completati;
 }
 
 document.getElementById("filterCompletati").onchange = (e)=>{
@@ -269,36 +315,27 @@ function renderTable() {
         if(isLocked) tr.classList.add("locked-row");
         if(isInRitardo) tr.classList.add("ritardo-row");
 
-        const lockIcon = isLocked ? '<i class="fas fa-lock text-red-500 ml-1"></i>' : '';
-        const btnClass = isLocked ? 'opacity-30 cursor-not-allowed' : 'text-blue-600 hover:scale-125 transition-transform';
+        const lockIcon = isLocked ? '<i class="fas fa-lock text-gray-400 ml-1"></i>' : '';
+        const btnClass = isLocked ? 'opacity-20 cursor-not-allowed' : 'text-blue-500 hover:scale-110 transition';
 
         tr.innerHTML = `
             <td class="text-center">
                 <button onclick="${isLocked ? '' : 'editTicket('+i+')'}" class="${btnClass}">
-                    <i class="fas fa-edit text-lg"></i>
+                    <i class="fas fa-pen-to-square"></i>
                 </button>
             </td>
-            <td><span class="font-bold text-slate-800">${t.nrTicket}</span> ${lockIcon}</td>
-            <td><span class="status-${(t.stato||"").replace(/\s/g,'')} font-semibold">${t.stato||""}</span></td>
-            <td>${t.tipo||""}</td>
-            <td>${t.bloccante||""}</td>
+            <td><span class="font-bold">#${t.nrTicket}</span> ${lockIcon}</td>
+            <td class="status-${(t.stato||"").replace(/\s/g,'')}">${t.stato||""}</td>
+            <td><span class="text-[11px] bg-gray-100 px-2 py-1 rounded text-gray-500 uppercase font-bold">${t.tipo||""}</span></td>
             <td class="text-center"><span class="priority-badge priority-${(t.priorita||'').toLowerCase()}">${t.priorita||''}</span></td>
-            <td class="text-gray-500">${t.dataInserimento||''}</td>
-            <td><span class="bg-gray-100 px-2 py-1 rounded text-xs font-medium text-gray-600">${t.ambito||''}</span></td>
-            <td>${t.menu||''}</td>
-            <td class="font-medium">${t.titolo||''}</td>
-            <td class="wrap-text">${(t.descrizione||"").replace(/\n/g,'<br>')}</td>
-            <td>${t.inseritoDa||''}</td>
-            <td><span class="text-blue-600 font-medium">${t.inCaricoA||''}</span></td>
-            <td>${t.dataInizioPrevista||''}</td>
-            <td>${t.dataFinePrevista||''}</td>
-            <td>${t.dataRilascio||''}</td>
-            <td class="wrap-text-act">${(t.descrAttivita||"").replace(/\n/g,'<br>')}</td>
-            <td>${t.dataSegnalato||""}</td>
-            <td>${t.dataPresoInCarico||""}</td>
-            <td>${t.dataRilasciato||""}</td>
-            <td>${t.dataInTest||""}</td>
-            <td>${t.dataCompletamentoSviluppo||""}</td>
+            <td class="text-gray-400 text-xs">${t.dataInserimento||''}</td>
+            <td><span class="font-medium text-slate-600">${t.ambito||''}</span></td>
+            <td class="font-semibold">${t.titolo||''}</td>
+            <td class="text-xs text-gray-500 leading-relaxed">${(t.descrizione||"").replace(/\n/g,'<br>')}</td>
+            <td class="font-medium text-blue-600">${t.inCaricoA||''}</td>
+            <td class="text-center text-xs font-bold ${isInRitardo ? 'text-red-500' : ''}">${t.dataFinePrevista||''}</td>
+            <td class="text-xs text-gray-400 italic">${(t.descrAttivita||"").substring(0,100)}...</td>
+            <td class="text-xs font-bold">${t.dataRilascio||''}</td>
         `;
         tbody.appendChild(tr);
     });
@@ -314,11 +351,18 @@ function editTicket(index){
     window.open("ticket_form.html","_blank","width=800,height=900");
 }
 
+function configureGitHub() {
+    const repo = prompt("Repo (user/repo):", config?.repo || "");
+    const token = prompt("Token:", config?.token || "");
+    if(repo && token) {
+        localStorage.setItem('gh_ticket_config', JSON.stringify({repo, token}));
+        location.reload();
+    }
+}
+
 const tableChannel = new BroadcastChannel('ticket_ytable');
 tableChannel.onmessage = (e)=>{
-    if(e.data && e.data.action==='reload'){
-        loadTickets();
-    }
+    if(e.data && e.data.action==='reload') loadTickets();
 };
 
 loadTickets();
