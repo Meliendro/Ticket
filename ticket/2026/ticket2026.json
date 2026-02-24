@@ -70,7 +70,7 @@
   },
   {
     "nrTicket": 4,
-    "stato": "Preso in carico",
+    "stato": "In lavorazione / In corso",
     "tipo": "Bug",
     "bloccante": "Bloccante",
     "priorita": "Media",
@@ -80,7 +80,7 @@
     "titolo": "Modifica Squadra",
     "descrizione": "Quando si modifica una squadra, compare un errore e non viene applicata la modifica ",
     "inseritoDa": "Stefano Paoletto",
-    "inCaricoA": "LEGUR",
+    "inCaricoA": "",
     "dataInizioPrevista": "2026-02-09",
     "dataFinePrevista": "2026-02-13",
     "dataRilascio": "",
