@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Management OS</title>
+<title>Ticket Hub 2026 | Professional Management</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -45,16 +45,9 @@
         align-items: center;
         padding: 0.8rem 1rem;
         border-radius: 12px;
-        color: #424245;
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-        transition: all 0.2s;
-        cursor: pointer;
-    }
-
-    .nav-item.active {
-        background: white;
         color: var(--apple-blue);
+        background: white;
+        font-weight: 600;
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
@@ -75,22 +68,21 @@
         backdrop-filter: blur(10px);
     }
 
-    /* Summary Stats Cards */
     .stat-card {
         background: white;
-        padding: 1rem 1.5rem;
-        border-radius: 18px;
+        padding: 0.8rem 1.2rem;
+        border-radius: 15px;
         border: 1px solid rgba(0,0,0,0.03);
-        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-        min-width: 160px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        min-width: 140px;
     }
 
-    /* Table Styling */
+    /* Table Wrapper & Scroll */
     .table-wrapper {
         flex: 1;
         margin: 0 2.5rem 2.5rem 2.5rem;
         background: white;
-        border-radius: 24px;
+        border-radius: 20px;
         box-shadow: 0 10px 40px rgba(0,0,0,0.06);
         border: 1px solid rgba(0,0,0,0.04);
         display: flex;
@@ -103,50 +95,68 @@
         flex: 1;
     }
 
-    table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 2500px; }
+    table { 
+        width: 100%; 
+        border-collapse: separate; 
+        border-spacing: 0; 
+        table-layout: fixed; 
+        min-width: 2500px; /* Ripristinato larghezza originale */
+    }
 
     th { 
         position: sticky; top: 0; z-index: 10;
-        background: #fbfbfd;
-        color: #86868b;
-        font-size: 0.7rem;
+        background: #1f2937; /* Colore scuro originale per le testate */
+        color: #fff;
+        font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        padding: 1rem;
-        border-bottom: 1px solid #f2f2f2;
+        padding: 0.8rem;
+        border-bottom: 1px solid #374151;
         text-align: left;
     }
 
     td { 
-        padding: 1rem; 
+        padding: 0.8rem; 
         border-bottom: 1px solid #f5f5f7;
-        font-size: 0.85rem;
+        font-size: 0.875rem;
+        vertical-align: top;
     }
 
     tr:hover td { background-color: #f9f9fb; }
 
-    /* Custom Logic Classes */
-    .ritardo-row td { background-color: rgba(255, 59, 48, 0.04) !important; }
-    .ritardo-row td:first-child { border-left: 4px solid var(--apple-red); }
-    .locked-row { opacity: 0.6; filter: grayscale(0.5); }
+    /* Classi Logiche Originali */
+    .ritardo-row { background-color: rgba(239,68,68,0.08) !important; border-left: 4px solid #ef4444; }
+    .locked-row { background-color: #f3f4f6 !important; opacity: 0.7; }
 
-    .priority-badge {
-        padding: 4px 10px;
-        border-radius: 8px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
+    .priority-alta { background: #dc2626 !important; color: #fff; font-weight: bold; text-align: center; border-radius: 4px; }
+    .priority-media { background: #f59e0b !important; color: #fff; font-weight: bold; text-align: center; border-radius: 4px; }
+    .priority-bassa { background: #10b981 !important; color: #fff; font-weight: bold; text-align: center; border-radius: 4px; }
+
+    .status-Segnalato { color: #ef4444; font-weight: bold; }
+    .status-Preso { color: #f59e0b; font-weight: bold; }
+    .status-Rilasciato { color: #3b82f6; font-weight: bold; }
+    .status-InTest { color: #6366f1; font-weight: bold; }
+    .status-Completato { color: #10b981; font-weight: bold; }
+
+    /* Column Widths (Ripristinate) */
+    .col-desc { width: 500px; }
+    .col-desc-act { width: 400px; }
+    .col-small { width: 80px; }
+    .col-medium { width: 150px; }
+    .col-date { width: 130px; }
+
+    .wrap-text, .wrap-text-act {
+        white-space: normal;
+        word-break: break-word;
+        line-height: 1.5;
+        font-size: 0.85rem;
+        color: #374151;
     }
-    .priority-alta { background: #fee2e2; color: #ef4444; }
-    .priority-media { background: #fef3c7; color: #d97706; }
-    .priority-bassa { background: #dcfce7; color: #16a34a; }
 
-    /* Forms & Buttons */
     .apple-select {
-        background: rgba(0,0,0,0.03);
-        border: none;
+        background: white;
+        border: 1px solid #d1d5db;
         border-radius: 10px;
-        padding: 0.5rem 1rem;
+        padding: 0.4rem 0.8rem;
         font-size: 0.85rem;
         outline: none;
         cursor: pointer;
@@ -160,12 +170,7 @@
         font-weight: 600;
         transition: all 0.2s;
     }
-    .btn-add:hover { transform: scale(1.02); box-shadow: 0 5px 15px rgba(0,122,255,0.3); }
-
-    .status-Segnalato { color: var(--apple-red); font-weight: 600; }
-    .status-Preso { color: #f59e0b; font-weight: 600; }
-    .status-Rilasciato { color: var(--apple-blue); font-weight: 600; }
-    .status-Completato { color: var(--apple-green); font-weight: 600; }
+    .btn-add:hover { transform: scale(1.02); background: #0071e3; }
 
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-thumb { background: #d2d2d7; border-radius: 10px; }
@@ -180,20 +185,14 @@
     </div>
     
     <nav class="flex-1">
-        <div class="nav-item active">
-            <i class="fas fa-table mr-3"></i> Tabella Ticket
-        </div>
-        <div class="nav-item" onclick="window.location.href='ticket_gantt.html'">
-            <i class="fas fa-chart-gantt mr-3"></i> Vista Gantt
-        </div>
         <div class="nav-item">
-            <i class="fas fa-chart-pie mr-3"></i> Statistiche
+            <i class="fas fa-list-ul mr-3"></i> Gestione Ticket
         </div>
     </nav>
 
     <div class="mt-auto px-2">
-        <button onclick="configureGitHub()" class="text-xs text-gray-400 hover:text-gray-600 transition">
-            <i class="fas fa-cog mr-1"></i> Impostazioni GitHub
+        <button onclick="configureGitHub()" class="text-[10px] text-gray-400 hover:text-gray-600 transition uppercase font-bold tracking-tighter">
+            <i class="fas fa-cog mr-1"></i> Config GitHub
         </button>
     </div>
 </aside>
@@ -201,18 +200,18 @@
 <main class="main-content">
     
     <header class="top-bar">
-        <div class="flex gap-6">
+        <div class="flex gap-4">
             <div class="stat-card">
-                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Totali</p>
-                <h3 id="statTotal" class="text-2xl font-bold">--</h3>
+                <p class="text-[9px] text-gray-400 uppercase font-black">Ticket Totali</p>
+                <h3 id="statTotal" class="text-xl font-bold">--</h3>
             </div>
-            <div class="stat-card border-l-4 border-l-red-500">
-                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">In Ritardo</p>
-                <h3 id="statDelay" class="text-2xl font-bold text-red-500">--</h3>
+            <div class="stat-card">
+                <p class="text-[9px] text-red-400 uppercase font-black">In Ritardo</p>
+                <h3 id="statDelay" class="text-xl font-bold text-red-500">--</h3>
             </div>
-            <div class="stat-card border-l-4 border-l-green-500">
-                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Completati</p>
-                <h3 id="statDone" class="text-2xl font-bold text-green-500">--</h3>
+            <div class="stat-card">
+                <p class="text-[9px] text-green-400 uppercase font-black">Completati</p>
+                <h3 id="statDone" class="text-xl font-bold text-green-500">--</h3>
             </div>
         </div>
 
@@ -221,14 +220,15 @@
         </button>
     </header>
 
-    <div class="px-10 py-4 flex gap-3 items-center">
+    <div class="px-10 py-4 flex flex-wrap gap-2 items-center">
         <select id="filterStato" class="apple-select"><option value="">Tutti gli Stati</option></select>
         <select id="filterTipo" class="apple-select"><option value="">Tutti i Tipi</option></select>
+        <select id="filterBloccante" class="apple-select"><option value="">Bloccante</option></select>
         <select id="filterAmbito" class="apple-select"><option value="">Tutti gli Ambiti</option></select>
         <div class="flex-1"></div>
         <select id="filterCompletati" class="apple-select">
-            <option value="nascondi">Nascondi completati</option>
-            <option value="mostra">Mostra tutti</option>
+            <option value="nascondi" selected>Nascondi completati 🔒</option>
+            <option value="mostra">Mostra completati 🔒</option>
         </select>
     </div>
 
@@ -237,19 +237,28 @@
             <table id="ticketTable">
                 <thead>
                     <tr>
-                        <th class="w-20 text-center">Azioni</th>
-                        <th class="w-24">Nr</th>
-                        <th class="w-40">Stato</th>
-                        <th class="w-40">Tipo</th>
-                        <th class="w-32 text-center">Priorità</th>
-                        <th class="w-40">Data Ins.</th>
-                        <th class="w-40">Ambito</th>
-                        <th class="w-60">Titolo</th>
-                        <th class="w-[500px]">Descrizione</th>
-                        <th class="w-40">Assegnato</th>
-                        <th class="w-32 text-center">Fine Prev.</th>
-                        <th class="w-[400px]">Attività</th>
-                        <th class="w-32">Rilascio</th>
+                        <th class="col-small">Modifica</th>
+                        <th class="col-small">Nr Ticket</th>
+                        <th class="col-medium">Stato</th>
+                        <th class="col-medium">Tipo</th>
+                        <th class="col-medium">Bloccante</th>
+                        <th class="col-small">Priorità</th>
+                        <th class="col-date">Data Inser.</th>
+                        <th class="col-medium">Ambito</th>
+                        <th class="col-medium">Menu</th>
+                        <th class="col-medium">Titolo</th>
+                        <th class="col-desc">Descrizione</th>
+                        <th class="col-medium">Inserito da</th>
+                        <th class="col-medium">In carico a</th>
+                        <th class="col-date">Inizio Prev.</th>
+                        <th class="col-date">Fine Prev.</th>
+                        <th class="col-date">Data Rilascio</th>
+                        <th class="col-desc-act">Descrizione Attività</th>
+                        <th class="col-date">Data Segnal.</th>
+                        <th class="col-date">Data Preso</th>
+                        <th class="col-date">Data Rilasci.</th>
+                        <th class="col-date">Data Test</th>
+                        <th class="col-date">Data Compl.</th>
                     </tr>
                 </thead>
                 <tbody id="ticketBody"></tbody>
@@ -259,7 +268,6 @@
 </main>
 
 <script>
-// --- LOGICA ORIGINALE INALTERATA ---
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let tickets = [];
 let filters = { completati:"nascondi" };
@@ -270,13 +278,15 @@ function decodeUTF8(s){
 
 async function loadTickets() {
     if(!config) { alert("⚠️ Configurare GitHub"); return; }
-    const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
-        headers: {Authorization:`token ${config.token}`}
-    });
-    const data = await res.json();
-    tickets = JSON.parse(decodeUTF8(data.content));
-    updateStats();
-    renderTable();
+    try {
+        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
+            headers: {Authorization:`token ${config.token}`}
+        });
+        const data = await res.json();
+        tickets = JSON.parse(decodeUTF8(data.content));
+        updateStats();
+        renderTable();
+    } catch(e) { console.error(e); }
 }
 
 function updateStats() {
@@ -315,27 +325,37 @@ function renderTable() {
         if(isLocked) tr.classList.add("locked-row");
         if(isInRitardo) tr.classList.add("ritardo-row");
 
-        const lockIcon = isLocked ? '<i class="fas fa-lock text-gray-400 ml-1"></i>' : '';
-        const btnClass = isLocked ? 'opacity-20 cursor-not-allowed' : 'text-blue-500 hover:scale-110 transition';
+        const lockIcon = isLocked ? '<i class="fas fa-lock text-red-600 ml-1"></i>' : '';
+        const disabledEdit = isLocked ? 'disabled class="bg-gray-200 p-2 rounded opacity-50 cursor-not-allowed"' :
+        'class="bg-yellow-400 p-2 rounded hover:bg-yellow-500 transition shadow-sm text-xs"';
 
         tr.innerHTML = `
             <td class="text-center">
-                <button onclick="${isLocked ? '' : 'editTicket('+i+')'}" class="${btnClass}">
-                    <i class="fas fa-pen-to-square"></i>
+                <button onclick="${isLocked ? '' : 'editTicket('+i+')'}" ${disabledEdit}>
+                    <i class="fas fa-edit"></i>
                 </button>
             </td>
-            <td><span class="font-bold">#${t.nrTicket}</span> ${lockIcon}</td>
+            <td><b>${t.nrTicket}</b> ${lockIcon}</td>
             <td class="status-${(t.stato||"").replace(/\s/g,'')}">${t.stato||""}</td>
-            <td><span class="text-[11px] bg-gray-100 px-2 py-1 rounded text-gray-500 uppercase font-bold">${t.tipo||""}</span></td>
-            <td class="text-center"><span class="priority-badge priority-${(t.priorita||'').toLowerCase()}">${t.priorita||''}</span></td>
-            <td class="text-gray-400 text-xs">${t.dataInserimento||''}</td>
-            <td><span class="font-medium text-slate-600">${t.ambito||''}</span></td>
-            <td class="font-semibold">${t.titolo||''}</td>
-            <td class="text-xs text-gray-500 leading-relaxed">${(t.descrizione||"").replace(/\n/g,'<br>')}</td>
-            <td class="font-medium text-blue-600">${t.inCaricoA||''}</td>
-            <td class="text-center text-xs font-bold ${isInRitardo ? 'text-red-500' : ''}">${t.dataFinePrevista||''}</td>
-            <td class="text-xs text-gray-400 italic">${(t.descrAttivita||"").substring(0,100)}...</td>
-            <td class="text-xs font-bold">${t.dataRilascio||''}</td>
+            <td>${t.tipo||""}</td>
+            <td>${t.bloccante||""}</td>
+            <td class="priority-${(t.priorita||'').toLowerCase()}">${t.priorita||''}</td>
+            <td>${t.dataInserimento||''}</td>
+            <td>${t.ambito||''}</td>
+            <td>${t.menu||''}</td>
+            <td>${t.titolo||''}</td>
+            <td class="wrap-text">${(t.descrizione||"").replace(/\n/g,'<br>')}</td>
+            <td>${t.inseritoDa||''}</td>
+            <td>${t.inCaricoA||''}</td>
+            <td>${t.dataInizioPrevista||''}</td>
+            <td>${t.dataFinePrevista||''}</td>
+            <td>${t.dataRilascio||''}</td>
+            <td class="wrap-text-act">${(t.descrAttivita||"").replace(/\n/g,'<br>')}</td>
+            <td>${t.dataSegnalato||""}</td>
+            <td>${t.dataPresoInCarico||""}</td>
+            <td>${t.dataRilasciato||""}</td>
+            <td>${t.dataInTest||""}</td>
+            <td>${t.dataCompletamentoSviluppo||""}</td>
         `;
         tbody.appendChild(tr);
     });
