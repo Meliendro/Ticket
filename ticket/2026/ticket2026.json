@@ -24,7 +24,7 @@
   },
   {
     "nrTicket": 2,
-    "stato": "Segnalato",
+    "stato": "Nuovo/Aperto",
     "tipo": "Bug",
     "bloccante": "Non Bloccante",
     "priorita": "Bassa",
@@ -34,7 +34,7 @@
     "titolo": "Modifica Pianificazione",
     "descrizione": "Dopo aver pianificato una squadra selezionando il cantiere, si Ã¨ provato a dividere la pianificazione. Posizionandosi sopra la barra compare un popup che permette la divisione. Premi \"dividi evento\", selezioni la data e compare un errore in alto a destra",
     "inseritoDa": "Stefano Paoletto",
-    "inCaricoA": "LEGUR",
+    "inCaricoA": "",
     "dataInizioPrevista": "",
     "dataFinePrevista": "",
     "dataRilascio": "",
