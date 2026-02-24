@@ -139,7 +139,7 @@
   },
   {
     "nrTicket": 7,
-    "stato": "Segnalato",
+    "stato": "Nuovo/Aperto",
     "tipo": "Nuova Richiesta",
     "bloccante": "Non Bloccante",
     "priorita": "Bassa",
