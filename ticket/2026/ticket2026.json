@@ -113,5 +113,28 @@
     "dataRilasciato": "",
     "dataInTest": "",
     "dataCompletato": ""
+  },
+  {
+    "nrTicket": 6,
+    "stato": "Preso in carico",
+    "tipo": "Miglioria",
+    "bloccante": "Bloccante",
+    "priorita": "Alta",
+    "dataInserimento": "2026-02-24",
+    "ambito": "FASE1",
+    "menu": "Pianificazione Cantieri",
+    "titolo": "Scorrimento Gantt",
+    "descrizione": "Lo scorrimento del gantt non prosegue sulle tempistiche. Se la selezione è per mese, quando il gantt arriva al 31 Gennaio, per esempio, questo non scorre più, si deve cambiare mese in alto a sinistra e poi proseguire. Questo a livello operativo è molto onoeroso e non rende la visione temporale immediatamente comprensibile  ",
+    "inseritoDa": "Stefano Paoletto",
+    "inCaricoA": "LEGUR",
+    "dataInizioPrevista": "",
+    "dataFinePrevista": "",
+    "dataRilascio": "",
+    "descrAttivita": "",
+    "dataSegnalato": "",
+    "dataPresoInCarico": "",
+    "dataRilasciato": "",
+    "dataInTest": "",
+    "dataCompletato": ""
   }
 ]
