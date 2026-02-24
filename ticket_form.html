@@ -32,15 +32,26 @@
         .history-box { background: #f9f9fb; border: 1px solid #e5e5e7; border-radius: 12px; padding: 1rem; font-size: 0.8rem; max-height: 180px; overflow-y: auto; white-space: pre-wrap; font-family: 'SF Mono', monospace; color: #48484a; line-height: 1.4; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
         .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.2rem; }
+
+        .status-info-box {
+            font-size: 0.75rem;
+            color: #007aff;
+            background: #f0f7ff;
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin-top: 8px;
+            display: none;
+            border: 1px solid #dbeafe;
+        }
     </style>
 </head>
 <body>
 
-<div id="loginOverlay">
+<div id="loginOverlay" style="display:none">
     <div class="bg-white p-10 rounded-[32px] shadow-2xl w-96 border">
         <div class="text-center mb-8">
             <h2 class="text-2xl font-bold">Accesso Progetto</h2>
-            <p class="text-gray-500 text-sm">Identificati per operare sui ticket</p>
+            <p class="text-gray-500 text-sm">Identificati per operare</p>
         </div>
         <input type="text" id="username" placeholder="Username" class="mb-4">
         <input type="password" id="password" placeholder="Password" class="mb-6">
@@ -72,6 +83,7 @@
             <div class="input-group">
                 <label>Stato</label>
                 <select id="stato" required onchange="handleStatusChange()"></select>
+                <div id="statusDesc" class="status-info-box"></div>
             </div>
             <div class="input-group"><label>Priorità</label><select id="priorita" required></select></div>
             <div class="input-group"><label>Tipo</label><select id="tipo" required></select></div>
@@ -83,12 +95,12 @@
             <div class="input-group"><label>Bloccante</label><select id="bloccante"></select></div>
         </div>
 
-        <div class="input-group"><label>Titolo Ticket</label><input type="text" id="titolo" required placeholder="Titolo sintetico"></div>
-        <div class="input-group"><label>Descrizione Segnalazione</label><textarea id="descrizione" rows="2" placeholder="Dettagli del problema o richiesta..."></textarea></div>
+        <div class="input-group"><label>Titolo Ticket</label><input type="text" id="titolo" required></div>
+        <div class="input-group"><label>Descrizione Segnalazione</label><textarea id="descrizione" rows="2"></textarea></div>
 
         <div class="section-header"><i class="fas fa-user-clock text-blue-500 text-sm"></i> Pianificazione</div>
         <div class="grid-2">
-            <div class="input-group"><label>In Carico A</label><input type="text" id="inCaricoA" placeholder="Sviluppatore"></div>
+            <div class="input-group"><label>In Carico A</label><input type="text" id="inCaricoA"></div>
             <div class="input-group"><label>Inizio Previsto</label><input type="date" id="dataInizioPrevista"></div>
         </div>
         <div class="grid-2">
@@ -96,23 +108,18 @@
             <div class="input-group"><label>Data Rilascio</label><input type="date" id="dataRilascio"></div>
         </div>
 
-        <div class="section-header"><i class="fas fa-terminal text-blue-500 text-sm"></i> Dettagli Tecnici & Log</div>
+        <div class="section-header"><i class="fas fa-terminal text-blue-500 text-sm"></i> Log Tecnico</div>
         <div class="input-group">
             <label>Aggiungi Aggiornamento</label>
-            <textarea id="tempNote" rows="2" placeholder="Descrivi l'avanzamento tecnico..."></textarea>
-            <button type="button" onclick="appendNote()" class="mt-2 text-blue-600 font-bold text-[10px] uppercase flex items-center gap-1 hover:text-blue-800">
-                <i class="fas fa-plus-circle"></i> Applica nota firmata
-            </button>
+            <textarea id="tempNote" rows="2" placeholder="Cosa è stato fatto?"></textarea>
+            <button type="button" onclick="appendNote()" class="mt-2 text-blue-600 font-bold text-[10px] uppercase underline">+ Aggiungi Nota Firmata</button>
         </div>
-        <div class="input-group">
-            <label>Cronologia Attività</label>
-            <div id="descrAttivita" class="history-box">Nessuna nota presente.</div>
-            <input type="hidden" id="descrAttivitaHidden">
-        </div>
+        <div id="descrAttivita" class="history-box">Nessuna nota presente.</div>
+        <input type="hidden" id="descrAttivitaHidden">
 
         <div class="flex justify-end gap-4 border-t pt-6 mt-4">
-            <button type="button" onclick="window.close()" class="text-gray-400 font-bold hover:text-gray-600">ANNULLA</button>
-            <button type="submit" class="btn-save shadow-lg shadow-blue-100">SALVA TICKET</button>
+            <button type="button" onclick="window.close()" class="text-gray-400 font-bold">ANNULLA</button>
+            <button type="submit" class="btn-save">SALVA TICKET</button>
         </div>
     </form>
 </div>
@@ -139,23 +146,18 @@ async function start() {
         const logged = localStorage.getItem('logged_user');
         if (logged) setupForm(logged);
         else document.getElementById('loginOverlay').style.display = 'flex';
-    } catch (e) { alert("Errore caricamento liste: " + e.message); }
+    } catch (e) { alert("Errore caricamento: " + e.message); }
 }
 
 function checkLogin() {
     const u = document.getElementById('username').value.trim();
     const p = document.getElementById('password').value.trim();
     const found = userList.find(x => x.user === u && x.pass === p);
-    if(found) {
-        localStorage.setItem('logged_user', u);
-        setupForm(u);
-    } else alert("Credenziali errate!");
+    if(found) { localStorage.setItem('logged_user', u); setupForm(u); }
+    else alert("Credenziali errate!");
 }
 
-function logout() {
-    localStorage.removeItem('logged_user');
-    location.reload();
-}
+function logout() { localStorage.removeItem('logged_user'); location.reload(); }
 
 function setupForm(user) {
     document.getElementById('loginOverlay').style.display = 'none';
@@ -186,7 +188,10 @@ function populateSelect(id, arr, isObj = false) {
         const opt = document.createElement('option');
         opt.value = isObj ? i.val : i;
         opt.innerText = isObj ? i.val : i;
-        if(isObj) { opt.dataset.tempo = i.tempo || 0; }
+        if(isObj) { 
+            opt.dataset.desc = i.desc || "";
+            opt.dataset.tempo = i.tempo || 0; 
+        }
         sel.appendChild(opt);
     });
 }
@@ -194,17 +199,24 @@ function populateSelect(id, arr, isObj = false) {
 function handleStatusChange() {
     const sel = document.getElementById('stato');
     const opt = sel.options[sel.selectedIndex];
-    if(!opt) return;
+    const info = document.getElementById('statusDesc');
+    const dateDisp = document.getElementById('dateDisplayContainer');
+    
+    if(!opt || opt.value === "") { info.style.display = 'none'; return; }
+
+    // Visualizza Descrizione e Tempo
+    info.style.display = 'block';
+    info.innerHTML = `<strong>Descrizione:</strong> ${opt.dataset.desc} | <strong>Tempo stimato:</strong> ${opt.dataset.tempo}gg`;
+
     const val = opt.value.toLowerCase();
     
-    // Mostra/Nascondi Data Inserimento
-    const dateDisp = document.getElementById('dateDisplayContainer');
+    // Gestione visualizzazione Data Inserimento
     if(val.includes("nuovo") || val.includes("apert")) {
         dateDisp.classList.remove('hidden');
         document.getElementById('dataInserimentoTesto').innerText = document.getElementById('dataInserimento').value;
     } else dateDisp.classList.add('hidden');
 
-    // Automazione Date Inizio/Fine
+    // Automazione Date
     if(val.includes("corso") || val.includes("lavorazione")) {
         const fInizio = document.getElementById('dataInizioPrevista');
         const fFine = document.getElementById('dataFinePrevista');
@@ -227,7 +239,6 @@ function appendNote() {
     const entry = `[${ts} - ${user}] ${text}\n`;
     const hidden = document.getElementById('descrAttivitaHidden');
     const display = document.getElementById('descrAttivita');
-    
     const newVal = entry + (hidden.value || "");
     hidden.value = newVal;
     display.innerText = newVal;
@@ -255,32 +266,19 @@ document.getElementById('ticketForm').onsubmit = async (e) => {
         });
         const data = await res.json();
         let tickets = JSON.parse(decodeUTF8(data.content));
-        
         let formData = editingTicket ? { ...editingTicket } : {};
         const inputs = e.target.querySelectorAll('input, select, textarea');
         inputs.forEach(el => { if(el.id && !['tempNote','username','password'].includes(el.id)) formData[el.id] = el.value; });
         formData['descrAttivita'] = document.getElementById('descrAttivitaHidden').value;
-
-        if(!editingTicket) {
-            formData.nrTicket = tickets.length > 0 ? Math.max(...tickets.map(t=>t.nrTicket)) + 1 : 1;
-        }
-
+        if(!editingTicket) formData.nrTicket = tickets.length > 0 ? Math.max(...tickets.map(t=>t.nrTicket)) + 1 : 1;
         const idx = tickets.findIndex(t => t.nrTicket === formData.nrTicket);
         if(idx !== -1) tickets[idx] = formData; else tickets.push(formData);
-
         const save = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
             method: "PUT",
             headers: {Authorization:`token ${config.token}`, "Content-Type":"application/json"},
-            body: JSON.stringify({ 
-                message: `Update #${formData.nrTicket} by ${user}`, 
-                content: encodeUTF8(JSON.stringify(tickets, null, 2)), 
-                sha: data.sha 
-            })
+            body: JSON.stringify({ message: `Update #${formData.nrTicket} by ${user}`, content: encodeUTF8(JSON.stringify(tickets, null, 2)), sha: data.sha })
         });
-        if(save.ok) {
-            new BroadcastChannel('ticket_ytable').postMessage({action: 'reload'});
-            window.close();
-        }
+        if(save.ok) { new BroadcastChannel('ticket_ytable').postMessage({action: 'reload'}); window.close(); }
     } catch (err) { alert(err.message); }
 };
 
