@@ -136,5 +136,28 @@
     "dataRilasciato": "",
     "dataInTest": "",
     "dataCompletato": ""
+  },
+  {
+    "nrTicket": 7,
+    "stato": "Segnalato",
+    "tipo": "Nuova Richiesta",
+    "bloccante": "Non Bloccante",
+    "priorita": "Bassa",
+    "dataInserimento": "2026-02-24",
+    "ambito": "FASE1",
+    "menu": "Pianificazione Squadre",
+    "titolo": "Caricamento dati",
+    "descrizione": "E' necessario fare un ricarimento dei dati, partendo dagli operatori, dal file inviato il 29-01-26",
+    "inseritoDa": "Stefano Paoletto",
+    "inCaricoA": "LEGUR",
+    "dataInizioPrevista": "",
+    "dataFinePrevista": "",
+    "dataRilascio": "",
+    "descrAttivita": "",
+    "dataSegnalato": "",
+    "dataPresoInCarico": "",
+    "dataRilasciato": "",
+    "dataInTest": "",
+    "dataCompletato": ""
   }
 ]
