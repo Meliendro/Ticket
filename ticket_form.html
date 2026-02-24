@@ -82,8 +82,34 @@
             cursor: pointer;
         }
 
-        .btn-save:hover { transform: translateY(-2px); filter: brightness(1.1); }
-        
+        .btn-add-note {
+            background: #f5f5f7;
+            color: #007aff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid #d2d2d7;
+            cursor: pointer;
+        }
+
+        .history-box {
+            background: #f9f9fb;
+            border: 1px solid #e5e5e7;
+            border-radius: 12px;
+            padding: 1rem;
+            font-size: 0.85rem;
+            color: #48484a;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: 'SF Mono', 'Menlo', monospace;
+        }
+
         .status-badge-info {
             background: #f0f7ff;
             color: #007aff;
@@ -145,23 +171,23 @@
 
         <div class="input-group">
             <label><i class="fas fa-heading"></i> Titolo Ticket</label>
-            <input type="text" id="titolo" required placeholder="Inserisci il titolo...">
+            <input type="text" id="titolo" required>
         </div>
 
         <div class="input-group">
-            <label><i class="fas fa-align-left"></i> Descrizione</label>
-            <textarea id="descrizione" rows="3" placeholder="Dettagli della segnalazione..."></textarea>
+            <label><i class="fas fa-align-left"></i> Descrizione Segnalazione</label>
+            <textarea id="descrizione" rows="3"></textarea>
         </div>
 
         <div class="section-header"><i class="fas fa-user-clock text-blue-500"></i> Pianificazione</div>
         <div class="grid-2">
             <div class="input-group">
                 <label><i class="fas fa-user-check"></i> In Carico A</label>
-                <input type="text" id="inCaricoA" placeholder="Nome sviluppatore...">
+                <input type="text" id="inCaricoA">
             </div>
             <div class="input-group">
                 <label><i class="fas fa-user-edit"></i> Inserito Da</label>
-                <input type="text" id="inseritoDa" placeholder="Tuo nome...">
+                <input type="text" id="inseritoDa">
             </div>
         </div>
 
@@ -180,11 +206,24 @@
             </div>
         </div>
 
-        <div class="section-header"><i class="fas fa-code text-blue-500"></i> Dev Notes</div>
-        <textarea id="descrAttivita" rows="2" class="mb-6" placeholder="Note tecniche..."></textarea>
+        <div class="section-header"><i class="fas fa-terminal text-blue-500"></i> Dettagli Tecnici</div>
+        
+        <div class="input-group">
+            <label>Aggiungi Nuovo Aggiornamento</label>
+            <textarea id="tempNote" rows="2" placeholder="Scrivi qui i dettagli tecnici dell'attività..."></textarea>
+            <button type="button" onclick="appendNote()" class="btn-add-note">
+                <i class="fas fa-plus"></i> Applica Nota con Data
+            </button>
+        </div>
+
+        <div class="input-group">
+            <label>Cronologia Attività (Sola Lettura)</label>
+            <div id="descrAttivita" class="history-box">Nessuna nota presente.</div>
+            <input type="hidden" id="descrAttivitaHidden">
+        </div>
 
         <div class="flex justify-end gap-4 border-t pt-6">
-            <button type="button" onclick="window.close()" class="font-bold text-gray-400 hover:text-gray-600 transition">ANNULLA</button>
+            <button type="button" onclick="window.close()" class="font-bold text-gray-400 hover:text-gray-600">ANNULLA</button>
             <button type="submit" class="btn-save">SALVA TICKET</button>
         </div>
     </form>
@@ -194,17 +233,11 @@
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let editingTicket = JSON.parse(localStorage.getItem('edit_ticket'));
 
-function decodeUTF8(s){
-    return decodeURIComponent(escape(atob(s)));
-}
-
-function encodeUTF8(s){
-    return btoa(unescape(encodeURIComponent(s)));
-}
+function decodeUTF8(s){ return decodeURIComponent(escape(atob(s))); }
+function encodeUTF8(s){ return btoa(unescape(encodeURIComponent(s))); }
 
 async function init() {
     if(!config) return alert("GitHub non configurato!");
-    
     try {
         const resL = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json?v=${Date.now()}`, {
             headers: {Authorization:`token ${config.token}`}
@@ -224,21 +257,17 @@ async function init() {
             document.getElementById('ticketNrDisp').innerText = "TKN: " + editingTicket.nrTicket;
             fillForm(editingTicket);
         }
-    } catch (e) { console.error("Errore init:", e); }
+    } catch (e) { console.error(e); }
 }
 
 function populateSelect(id, arr, isObj = false) {
     const sel = document.getElementById(id);
-    if(!sel) return;
     sel.innerHTML = '<option value="">-- Seleziona --</option>';
     arr.forEach(i => {
         const opt = document.createElement('option');
         opt.value = isObj ? i.val : i;
         opt.innerText = isObj ? i.val : i;
-        if(isObj) {
-            opt.dataset.desc = i.desc || "";
-            opt.dataset.tempo = i.tempo || "";
-        }
+        if(isObj) { opt.dataset.desc = i.desc || ""; opt.dataset.tempo = i.tempo || ""; }
         sel.appendChild(opt);
     });
 }
@@ -253,17 +282,52 @@ function updateStatusInfo() {
     } else { info.style.display = "none"; }
 }
 
+// FUNZIONE PER AGGIUNGERE LA NOTA CON DATA
+function appendNote() {
+    const tempNote = document.getElementById('tempNote');
+    const historyDiv = document.getElementById('descrAttivita');
+    const hiddenInput = document.getElementById('descrAttivitaHidden');
+    
+    if (tempNote.value.trim() === "") return;
+
+    const now = new Date();
+    const timestamp = now.toLocaleDateString('it-IT') + ' ' + now.toLocaleTimeString('it-IT', {hour: '2-digit', minute:'2-digit'});
+    
+    // Crea la nuova stringa: [DATA] NOTA
+    const newEntry = `[${timestamp}] ${tempNote.value.trim()}\n`;
+    
+    // Recupera lo storico esistente (se "Nessuna nota..." lo puliamo)
+    let currentHistory = hiddenInput.value || "";
+    if (currentHistory === "Nessuna nota presente.") currentHistory = "";
+
+    // Aggiungiamo la nuova nota in alto (cronologia decrescente)
+    const updatedHistory = newEntry + currentHistory;
+
+    // Aggiorniamo sia la visualizzazione che il campo nascosto per il salvataggio
+    historyDiv.innerText = updatedHistory;
+    hiddenInput.value = updatedHistory;
+
+    // Puliamo il campo di inserimento
+    tempNote.value = "";
+}
+
 function fillForm(t) {
     Object.keys(t).forEach(k => {
-        const el = document.getElementById(k);
-        if(el) el.value = t[k] || "";
+        // Gestione speciale per lo storico note
+        if (k === 'descrAttivita') {
+            const content = t[k] || "Nessuna nota presente.";
+            document.getElementById('descrAttivita').innerText = content;
+            document.getElementById('descrAttivitaHidden').value = content;
+        } else {
+            const el = document.getElementById(k);
+            if(el) el.value = t[k] || "";
+        }
     });
     updateStatusInfo();
 }
 
 document.getElementById('ticketForm').onsubmit = async (e) => {
     e.preventDefault();
-    
     try {
         const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json?nocache=${Date.now()}`, {
             headers: {Authorization:`token ${config.token}`}
@@ -273,8 +337,17 @@ document.getElementById('ticketForm').onsubmit = async (e) => {
         const sha = data.sha;
 
         const formData = editingTicket ? { ...editingTicket } : {};
-        const elements = e.target.querySelectorAll('input, select, textarea');
-        elements.forEach(el => { if(el.id) formData[el.id] = el.value; });
+        
+        // Mappiamo tutti i campi tranne descrAttivita (che prendiamo dal campo hidden)
+        const inputs = e.target.querySelectorAll('input, select, textarea');
+        inputs.forEach(el => { 
+            if(el.id && el.id !== 'tempNote' && el.id !== 'descrAttivitaHidden') {
+                formData[el.id] = el.value; 
+            }
+        });
+        
+        // Salviamo lo storico corretto
+        formData['descrAttivita'] = document.getElementById('descrAttivitaHidden').value;
 
         if(!editingTicket) {
             formData.nrTicket = tickets.length > 0 ? Math.max(...tickets.map(t=>t.nrTicket)) + 1 : 1;
@@ -298,9 +371,6 @@ document.getElementById('ticketForm').onsubmit = async (e) => {
         if(saveRes.ok) {
             new BroadcastChannel('ticket_ytable').postMessage({action: 'reload'});
             window.close();
-        } else {
-            const errData = await saveRes.json();
-            alert("Errore GitHub: " + errData.message);
         }
     } catch (err) { alert("Errore: " + err.message); }
 };
