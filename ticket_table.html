@@ -40,8 +40,10 @@ button { padding:0.25rem 0.5rem; border-radius:0.25rem; cursor:pointer; }
 let config = JSON.parse(localStorage.getItem('gh_ticket_config')) || {};
 let tickets = [];
 
+// funzione di decodifica UTF-8
 function decodeUTF8(s){ try{return decodeURIComponent(escape(atob(s)));} catch(e){return "Errore";} }
 
+// funzione per caricare i ticket
 async function loadTickets(){
     if(!config.repo || !config.token) return;
     try{
@@ -55,6 +57,7 @@ async function loadTickets(){
     }catch(e){ console.error("Errore:", e); }
 }
 
+// funzione per renderizzare la tabella
 function renderTable(){
     const tbody = document.querySelector('#ticketTable tbody');
     tbody.innerHTML = "";
@@ -79,6 +82,7 @@ function renderTable(){
     });
 }
 
+// apri il form per modificare
 function editTicket(nr){
     const t = tickets.find(tt=>tt.nrTicket===nr);
     if(!t) return;
@@ -86,12 +90,12 @@ function editTicket(nr){
     window.open('ticket_form.html','_blank','width=900,height=800');
 }
 
+// elimina ticket
 async function deleteTicket(nr){
     if(!confirm("Eliminare questo ticket?")) return;
     const index = tickets.findIndex(tt=>tt.nrTicket===nr);
     if(index===-1) return;
     tickets.splice(index,1);
-    // salva su GitHub
     try{
         const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
             headers:{ Authorization: `token ${config.token}` }
@@ -106,14 +110,16 @@ async function deleteTicket(nr){
     }catch(e){ console.error("Errore:", e);}
 }
 
-// --- AGGIUNTA: BroadcastChannel per aggiornamento automatico ---
+// --- BroadcastChannel per aggiornamento automatico da ticket_form ---
 const tableChannel = new BroadcastChannel('ticket_ytable');
 tableChannel.onmessage = (e) => {
     if(e.data && e.data.action==='reload'){
-        loadTickets();
+        if(typeof loadTickets === "function") loadTickets();
+        else location.reload(); // fallback
     }
 };
 
+// carica iniziale
 loadTickets();
 </script>
 </body>
