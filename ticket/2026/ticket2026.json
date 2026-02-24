@@ -270,5 +270,24 @@
     "descrAttivitaHidden": "[24/02, 15:44 - Stefano Paoletto] non lo so\n",
     "descrAttivita": "[24/02, 15:44 - Stefano Paoletto] non lo so\n",
     "nrTicket": 12
+  },
+  {
+    "dataInserimento": "24/02/2026",
+    "inseritoDa": "Stefano Paoletto",
+    "stato": "Nuovo/Aperto",
+    "priorita": "Alta",
+    "tipo": "Bug",
+    "ambito": "FASE1",
+    "menu": "Pianificazione Squadre",
+    "bloccante": "Bloccante",
+    "titolo": "dewdfwefdw",
+    "descrizione": "wefdwefwefwe",
+    "inCaricoA": "me stesso ",
+    "dataInizioPrevista": "",
+    "dataFinePrevista": "",
+    "dataRilascio": "",
+    "descrAttivitaHidden": "",
+    "descrAttivita": "",
+    "nrTicket": 13
   }
 ]
