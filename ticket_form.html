@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor Ticket | Apple Style</title>
+    <title>Ticket Editor | Premium Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -13,151 +13,211 @@
             font-family: 'SF Pro Display', -apple-system, sans-serif;
             background-color: #f5f5f7;
             color: #1d1d1f;
-            padding: 1.5rem;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
         }
 
         .form-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.05);
-            max-width: 900px;
-            margin: auto;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.7);
+            max-width: 950px;
+            width: 100%;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
         }
 
         label {
-            font-size: 0.75rem;
-            font-weight: 700;
+            font-size: 0.7rem;
+            font-weight: 800;
             color: #86868b;
             text-transform: uppercase;
-            margin-bottom: 0.4rem;
-            display: block;
-            letter-spacing: 0.02em;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.05em;
         }
 
         input, select, textarea {
             width: 100%;
-            padding: 0.7rem 0.9rem;
+            padding: 0.8rem 1rem;
             border: 1px solid #d2d2d7;
-            border-radius: 10px;
-            font-size: 0.9rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
             background: #ffffff;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             outline: none;
         }
 
         input:focus, select:focus, textarea:focus {
             border-color: #007aff;
-            box-shadow: 0 0 0 4px rgba(0,122,255,0.1);
+            box-shadow: 0 0 0 4px rgba(0,122,255,0.15);
+            background: #fff;
         }
 
-        .section-title {
-            font-size: 1rem;
+        .section-header {
+            font-size: 1.1rem;
             font-weight: 700;
-            border-bottom: 1px solid #f2f2f2;
-            padding-bottom: 0.5rem;
-            margin: 1.5rem 0 1rem 0;
+            margin: 2rem 0 1.2rem 0;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid #e5e5e7;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             color: #1d1d1f;
         }
 
         .btn-save {
-            background: #007aff;
+            background: linear-gradient(180deg, #007aff 0%, #0063cc 100%);
             color: white;
             font-weight: 600;
-            padding: 0.8rem 2.5rem;
-            border-radius: 12px;
+            padding: 0.9rem 3rem;
+            border-radius: 14px;
             transition: all 0.2s;
-            box-shadow: 0 4px 15px rgba(0,122,255,0.2);
+            box-shadow: 0 8px 20px rgba(0,122,255,0.3);
+            border: none;
+            cursor: pointer;
         }
 
-        .btn-save:hover { transform: scale(1.02); background: #0071e3; }
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0,122,255,0.4);
+        }
+
+        .status-badge-info {
+            background: #e8f2ff;
+            color: #007aff;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-top: 8px;
+            display: none;
+            border: 1px solid #d0e3ff;
+        }
+
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+
+        @media (max-width: 768px) {
+            .grid-3, .grid-2 { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
 <div class="form-card">
-    <header class="flex justify-between items-center mb-6">
-        <h1 id="formTitle" class="text-2xl font-bold tracking-tight">Nuovo Ticket</h1>
-        <div class="text-[10px] bg-gray-100 px-3 py-1 rounded-full font-bold text-gray-400" id="ticketNrDisp">NR. --</div>
+    <header class="flex justify-between items-end mb-8">
+        <div>
+            <h1 id="formTitle" class="text-3xl font-extrabold tracking-tight">Nuovo Ticket</h1>
+            <p class="text-gray-400 text-sm mt-1">Compila i dettagli tecnici per il rilascio 2026</p>
+        </div>
+        <div class="bg-gray-900 text-white px-4 py-2 rounded-2xl font-mono text-sm shadow-xl" id="ticketNrDisp">
+            TKN: --
+        </div>
     </header>
 
-    <form id="ticketForm" class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <label>Stato</label>
+    <form id="ticketForm">
+        <div class="section-header">
+            <i class="fas fa-info-circle text-blue-500"></i> Informazioni Base
+        </div>
+
+        <div class="grid-3">
+            <div class="input-group">
+                <label><i class="fas fa-tasks"></i> Stato</label>
                 <select id="stato" required onchange="updateStatusInfo()"></select>
-                <p id="statusDesc" class="text-[10px] text-blue-500 mt-1 italic"></p>
+                <div id="statusDesc" class="status-badge-info"></div>
             </div>
-            <div>
-                <label>Priorità</label>
+            <div class="input-group">
+                <label><i class="fas fa-bolt"></i> Priorità</label>
                 <select id="priorita" required></select>
             </div>
-            <div>
-                <label>Tipo</label>
+            <div class="input-group">
+                <label><i class="fas fa-layer-group"></i> Tipo</label>
                 <select id="tipo" required></select>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <label>Ambito</label>
+        <div class="grid-3">
+            <div class="input-group">
+                <label><i class="fas fa-project-diagram"></i> Ambito</label>
                 <select id="ambito" required></select>
             </div>
-            <div>
-                <label>Menu</label>
+            <div class="input-group">
+                <label><i class="fas fa-bars"></i> Menu</label>
                 <select id="menu"></select>
             </div>
-            <div>
-                <label>Bloccante</label>
+            <div class="input-group">
+                <label><i class="fas fa-lock"></i> Bloccante</label>
                 <select id="bloccante"></select>
             </div>
         </div>
 
-        <div>
-            <label>Titolo</label>
-            <input type="text" id="titolo" required placeholder="Inserisci un titolo sintetico">
+        <div class="input-group">
+            <label><i class="fas fa-heading"></i> Titolo Ticket</label>
+            <input type="text" id="titolo" required placeholder="Es: Errore validazione campo email...">
         </div>
 
-        <div>
-            <label>Descrizione</label>
-            <textarea id="descrizione" rows="4" placeholder="Dettagli del problema o della richiesta..."></textarea>
+        <div class="input-group">
+            <label><i class="fas fa-align-left"></i> Descrizione Dettagliata</label>
+            <textarea id="descrizione" rows="4" placeholder="Inserisci qui tutti i dettagli tecnici..."></textarea>
         </div>
 
-        <div class="section-title">Assegnazione e Tempi</div>
+        <div class="section-header">
+            <i class="fas fa-user-clock text-blue-500"></i> Gestione e Pianificazione
+        </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label>Assegnato A</label>
+        <div class="grid-2">
+            <div class="input-group">
+                <label><i class="fas fa-user-check"></i> In Carico A</label>
                 <select id="inCaricoA"></select>
             </div>
-            <div>
-                <label>Inserito Da</label>
+            <div class="input-group">
+                <label><i class="fas fa-user-edit"></i> Inserito Da</label>
                 <input type="text" id="inseritoDa">
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <label>Inizio Previsto</label>
+        <div class="grid-3">
+            <div class="input-group">
+                <label><i class="fas fa-calendar-plus"></i> Inizio Previsto</label>
                 <input type="date" id="dataInizioPrevista">
             </div>
-            <div>
-                <label>Fine Prevista</label>
+            <div class="input-group">
+                <label><i class="fas fa-calendar-check"></i> Fine Prevista</label>
                 <input type="date" id="dataFinePrevista">
             </div>
-            <div>
-                <label>Data Rilascio</label>
+            <div class="input-group">
+                <label><i class="fas fa-rocket"></i> Data Rilascio</label>
                 <input type="date" id="dataRilascio">
             </div>
         </div>
 
-        <div class="section-title">Dettaglio Attività Sviluppo</div>
-        <textarea id="descrAttivita" rows="3" placeholder="Note tecniche o avanzamento..."></textarea>
+        <div class="section-header">
+            <i class="fas fa-code text-blue-500"></i> Registro Attività (Dev Notes)
+        </div>
+        <div class="input-group">
+            <textarea id="descrAttivita" rows="3" placeholder="Log delle attività svolte..."></textarea>
+        </div>
 
-        <div class="flex justify-end gap-3 mt-8">
-            <button type="button" onclick="window.close()" class="px-6 py-2 text-gray-400 font-medium">Annulla</button>
-            <button type="submit" class="btn-save">Salva Ticket</button>
+        <input type="hidden" id="dataInserimento">
+        <input type="hidden" id="dataSegnalato">
+        <input type="hidden" id="dataPresoInCarico">
+        <input type="hidden" id="dataRilasciato">
+        <input type="hidden" id="dataInTest">
+        <input type="hidden" id="dataCompletamentoSviluppo">
+
+        <div class="flex justify-end items-center gap-6 mt-10 pt-6 border-t border-gray-100">
+            <button type="button" onclick="window.close()" class="text-gray-400 hover:text-gray-600 font-semibold transition">Annulla</button>
+            <button type="submit" class="btn-save">
+                <i class="fas fa-save mr-2"></i> Salva Cambiamenti
+            </button>
         </div>
     </form>
 </div>
@@ -168,50 +228,55 @@ let lists = {};
 let allTickets = [];
 let editingTicket = JSON.parse(localStorage.getItem('edit_ticket'));
 
-// Funzione per decodificare UTF-8 correttamente
 function decodeUTF8(s){
     try { return decodeURIComponent(escape(atob(s))); } catch(e){ return "Errore"; }
 }
 
 async function init() {
-    if(!config) { alert("Configura GitHub"); return; }
+    if(!config) { alert("Configurazione GitHub mancante!"); return; }
     
-    // 1. Carica Liste (con gestione nuovo formato STATO)
-    const resL = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json`, {
-        headers: {Authorization:`token ${config.token}`}
-    });
-    const dataL = await resL.json();
-    lists = JSON.parse(decodeUTF8(dataL.content));
+    try {
+        // 1. Carica Liste
+        const resL = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json?v=${Date.now()}`, {
+            headers: {Authorization:`token ${config.token}`}
+        });
+        const dataL = await resL.json();
+        lists = JSON.parse(decodeUTF8(dataL.content));
 
-    // Popola select (correzione per oggetti Stato)
-    populateSelect("stato", lists.Stato, true); // true = è una lista di oggetti
-    populateSelect("priorita", lists.Priorita);
-    populateSelect("tipo", lists.Tipo);
-    populateSelect("ambito", lists.Ambito);
-    populateSelect("menu", lists.Menu);
-    populateSelect("bloccante", lists.Bloccante);
-    populateSelect("inCaricoA", lists.Email);
+        // Popola i menu
+        populateSelect("stato", lists.Stato, true);
+        populateSelect("priorita", lists.Priorita);
+        populateSelect("tipo", lists.Tipo);
+        populateSelect("ambito", lists.Ambito);
+        populateSelect("menu", lists.Menu);
+        populateSelect("bloccante", lists.Bloccante);
+        populateSelect("inCaricoA", lists.Email);
 
-    // 2. Carica Tickets per NR progressivo
-    const resT = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
-        headers: {Authorization:`token ${config.token}`}
-    });
-    const dataT = await resT.json();
-    allTickets = JSON.parse(decodeUTF8(dataT.content));
+        // 2. Carica Tickets
+        const resT = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json?v=${Date.now()}`, {
+            headers: {Authorization:`token ${config.token}`}
+        });
+        const dataT = await resT.json();
+        allTickets = JSON.parse(decodeUTF8(dataT.content));
 
-    if(editingTicket) {
-        document.getElementById('formTitle').innerText = "Modifica Ticket #" + editingTicket.nrTicket;
-        document.getElementById('ticketNrDisp').innerText = "NR. " + editingTicket.nrTicket;
-        fillForm(editingTicket);
-    } else {
-        const nextNr = allTickets.length > 0 ? Math.max(...allTickets.map(t=>t.nrTicket)) + 1 : 1;
-        document.getElementById('ticketNrDisp').innerText = "NR. " + nextNr;
+        // 3. SE EDITING: RIEMPI IL FORM
+        if(editingTicket) {
+            document.getElementById('formTitle').innerText = "Modifica Ticket #" + editingTicket.nrTicket;
+            document.getElementById('ticketNrDisp').innerText = "TKN: " + editingTicket.nrTicket;
+            fillForm(editingTicket);
+        } else {
+            const nextNr = allTickets.length > 0 ? Math.max(...allTickets.map(t=>t.nrTicket)) + 1 : 1;
+            document.getElementById('ticketNrDisp').innerText = "TKN: " + nextNr;
+        }
+    } catch (err) {
+        console.error("Errore inizializzazione:", err);
     }
 }
 
 function populateSelect(id, array, isObjectList = false) {
     const sel = document.getElementById(id);
-    sel.innerHTML = '<option value="">Seleziona...</option>';
+    if(!sel) return;
+    sel.innerHTML = '<option value="">-- Seleziona --</option>';
     array.forEach(item => {
         const opt = document.createElement('option');
         if(isObjectList && typeof item === 'object') {
@@ -231,55 +296,71 @@ function updateStatusInfo() {
     const sel = document.getElementById('stato');
     const selected = sel.options[sel.selectedIndex];
     const info = document.getElementById('statusDesc');
-    if(selected.dataset.desc) {
-        info.innerText = `💡 ${selected.dataset.desc} (Presa: ${selected.dataset.tempo})`;
+    if(selected && selected.dataset.desc) {
+        info.style.display = "block";
+        info.innerHTML = `<i class="fas fa-lightbulb mr-1"></i> <b>Nota:</b> ${selected.dataset.desc} <br> <i class="fas fa-stopwatch mr-1"></i> <b>Tempo:</b> ${selected.dataset.tempo}`;
     } else {
-        info.innerText = "";
+        info.style.display = "none";
     }
 }
 
 function fillForm(t) {
+    // Cicla su tutte le chiavi del ticket e riempi i campi corrispondenti
     Object.keys(t).forEach(key => {
         const el = document.getElementById(key);
-        if(el) el.value = t[key];
+        if(el) {
+            el.value = t[key] || "";
+        }
     });
+    // Aggiorna il box info stato dopo aver caricato il valore
     updateStatusInfo();
 }
 
 document.getElementById('ticketForm').onsubmit = async (e) => {
     e.preventDefault();
-    const formData = {};
-    const inputs = e.target.querySelectorAll('input, select, textarea');
-    inputs.forEach(i => { if(i.id) formData[i.id] = i.value; });
+    
+    // Raccogli dati
+    const formData = editingTicket ? { ...editingTicket } : {};
+    const elements = e.target.querySelectorAll('input, select, textarea');
+    elements.forEach(el => {
+        if(el.id) formData[el.id] = el.value;
+    });
 
-    if(editingTicket) {
-        formData.nrTicket = editingTicket.nrTicket;
-        const idx = allTickets.findIndex(t => t.nrTicket === editingTicket.nrTicket);
-        allTickets[idx] = {...allTickets[idx], ...formData};
-    } else {
+    if(!editingTicket) {
         formData.nrTicket = allTickets.length > 0 ? Math.max(...allTickets.map(t=>t.nrTicket)) + 1 : 1;
         formData.dataInserimento = new Date().toLocaleDateString('it-IT');
-        allTickets.push(formData);
     }
 
-    // Salvataggio su GitHub
-    const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
-        headers: {Authorization:`token ${config.token}`}
-    });
-    const data = await res.json();
-    const sha = data.sha;
+    // Salvataggio
+    try {
+        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
+            headers: {Authorization:`token ${config.token}`}
+        });
+        const data = await res.json();
+        const sha = data.sha;
 
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(allTickets, null, 2))));
-    
-    await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
-        method: "PUT",
-        headers: {Authorization:`token ${config.token}`, "Content-Type":"application/json"},
-        body: JSON.stringify({ message: "Update ticket", content, sha })
-    });
+        const idx = allTickets.findIndex(t => t.nrTicket === formData.nrTicket);
+        if(idx !== -1) allTickets[idx] = formData;
+        else allTickets.push(formData);
 
-    const channel = new BroadcastChannel('ticket_ytable');
-    channel.postMessage({action: 'reload'});
-    window.close();
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(allTickets, null, 2))));
+        
+        const saveRes = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
+            method: "PUT",
+            headers: {Authorization:`token ${config.token}`, "Content-Type":"application/json"},
+            body: JSON.stringify({ message: "Update ticket #" + formData.nrTicket, content, sha })
+        });
+
+        if(saveRes.ok) {
+            const channel = new BroadcastChannel('ticket_ytable');
+            channel.postMessage({action: 'reload'});
+            window.close();
+        } else {
+            alert("Errore durante il salvataggio.");
+        }
+    } catch (err) {
+        alert("Errore di rete: " + err.message);
+    }
 };
 
 init();
