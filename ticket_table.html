@@ -3,225 +3,317 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ticket Table</title>
+<title>Ticket Table | Management System</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-body { font-family: 'Segoe UI', sans-serif; background: #f4f4f5; }
-h1 { font-weight: 700; }
-.table-container { overflow-x: auto; margin-top: 1rem; background: white; }
+    @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;600;700&display=swap');
 
-table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 2500px; }
+    body { 
+        font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; 
+        background-color: #f5f5f7;
+        color: #1d1d1f;
+        padding: 2rem;
+    }
 
-th, td { padding: 0.6rem 0.8rem; text-align: left; vertical-align: top; border-bottom: 1px solid #e5e7eb; }
-th { background: #1f2937; color: #fff; position: sticky; top: 0; z-index: 1; }
-tr:nth-child(even) { background: #f9fafb; }
+    /* Effetto Apple Glassmorphism */
+    .glass-header {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        margin: -2rem -2rem 2rem -2rem;
+        padding: 1.5rem 2rem;
+    }
 
-.priority-alta { background: #dc2626 !important; color: #fff; font-weight: bold; text-align: center; }
-.priority-media { background: #f59e0b !important; color: #fff; font-weight: bold; text-align: center; }
-.priority-bassa { background: #10b981 !important; color: #fff; font-weight: bold; text-align: center; }
+    .table-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        border: 1px solid rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
 
-.status-Segnalato { color: #ef4444; font-weight: bold; }
-.status-Preso { color: #f59e0b; font-weight: bold; }
-.status-Rilasciato { color: #3b82f6; font-weight: bold; }
-.status-InTest { color: #6366f1; font-weight: bold; }
-.status-Completato { color: #10b981; font-weight: bold; }
+    .table-container { 
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
 
-/* NUOVO STILE RITARDO */
-.ritardo-row {
-    background-color: rgba(239,68,68,0.12) !important;
-    border-left: 4px solid #ef4444;
-}
+    table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; min-width: 2500px; }
 
-/* Ticket bloccato */
-.locked-row {
-    background-color: #f3f4f6 !important;
-}
+    th { 
+        background: #fbfbfd; 
+        color: #86868b; 
+        font-weight: 600; 
+        font-size: 0.75rem; 
+        text-transform: uppercase; 
+        letter-spacing: 0.05em;
+        padding: 1rem 0.8rem;
+        border-bottom: 1px solid #f2f2f2;
+    }
 
-.filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
-.filter-bar select { padding: 0.25rem 0.5rem; border-radius: 0.5rem; border: 1px solid #d1d5db; background: #fff; font-size: 0.9rem; }
+    td { 
+        padding: 1rem 0.8rem; 
+        vertical-align: middle; 
+        border-bottom: 1px solid #f5f5f7;
+        font-size: 0.85rem;
+        transition: background 0.2s ease;
+    }
 
-.col-desc { width: 500px; }
-.col-desc-act { width: 400px; }
-.col-small { width: 80px; }
-.col-medium { width: 150px; }
-.col-date { width: 130px; }
+    tr:hover td { background-color: #f9f9fb; }
 
-td.wrap-text, td.wrap-text-act {
-    white-space: normal;
-    word-break: break-word;
-    line-height: 1.5;
-    max-height: 150px;
-    overflow-y: auto;
-    font-size: 0.85rem;
-    color: #374151;
-}
+    /* Badge Stili Apple */
+    .priority-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        display: inline-block;
+        text-align: center;
+        min-width: 60px;
+    }
 
-td, th { font-size: 0.875rem; }
+    .priority-alta { background: #ff3b30; color: #fff; }
+    .priority-media { background: #ff9500; color: #fff; }
+    .priority-bassa { background: #34c759; color: #fff; }
+
+    /* Stati Colorati Moderni */
+    .status-Segnalato { color: #ff3b30; }
+    .status-Preso { color: #ff9500; }
+    .status-Rilasciato { color: #007aff; }
+    .status-InTest { color: #5856d6; }
+    .status-Completato { color: #34c759; }
+
+    /* Row Speciali */
+    .ritardo-row td { background-color: rgba(255, 59, 48, 0.05) !important; }
+    .ritardo-row td:first-child { border-left: 4px solid #ff3b30; }
+
+    .locked-row { opacity: 0.7; }
+    .locked-row td { background-color: #fafafa !important; }
+
+    /* Filtri & Bottoni */
+    .apple-select {
+        appearance: none;
+        background: #fff;
+        border: 1px solid #d2d2d7;
+        border-radius: 8px;
+        padding: 0.4rem 2rem 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2386868b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.5rem center;
+        background-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .apple-select:hover { border-color: #007aff; }
+
+    .btn-primary {
+        background: #007aff;
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+        transition: all 0.2s;
+    }
+
+    .btn-primary:hover { transform: scale(1.02); background: #0071e3; }
+
+    .btn-secondary {
+        background: #f5f5f7;
+        color: #1d1d1f;
+        padding: 0.6rem 1.2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .btn-secondary:hover { background: #e8e8ed; }
+
+    /* Layout Colonne */
+    .col-desc { width: 500px; }
+    .col-desc-act { width: 400px; }
+    .col-small { width: 90px; }
+    .col-medium { width: 160px; }
+    .col-date { width: 130px; }
+
+    .wrap-text, .wrap-text-act {
+        white-space: normal;
+        word-break: break-word;
+        line-height: 1.6;
+        color: #424245;
+        font-size: 0.8rem;
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #d2d2d7; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #86868b; }
 </style>
 </head>
 
-<body class="p-6">
+<body>
 
-<header class="flex justify-between items-center mb-2">
-<h1 class="text-2xl text-slate-800">Gestione Ticket</h1>
-<div class="flex gap-3">
-<button onclick="newTicket()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">
-<i class="fas fa-plus"></i> Nuovo Ticket
-</button>
-<button onclick="configureGitHub()" class="bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700 transition">
-<i class="fas fa-cog"></i> Config GitHub
-</button>
-</div>
+<header class="glass-header flex justify-between items-center">
+    <div>
+        <h1 class="text-3xl font-bold tracking-tight text-slate-900">Controllo Ticket</h1>
+        <p class="text-sm text-gray-400 font-medium">Gestione flussi di sviluppo 2026</p>
+    </div>
+    <div class="flex gap-4">
+        <button onclick="newTicket()" class="btn-primary">
+            <i class="fas fa-plus mr-2"></i>Nuovo Ticket
+        </button>
+        <button onclick="configureGitHub()" class="btn-secondary">
+            <i class="fas fa-cog mr-2"></i>GitHub
+        </button>
+    </div>
 </header>
 
-<div class="filter-bar">
-<select id="filterStato"><option value="">Tutti gli Stati</option></select>
-<select id="filterTipo"><option value="">Tutti i Tipi</option></select>
-<select id="filterBloccante"><option value="">Bloccante / Non Bloccante</option></select>
-<select id="filterAmbito"><option value="">Tutti gli Ambiti</option></select>
-
-<select id="filterCompletati">
-<option value="nascondi" selected>Nascondi ticket completati 🔒</option>
-<option value="mostra">Mostra ticket completati 🔒</option>
-</select>
+<div class="flex flex-wrap gap-3 mb-6 items-center">
+    <select id="filterStato" class="apple-select"><option value="">Stati</option></select>
+    <select id="filterTipo" class="apple-select"><option value="">Tipi</option></select>
+    <select id="filterBloccante" class="apple-select"><option value="">Priorità Bloccante</option></select>
+    <select id="filterAmbito" class="apple-select"><option value="">Ambiti</option></select>
+    <div class="h-6 w-[1px] bg-gray-300 mx-2"></div>
+    <select id="filterCompletati" class="apple-select">
+        <option value="nascondi" selected>Nascondi completati</option>
+        <option value="mostra">Mostra completati</option>
+    </select>
 </div>
 
-<div class="table-container border rounded shadow-lg">
-<table id="ticketTable">
-<thead>
-<tr>
-<th class="col-small">Modifica</th>
-<th class="col-small">Nr Ticket</th>
-<th class="col-medium">Stato</th>
-<th class="col-medium">Tipo</th>
-<th class="col-medium">Bloccante</th>
-<th class="col-small">Priorità</th>
-<th class="col-date">Data Inser.</th>
-<th class="col-medium">Ambito</th>
-<th class="col-medium">Menu</th>
-<th class="col-medium">Titolo</th>
-<th class="col-desc">Descrizione</th>
-<th class="col-medium">Inserito da</th>
-<th class="col-medium">In carico a</th>
-<th class="col-date">Inizio Prev.</th>
-<th class="col-date">Fine Prev.</th>
-<th class="col-date">Data Rilascio</th>
-<th class="col-desc-act">Descrizione Attività</th>
-<th class="col-date">Data Segnal.</th>
-<th class="col-date">Data Preso</th>
-<th class="col-date">Data Rilasci.</th>
-<th class="col-date">Data Test</th>
-<th class="col-date">Data Compl.</th>
-</tr>
-</thead>
-<tbody id="ticketBody"></tbody>
-</table>
+<div class="table-card">
+    <div class="table-container">
+        <table id="ticketTable">
+            <thead>
+                <tr>
+                    <th class="col-small" style="text-align: center;">Azione</th>
+                    <th class="col-small">ID</th>
+                    <th class="col-medium">Stato</th>
+                    <th class="col-medium">Tipo</th>
+                    <th class="col-medium">Bloccante</th>
+                    <th class="col-small" style="text-align: center;">Priorità</th>
+                    <th class="col-date">Data Ins.</th>
+                    <th class="col-medium">Ambito</th>
+                    <th class="col-medium">Menu</th>
+                    <th class="col-medium">Titolo</th>
+                    <th class="col-desc">Descrizione</th>
+                    <th class="col-medium">Creato Da</th>
+                    <th class="col-medium">Assegnato A</th>
+                    <th class="col-date">Inizio Prev.</th>
+                    <th class="col-date">Fine Prev.</th>
+                    <th class="col-date">Rilascio</th>
+                    <th class="col-desc-act">Attività</th>
+                    <th class="col-date">Data Segnal.</th>
+                    <th class="col-date">Data Preso</th>
+                    <th class="col-date">Data Rilasc.</th>
+                    <th class="col-date">Data Test</th>
+                    <th class="col-date">Data Compl.</th>
+                </tr>
+            </thead>
+            <tbody id="ticketBody"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
+// --- LOGICA ORIGINALE PRESERVATA ---
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let tickets = [];
 let filters = { completati:"nascondi" };
 
-// --- funzione sicura UTF-8 per decodificare correttamente accenti ---
 function decodeUTF8(s){
     try { return decodeURIComponent(escape(atob(s))); } catch(e){ return "Errore"; }
 }
 
 async function loadTickets() {
-if(!config) { alert("⚠️ Configurare GitHub"); return; }
-
-const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
-headers: {Authorization:`token ${config.token}`}
-});
-const data = await res.json();
-
-// usa decodeUTF8 invece di atob per mantenere accenti
-tickets = JSON.parse(decodeUTF8(data.content));
-renderTable();
+    if(!config) { alert("⚠️ Configurare GitHub"); return; }
+    try {
+        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
+            headers: {Authorization:`token ${config.token}`}
+        });
+        const data = await res.json();
+        tickets = JSON.parse(decodeUTF8(data.content));
+        renderTable();
+    } catch(e) { console.error(e); }
 }
 
 document.getElementById("filterCompletati").onchange = (e)=>{
-filters.completati = e.target.value;
-renderTable();
+    filters.completati = e.target.value;
+    renderTable();
 };
 
 function renderTable() {
+    const tbody = document.getElementById('ticketBody');
+    tbody.innerHTML = "";
+    const oggi = new Date();
+    oggi.setHours(0,0,0,0);
 
-const tbody = document.getElementById('ticketBody');
-tbody.innerHTML = "";
+    tickets.sort((a,b)=>b.nrTicket - a.nrTicket).forEach((t,i)=>{
+        if(filters.completati==="nascondi" && t.dataCompletamentoSviluppo) return;
 
-const oggi = new Date();
-oggi.setHours(0,0,0,0);
+        const isLocked = !!t.dataCompletamentoSviluppo;
+        let isInRitardo = false;
+        if (t.dataFinePrevista && t.stato !== "Completato") {
+            const scadenza = new Date(t.dataFinePrevista);
+            if (scadenza < oggi) isInRitardo = true;
+        }
 
-tickets.sort((a,b)=>b.nrTicket - a.nrTicket).forEach((t,i)=>{
+        const tr = document.createElement('tr');
+        if(isLocked) tr.classList.add("locked-row");
+        if(isInRitardo) tr.classList.add("ritardo-row");
 
-if(filters.completati==="nascondi" && t.dataCompletamentoSviluppo) return;
+        const lockIcon = isLocked ? '<i class="fas fa-lock text-red-500 ml-1"></i>' : '';
+        const btnClass = isLocked ? 'opacity-30 cursor-not-allowed' : 'text-blue-600 hover:scale-125 transition-transform';
 
-const isLocked = !!t.dataCompletamentoSviluppo;
-
-let isInRitardo = false;
-if (t.dataFinePrevista && t.stato !== "Completato") {
-const scadenza = new Date(t.dataFinePrevista);
-if (scadenza < oggi) isInRitardo = true;
-}
-
-const tr = document.createElement('tr');
-
-if(isLocked) tr.classList.add("locked-row");
-if(isInRitardo) tr.classList.add("ritardo-row");
-
-const lockIcon = isLocked ? '<i class="fas fa-lock text-red-600 ml-1"></i>' : '';
-const disabledEdit = isLocked ? 'disabled class="bg-gray-300 p-2 rounded cursor-not-allowed"' :
-'class="bg-yellow-400 p-2 rounded hover:bg-yellow-500 transition"';
-
-tr.innerHTML = `
-<td class="text-center">
-<button onclick="${isLocked ? '' : 'editTicket('+i+')'}" ${disabledEdit}>
-<i class="fas fa-edit"></i>
-</button>
-</td>
-<td><b>${t.nrTicket}</b> ${lockIcon}</td>
-<td>${t.stato}</td>
-<td>${t.tipo}</td>
-<td>${t.bloccante}</td>
-<td class="priority-${(t.priorita||'').toLowerCase()}">${t.priorita||''}</td>
-<td>${t.dataInserimento||''}</td>
-<td>${t.ambito||''}</td>
-<td>${t.menu||''}</td>
-<td>${t.titolo||''}</td>
-<td class="wrap-text">${(t.descrizione||"").replace(/\n/g,'<br>')}</td>
-<td>${t.inseritoDa||''}</td>
-<td>${t.inCaricoA||''}</td>
-<td>${t.dataInizioPrevista||''}</td>
-<td>${t.dataFinePrevista||''}</td>
-<td>${t.dataRilascio||''}</td>
-<td class="wrap-text-act">${(t.descrAttivita||"").replace(/\n/g,'<br>')}</td>
-<td>${t.dataSegnalato||""}</td>
-<td>${t.dataPresoInCarico||""}</td>
-<td>${t.dataRilasciato||""}</td>
-<td>${t.dataInTest||""}</td>
-<td>${t.dataCompletamentoSviluppo||""}</td>
-`;
-
-tbody.appendChild(tr);
-});
+        tr.innerHTML = `
+            <td class="text-center">
+                <button onclick="${isLocked ? '' : 'editTicket('+i+')'}" class="${btnClass}">
+                    <i class="fas fa-edit text-lg"></i>
+                </button>
+            </td>
+            <td><span class="font-bold text-slate-800">${t.nrTicket}</span> ${lockIcon}</td>
+            <td><span class="status-${(t.stato||"").replace(/\s/g,'')} font-semibold">${t.stato||""}</span></td>
+            <td>${t.tipo||""}</td>
+            <td>${t.bloccante||""}</td>
+            <td class="text-center"><span class="priority-badge priority-${(t.priorita||'').toLowerCase()}">${t.priorita||''}</span></td>
+            <td class="text-gray-500">${t.dataInserimento||''}</td>
+            <td><span class="bg-gray-100 px-2 py-1 rounded text-xs font-medium text-gray-600">${t.ambito||''}</span></td>
+            <td>${t.menu||''}</td>
+            <td class="font-medium">${t.titolo||''}</td>
+            <td class="wrap-text">${(t.descrizione||"").replace(/\n/g,'<br>')}</td>
+            <td>${t.inseritoDa||''}</td>
+            <td><span class="text-blue-600 font-medium">${t.inCaricoA||''}</span></td>
+            <td>${t.dataInizioPrevista||''}</td>
+            <td>${t.dataFinePrevista||''}</td>
+            <td>${t.dataRilascio||''}</td>
+            <td class="wrap-text-act">${(t.descrAttivita||"").replace(/\n/g,'<br>')}</td>
+            <td>${t.dataSegnalato||""}</td>
+            <td>${t.dataPresoInCarico||""}</td>
+            <td>${t.dataRilasciato||""}</td>
+            <td>${t.dataInTest||""}</td>
+            <td>${t.dataCompletamentoSviluppo||""}</td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
 
 function newTicket() {
-localStorage.removeItem('edit_ticket');
-window.open("ticket_form.html","_blank","width=800,height=900");
+    localStorage.removeItem('edit_ticket');
+    window.open("ticket_form.html","_blank","width=800,height=900");
 }
 
 function editTicket(index){
-localStorage.setItem('edit_ticket', JSON.stringify(tickets[index]));
-window.open("ticket_form.html","_blank","width=800,height=900");
+    localStorage.setItem('edit_ticket', JSON.stringify(tickets[index]));
+    window.open("ticket_form.html","_blank","width=800,height=900");
 }
 
-// --- BroadcastChannel per aggiornamento automatico da ticket_form ---
 const tableChannel = new BroadcastChannel('ticket_ytable');
 tableChannel.onmessage = (e)=>{
     if(e.data && e.data.action==='reload'){
