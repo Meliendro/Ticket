@@ -11,14 +11,13 @@
         body { font-family: 'SF Pro Display', sans-serif; background-color: #f5f5f7; padding: 2rem; display: flex; justify-content: center; }
         
         #loginOverlay {
-            position: fixed; inset: 0; background: rgba(245,245,247,0.95); backdrop-filter: blur(15px);
-            z-index: 1000; display: flex; align-items: center; justify-content: center;
+            position: fixed; inset: 0; background: rgba(245,245,247,0.98); backdrop-filter: blur(20px);
+            z-index: 1000; display: flex; align-items: center; justify-content: center; transition: all 0.5s ease;
         }
 
         .form-card {
-            background: rgba(255, 255, 255, 0.9); border-radius: 24px;
-            padding: 2.5rem; box-shadow: 0 20px 50px rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.7);
-            max-width: 950px; width: 100%;
+            background: white; border-radius: 24px; padding: 2.5rem; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05); width: 100%; max-width: 950px;
         }
 
         .input-group { margin-bottom: 1.5rem; }
@@ -29,43 +28,30 @@
         .btn-save { background: #007aff; color: white; font-weight: 600; padding: 0.9rem 3rem; border-radius: 14px; cursor: pointer; }
         
         .history-box { background: #f9f9fb; border: 1px solid #e5e5e7; border-radius: 12px; padding: 1rem; font-size: 0.85rem; max-height: 200px; overflow-y: auto; white-space: pre-wrap; font-family: monospace; }
-        .header-badge { background: #007aff; color: white; padding: 0.5rem 1rem; border-radius: 12px; font-family: monospace; }
-        .user-badge { font-size: 0.7rem; background: #e8e8ed; padding: 4px 10px; border-radius: 20px; color: #424245; font-weight: 600; }
     </style>
 </head>
 <body>
 
-<div id="loginOverlay" class="hidden">
-    <div class="bg-white p-10 rounded-[32px] shadow-2xl w-96 border border-white">
+<div id="loginOverlay">
+    <div class="bg-white p-10 rounded-[32px] shadow-2xl w-96 border">
         <div class="text-center mb-8">
-            <div class="bg-blue-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-lock text-blue-600 text-2xl"></i>
-            </div>
-            <h2 class="text-2xl font-bold text-gray-900">Accesso Progetto</h2>
-            <p class="text-gray-500 text-sm mt-1">Inserisci le tue credenziali</p>
+            <h2 class="text-2xl font-bold">Accesso</h2>
+            <p class="text-gray-500 text-sm">Identificati per procedere</p>
         </div>
-        <input type="text" id="username" placeholder="Username" class="mb-4 bg-gray-50 border-gray-200">
-        <input type="password" id="password" placeholder="Password" class="mb-6 bg-gray-50 border-gray-200">
-        <button onclick="checkLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold transition-all shadow-lg shadow-blue-200">
-            Accedi al Form
-        </button>
+        <input type="text" id="username" placeholder="Username" class="mb-4">
+        <input type="password" id="password" placeholder="Password" class="mb-6">
+        <button onclick="checkLogin()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg">Entra</button>
     </div>
 </div>
 
 <div class="form-card">
     <header class="flex justify-between items-start mb-8">
         <div>
-            <h1 id="formTitle" class="text-3xl font-extrabold tracking-tight text-gray-900">Nuovo Ticket</h1>
-            <div class="flex items-center gap-2 mt-2">
-                <span class="user-badge"><i class="fas fa-user-circle"></i> <span id="currentUserDisp">Ospite</span></span>
-                <button onclick="logout()" class="text-[10px] text-red-500 font-bold uppercase hover:underline ml-2">Logout</button>
-            </div>
+            <h1 id="formTitle" class="text-3xl font-extrabold tracking-tight">Nuovo Ticket</h1>
+            <div class="mt-2 text-xs font-bold text-gray-400">OPERATORE: <span id="currentUserDisp" class="text-blue-600 uppercase">---</span></div>
         </div>
-        <div class="flex flex-col items-end gap-2">
-            <div class="header-badge" id="ticketNrDisp">TKN: --</div>
-            <div id="dateDisplayContainer" class="text-[10px] font-bold text-gray-400 uppercase hidden tracking-tighter">
-                Creato il: <span id="dataInserimentoTesto" class="text-gray-600">--/--/----</span>
-            </div>
+        <div class="text-right">
+            <div id="ticketNrDisp" class="bg-gray-100 px-4 py-2 rounded-xl font-mono font-bold">TKN: --</div>
         </div>
     </header>
 
@@ -73,51 +59,35 @@
         <input type="hidden" id="dataInserimento">
         <input type="hidden" id="inseritoDa">
 
-        <div class="section-header"><i class="fas fa-info-circle text-blue-500"></i> Dati Generali</div>
         <div class="grid-3">
             <div class="input-group">
                 <label>Stato</label>
                 <select id="stato" required onchange="handleStatusChange()"></select>
-                <div id="statusDesc" class="hidden text-[10px] text-blue-600 mt-2 p-2 bg-blue-50 rounded-lg"></div>
             </div>
             <div class="input-group"><label>Priorità</label><select id="priorita" required></select></div>
             <div class="input-group"><label>Tipo</label><select id="tipo" required></select></div>
         </div>
 
-        <div class="input-group">
-            <label>Titolo Attività</label>
-            <input type="text" id="titolo" required placeholder="Cosa dobbiamo fare?">
-        </div>
+        <div class="input-group"><label>Titolo</label><input type="text" id="titolo" required></div>
+        <div class="input-group"><label>Descrizione</label><textarea id="descrizione" rows="3"></textarea></div>
 
-        <div class="input-group">
-            <label>Descrizione Dettagliata</label>
-            <textarea id="descrizione" rows="3" placeholder="Aggiungi dettagli per lo sviluppo..."></textarea>
-        </div>
-
-        <div class="section-header"><i class="fas fa-calendar-alt text-blue-500"></i> Pianificazione</div>
+        <div class="section-header">Pianificazione</div>
         <div class="grid-2">
-            <div class="input-group"><label>In Carico A</label><input type="text" id="inCaricoA" placeholder="Nome sviluppatore"></div>
+            <div class="input-group"><label>In Carico A</label><input type="text" id="inCaricoA"></div>
             <div class="input-group"><label>Inizio Previsto</label><input type="date" id="dataInizioPrevista"></div>
         </div>
 
-        <div class="section-header"><i class="fas fa-terminal text-blue-500"></i> Log Attività e Note</div>
+        <div class="section-header">Log Tecnico</div>
         <div class="input-group">
-            <label>Nuovo Commento</label>
-            <textarea id="tempNote" rows="2" placeholder="Scrivi qui gli avanzamenti..."></textarea>
-            <button type="button" onclick="appendNote()" class="mt-3 text-blue-600 font-bold text-xs uppercase flex items-center gap-1 hover:text-blue-800">
-                <i class="fas fa-plus-circle"></i> Aggiungi nota al registro
-            </button>
+            <textarea id="tempNote" rows="2" placeholder="Scrivi un aggiornamento..."></textarea>
+            <button type="button" onclick="appendNote()" class="mt-2 text-blue-600 font-bold text-xs uppercase hover:underline">+ Aggiungi Nota</button>
         </div>
+        <div id="descrAttivita" class="history-box mb-6">Nessuna nota.</div>
+        <input type="hidden" id="descrAttivitaHidden">
 
-        <div class="input-group">
-            <label>Cronologia (Read-Only)</label>
-            <div id="descrAttivita" class="history-box">Nessuna nota presente.</div>
-            <input type="hidden" id="descrAttivitaHidden">
-        </div>
-
-        <div class="flex justify-end gap-4 border-t pt-8 mt-4">
-            <button type="button" onclick="window.close()" class="text-gray-400 font-bold hover:text-gray-600 transition">ANNULLA</button>
-            <button type="submit" class="btn-save shadow-blue-200 shadow-lg hover:scale-105 transition-transform">SALVA TICKET</button>
+        <div class="flex justify-end gap-4 border-t pt-6">
+            <button type="button" onclick="window.close()" class="text-gray-400 font-bold">CHIUDI</button>
+            <button type="submit" class="btn-save">SALVA</button>
         </div>
     </form>
 </div>
@@ -125,161 +95,128 @@
 <script>
 let config = JSON.parse(localStorage.getItem('gh_ticket_config'));
 let editingTicket = JSON.parse(localStorage.getItem('edit_ticket'));
-let currentUser = localStorage.getItem('logged_user');
 let userList = [];
+let listsData = null;
 
 function decodeUTF8(s){ return decodeURIComponent(escape(atob(s))); }
 function encodeUTF8(s){ return btoa(unescape(encodeURIComponent(s))); }
 
-async function init() {
-    if(!config) return alert("GitHub non configurato!");
-
+async function start() {
+    if(!config) return alert("Configurazione mancante!");
+    
+    // 1. Carichiamo le liste subito (per avere gli utenti)
     try {
-        // Carichiamo subito le liste (inclusi gli utenti)
-        const resL = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json?v=${Date.now()}`, {
+        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/liste.json?v=${Date.now()}`, {
             headers: {Authorization:`token ${config.token}`}
         });
-        const dataL = await resL.json();
-        const lists = JSON.parse(decodeUTF8(dataL.content));
-        userList = lists.Utenti || [];
+        const data = await res.json();
+        listsData = JSON.parse(decodeUTF8(data.content));
+        userList = listsData.Utenti || [];
 
-        // Gestione Overlay
-        if(!currentUser) {
-            document.getElementById('loginOverlay').classList.remove('hidden');
-            return; // Blocchiamo init finché non c'è login
+        // 2. Controllo se l'utente è già loggato
+        const logged = localStorage.getItem('logged_user');
+        if (logged) {
+            setupForm(logged);
         } else {
-            document.getElementById('loginOverlay').classList.add('hidden');
-            document.getElementById('currentUserDisp').innerText = currentUser;
-            document.getElementById('inseritoDa').value = currentUser;
+            document.getElementById('loginOverlay').style.display = 'flex';
         }
-
-        // Popolamento select
-        populateSelect("stato", lists.Stato, true);
-        populateSelect("priorita", lists.Priorita);
-        populateSelect("tipo", lists.Tipo);
-
-        if(editingTicket) {
-            document.getElementById('formTitle').innerText = "Modifica #" + editingTicket.nrTicket;
-            document.getElementById('ticketNrDisp').innerText = "TKN: " + editingTicket.nrTicket;
-            fillForm(editingTicket);
-        } else {
-            document.getElementById('dataInserimento').value = new Date().toLocaleDateString('it-IT');
-        }
-    } catch (e) { console.error("Errore init:", e); }
+    } catch (e) { alert("Errore caricamento liste: " + e.message); }
 }
 
 function checkLogin() {
     const u = document.getElementById('username').value.trim();
     const p = document.getElementById('password').value.trim();
-    
     const found = userList.find(x => x.user === u && x.pass === p);
     
     if(found) {
         localStorage.setItem('logged_user', u);
-        currentUser = u;
-        document.getElementById('loginOverlay').classList.add('hidden');
-        init(); // Rilanciamo init per popolare il resto
+        setupForm(u);
     } else {
-        alert("Utente o Password non corretti!");
+        alert("Credenziali errate!");
     }
 }
 
-function logout() {
-    localStorage.removeItem('logged_user');
-    location.reload();
+function setupForm(user) {
+    // Nascondi overlay
+    document.getElementById('loginOverlay').style.display = 'none';
+    
+    // Imposta utente
+    document.getElementById('currentUserDisp').innerText = user;
+    document.getElementById('inseritoDa').value = user;
+
+    // Popola select
+    populateSelect("stato", listsData.Stato, true);
+    populateSelect("priorita", listsData.Priorita);
+    populateSelect("tipo", listsData.Tipo);
+
+    // Carica dati ticket se in modifica
+    if(editingTicket) {
+        document.getElementById('formTitle').innerText = "Modifica #" + editingTicket.nrTicket;
+        document.getElementById('ticketNrDisp').innerText = "TKN: " + editingTicket.nrTicket;
+        fillForm(editingTicket);
+    } else {
+        document.getElementById('dataInserimento').value = new Date().toLocaleDateString('it-IT');
+    }
 }
 
 function populateSelect(id, arr, isObj = false) {
     const sel = document.getElementById(id);
-    if(!sel) return;
     sel.innerHTML = '<option value="">-- Seleziona --</option>';
     arr.forEach(i => {
         const opt = document.createElement('option');
         opt.value = isObj ? i.val : i;
         opt.innerText = isObj ? i.val : i;
-        if(isObj) { opt.dataset.desc = i.desc || ""; opt.dataset.tempo = i.tempo || 0; }
         sel.appendChild(opt);
     });
 }
 
 function handleStatusChange() {
     const sel = document.getElementById('stato');
-    const opt = sel.options[sel.selectedIndex];
-    const info = document.getElementById('statusDesc');
-    const dateDisp = document.getElementById('dateDisplayContainer');
-    
-    if(!opt || opt.value === "") { info.classList.add('hidden'); return; }
-
-    // Info Descrizione
-    if(opt.dataset.desc) {
-        info.classList.remove('hidden');
-        info.innerHTML = `<i class="fas fa-info-circle"></i> ${opt.dataset.desc}`;
-    }
-
-    const statusVal = opt.value.toLowerCase();
-    
-    // Mostra/Nascondi Data Inserimento
-    if(statusVal.includes("nuovo") || statusVal.includes("apert")) {
-        dateDisp.classList.remove('hidden');
-        document.getElementById('dataInserimentoTesto').innerText = document.getElementById('dataInserimento').value;
-    } else {
-        dateDisp.classList.add('hidden');
-    }
-
-    // Automazione Date Inizio
-    if(statusVal.includes("corso") || statusVal.includes("lavorazione")) {
-        const fInizio = document.getElementById('dataInizioPrevista');
-        if(!fInizio.value) fInizio.value = new Date().toISOString().split('T')[0];
+    const val = sel.value.toLowerCase();
+    if(val.includes("corso") || val.includes("lavorazione")) {
+        const f = document.getElementById('dataInizioPrevista');
+        if(!f.value) f.value = new Date().toISOString().split('T')[0];
     }
 }
 
 function appendNote() {
-    const tempNote = document.getElementById('tempNote');
-    const historyDiv = document.getElementById('descrAttivita');
-    const hiddenInput = document.getElementById('descrAttivitaHidden');
-    if (tempNote.value.trim() === "") return;
-
+    const text = document.getElementById('tempNote').value.trim();
+    if(!text) return;
+    const user = localStorage.getItem('logged_user');
     const ts = new Date().toLocaleString('it-IT', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
-    const newEntry = `[${ts} - ${currentUser}] ${tempNote.value.trim()}\n`;
+    const entry = `[${ts} - ${user}] ${text}\n`;
+    const hidden = document.getElementById('descrAttivitaHidden');
+    const display = document.getElementById('descrAttivita');
     
-    let currentHistory = hiddenInput.value || "";
-    if (currentHistory.includes("Nessuna nota")) currentHistory = "";
-    
-    const updatedHistory = newEntry + currentHistory;
-    historyDiv.innerText = updatedHistory;
-    hiddenInput.value = updatedHistory;
-    tempNote.value = "";
+    hidden.value = entry + (hidden.value || "");
+    display.innerText = hidden.value;
+    document.getElementById('tempNote').value = "";
 }
 
 function fillForm(t) {
     Object.keys(t).forEach(k => {
-        if (k === 'descrAttivita') {
-            document.getElementById('descrAttivita').innerText = t[k] || "Nessuna nota presente.";
+        const el = document.getElementById(k);
+        if(el) el.value = t[k] || "";
+        if(k === 'descrAttivita') {
+            document.getElementById('descrAttivita').innerText = t[k] || "Nessuna nota.";
             document.getElementById('descrAttivitaHidden').value = t[k] || "";
-        } else {
-            const el = document.getElementById(k);
-            if(el) el.value = t[k] || "";
         }
     });
-    handleStatusChange();
 }
 
 document.getElementById('ticketForm').onsubmit = async (e) => {
     e.preventDefault();
+    const user = localStorage.getItem('logged_user');
     try {
-        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json?nocache=${Date.now()}`, {
+        const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json?v=${Date.now()}`, {
             headers: {Authorization:`token ${config.token}`}
         });
         const data = await res.json();
         let tickets = JSON.parse(decodeUTF8(data.content));
         
-        const formData = editingTicket ? { ...editingTicket } : {};
+        let formData = editingTicket ? { ...editingTicket } : {};
         const inputs = e.target.querySelectorAll('input, select, textarea');
-        inputs.forEach(el => { 
-            if(el.id && !['tempNote','descrAttivitaHidden','username','password'].includes(el.id)) {
-                formData[el.id] = el.value; 
-            }
-        });
+        inputs.forEach(el => { if(el.id && !['tempNote','username','password'].includes(el.id)) formData[el.id] = el.value; });
         formData['descrAttivita'] = document.getElementById('descrAttivitaHidden').value;
 
         if(!editingTicket) {
@@ -289,23 +226,23 @@ document.getElementById('ticketForm').onsubmit = async (e) => {
         const idx = tickets.findIndex(t => t.nrTicket === formData.nrTicket);
         if(idx !== -1) tickets[idx] = formData; else tickets.push(formData);
 
-        const saveRes = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
+        const save = await fetch(`https://api.github.com/repos/${config.repo}/contents/ticket/2026/ticket2026.json`, {
             method: "PUT",
             headers: {Authorization:`token ${config.token}`, "Content-Type":"application/json"},
             body: JSON.stringify({ 
-                message: `Update #${formData.nrTicket} by ${currentUser}`, 
+                message: `Update #${formData.nrTicket} by ${user}`, 
                 content: encodeUTF8(JSON.stringify(tickets, null, 2)), 
                 sha: data.sha 
             })
         });
-        if(saveRes.ok) {
+        if(save.ok) {
             new BroadcastChannel('ticket_ytable').postMessage({action: 'reload'});
             window.close();
         }
-    } catch (err) { alert("Errore: " + err.message); }
+    } catch (err) { alert(err.message); }
 };
 
-init();
+start();
 </script>
 </body>
 </html>
