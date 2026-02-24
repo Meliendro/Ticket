@@ -205,5 +205,28 @@
     "dataRilasciato": "",
     "dataInTest": "",
     "dataCompletato": ""
+  },
+  {
+    "nrTicket": 10,
+    "stato": "Segnalato",
+    "tipo": "Miglioria",
+    "bloccante": "Non Bloccante",
+    "priorita": "Media",
+    "dataInserimento": "2026-02-24",
+    "ambito": "FASE1",
+    "menu": "Pianificazione Cantieri",
+    "titolo": "Opzione zoom in / zoom out",
+    "descrizione": "Dovrebbe essere presente questa possibilità su tutte le viste ",
+    "inseritoDa": "Stefano Paoletto",
+    "inCaricoA": "LEGUR",
+    "dataInizioPrevista": "",
+    "dataFinePrevista": "",
+    "dataRilascio": "",
+    "descrAttivita": "",
+    "dataSegnalato": "",
+    "dataPresoInCarico": "",
+    "dataRilasciato": "",
+    "dataInTest": "",
+    "dataCompletato": ""
   }
 ]
