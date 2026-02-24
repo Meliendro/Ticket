@@ -12,7 +12,7 @@
     {
       "val": "In lavorazione / In corso",
       "desc": "Il team sta lavorando sul ticket.",
-      "tempo": ""
+      "tempo": "5"
     },
     {
       "val": "Risolto",
