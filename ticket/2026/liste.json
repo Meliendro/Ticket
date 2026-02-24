@@ -67,5 +67,9 @@
     "FASE1",
     "FASE2",
     "FASE3"
-  ]
+  ],
+  "Utenti": [
+    { "user": "Stefano Paoletto", "pass": "Stef@no4321" },
+    { "user": "Edoardo", "pass": "Ed0ard01234" }
+  ]  
 }
