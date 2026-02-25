@@ -251,24 +251,5 @@
     "dataRilasciato": "",
     "dataInTest": "",
     "dataCompletato": ""
-  },
-  {
-    "dataInserimento": "24/02/2026",
-    "inseritoDa": "Stefano Paoletto",
-    "stato": "Risolto",
-    "priorita": "Alta",
-    "tipo": "Nuova Richiesta",
-    "ambito": "FASE1",
-    "menu": "Pianificazione Squadre",
-    "bloccante": "Non Bloccante",
-    "titolo": "TEST ",
-    "descrizione": "poiehf èeofh\nq qe\nrgi er\ni ",
-    "inCaricoA": "LEGUR",
-    "dataInizioPrevista": "2026-02-24",
-    "dataFinePrevista": "2026-03-01",
-    "dataRilascio": "",
-    "descrAttivitaHidden": "[24/02, 17:08 - Stefano Paoletto] descrizione agginutiva o modifca\n",
-    "descrAttivita": "[24/02, 17:08 - Stefano Paoletto] descrizione agginutiva o modifca\n",
-    "nrTicket": 12
   }
 ]
